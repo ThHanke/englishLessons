@@ -26,7 +26,9 @@ competence_areas:
       wortschatz: []
       aussprache: []
       orthografie: []
-  interkulturell: []
+  interkulturell:
+    anforderungen: []
+    orientierungswissen: []
   methodisch: []
 content_fields:
   - id: c.social.freizeit

@@ -22,7 +22,7 @@ export interface CurriculumMeta {
 
 export interface CompetenceEntry {
   id: string;
-  skill_area: 'listening' | 'reading' | 'speaking' | 'writing' | 'mediation';
+  skill_area: 'listening' | 'reading' | 'speaking' | 'writing' | 'mediation' | 'intercultural';
   statement: string;
   mode: Mode[];
   source: Source;
@@ -78,7 +78,10 @@ export interface CompetenceAreas {
       orthografie: GrammarItem[];
     };
   };
-  interkulturell: HintMethod[];
+  interkulturell: {
+    anforderungen: CompetenceEntry[];
+    orientierungswissen: ContentField[];
+  };
   methodisch: HintMethod[];
 }
 
