@@ -44,11 +44,11 @@ curriculum/
   sachsen-anhalt-sekundarschule-englisch-2019/
     meta.yaml            # state, school type, subject, valid_from, source_file, cefr targets
     grade-bands/
-      5-6.yaml
-      7-8-realschule.yaml
-      7-8-hauptschule.yaml
-      9-10-realschule.yaml
-      9-hauptschule.yaml
+      5-6.yaml            # in scope (Phase 0)
+      7-8-realschule.yaml  # in scope (Phase 0) - grade-7 portion; grade-8 modules additive later
+      # 7-8-hauptschule.yaml, 9-10-realschule.yaml, 9-hauptschule.yaml: out of scope for now
+      #   (Hauptschule track, grades 8-10) - additive later, not created in Phase 0 (scope
+      #   finding 9a). Extending the folder with these files is a non-breaking addition.
 ```
 
 **In-scope bands (grades 5–7):** `5-6.yaml` + the grade-7 portion of `7-8-realschule.yaml`
