@@ -1,0 +1,422 @@
+id: sa-sek-en-2019.5-6
+grades: [5, 6]
+cefr_target: A1-A2
+competence_areas:
+  funktional_kommunikativ:
+    kommunikativ:
+      - id: fk.k.hoer.1
+        skill_area: listening
+        statement: "einfache Äußerungen, Arbeitsanweisungen und Aufgabenstellungen verstehen, die auf bekanntem Wortschatz aufbauen"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l157 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.hoer.2
+        skill_area: listening
+        statement: "die Hauptgedanken von Hörtexten erfassen, die Aussagen aus dem persönlichen Erfahrungsfeld beinhalten"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l157 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.hoer.3
+        skill_area: listening
+        statement: "einfachen Gesprächen folgen, in denen in Standardsprache über vertraute Inhalte gesprochen wird"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l157 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.hoer.4
+        skill_area: listening
+        statement: "Details in didaktisch aufbereiteten Gesprächen/Hörtexten/Filmsequenzen erfassen, die langsam und deutlich mit weitestgehend geläufigem Wortschatz in einfacher Standardsprache dargeboten bzw. über visuelle Hilfen rezipierbar sind"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l157 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.hoer.5
+        skill_area: listening
+        statement: "durch Erkennen von Intonationsmustern unterschiedliche Sprechabsichten unterscheiden"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l157 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.lesen.1
+        skill_area: reading
+        statement: "einfache Texte, die sich auf vertraute Bereiche der Alltagskommunikation beziehen und zum Teil bildlich unterstützt werden, global und detailliert verstehen"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l158 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.lesen.2
+        skill_area: reading
+        statement: "einfachen Texten Einzelinformationen entnehmen"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l158 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.lesen.3
+        skill_area: reading
+        statement: "einfache kurze Texte sinngestaltend und deutlich artikuliert vorlesen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l158 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.lesen.4
+        skill_area: reading
+        statement: "Arbeitsanweisungen und Aufgabenstellungen verstehen"
+        mode: [understand]
+        source: { doc: lehrplan-2019, location: l158 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.sprechen.1
+        skill_area: speaking
+        statement: "sich in einfachen standardsprachlichen Kommunikationssituationen, die die Erfahrungswelt der Schüler betreffen, verständigen, wenn die Gesprächspartner langsam und deutlich sprechen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l159 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.sprechen.2
+        skill_area: speaking
+        statement: "Auskunft über einfache Alltagsthemen geben und einholen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l159 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.sprechen.3
+        skill_area: speaking
+        statement: "nach Vorbereitung und unter Nutzung sprachlicher und nichtsprachlicher Hilfen in einfacher Form zusammenhängend erzählen, berichten und beschreiben"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l159 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.sprechen.4
+        skill_area: speaking
+        statement: "alterstypische Texte (z. B. Rollenspiel, Gedicht und Lied) auswendig, intonatorisch richtig und ausdrucksvoll vortragen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l159 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.sprechen.5
+        skill_area: speaking
+        statement: "einfache Aussagen zu Gehörtem, Gelesenem sowie zu Bildinhalten machen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l159 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.schreiben.1
+        skill_area: writing
+        statement: "Wörter, Wortgruppen und kurze Texte, die aus bekanntem Wortschatz bestehen, regelgerecht schreiben"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l160 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.schreiben.2
+        skill_area: writing
+        statement: "kurze einfache Texte, die sich auf Sachverhalte des persönlichen Erfahrungsfeldes beziehen, weitgehend sprachlich korrekt sowohl nach Vorgaben als auch frei verfassen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l160 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.sprachmittlung.1
+        skill_area: mediation
+        statement: "in einfachen und vertrauten Alltagssituationen Äußerungen in deutscher Sprache wiedergeben, so dass ein allgemeines Verständnis gesichert ist; in simulierten Situationen und in einfachen Rollenspielen Einzelsätze verstehen und das Wichtigste in deutscher oder englischer Sprache wiedergeben bzw. erklären"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l161 }
+        used_in: [module_construction, lesson_planning, test_generation]
+      - id: fk.k.sprachmittlung.2
+        skill_area: mediation
+        statement: "einfache Informationen mit einfachen sprachlichen Mitteln in der jeweils anderen Sprache kurz zusammenfassen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l161 }
+        used_in: [module_construction, lesson_planning, test_generation]
+    sprachliche_mittel:
+      grammatik:
+        - id: fk.g.sentence_forms
+          topic: "statements, questions, imperatives (affirmative/negative)"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.simple_present
+          topic: "simple present"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.present_progressive
+          topic: "present progressive"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.simple_past
+          topic: "simple past"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.going_to_future
+          topic: "going to future"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.will_future
+          topic: "will future"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.present_perfect
+          topic: "simple present perfect"
+          mode: [understand]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.g.numbers
+          topic: "numbers"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.prepositions
+          topic: "prepositions"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.pronouns
+          topic: "pronouns"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.articles
+          topic: "articles"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.noun_plural
+          topic: "singular/plural of nouns"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.genitive
+          topic: "genitive"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.g.adjectives_comparison
+          topic: "adjectives and their comparison forms"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l184 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+      wortschatz:
+        - id: fk.w.introduce_self
+          topic: "introduce oneself and others"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l183 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.w.open_close_conversations
+          topic: "open and close conversations"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l183 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.w.invite
+          topic: "invite someone"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l183 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.w.personal_questions
+          topic: "ask and respond to questions about person, origin, age, interests, likes/dislikes"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l183 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.w.express_feelings
+          topic: "express basic states, feelings, wishes, agreement and refusal"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l183 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.w.media_vocabulary
+          topic: "basic age-appropriate media-specific vocabulary"
+          mode: [understand, produce]
+          source: { doc: lehrplan-2019, location: l183 }
+          used_in: [module_construction, lesson_planning, base_material]
+      aussprache:
+        - id: fk.a.articulate_known
+          topic: "articulate mostly known words, structures and phrases comprehensibly in standard language"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l185 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.a.pronounce_unknown
+          topic: "pronounce unknown words approximately correctly using aids, incl. digital"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l185 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.a.intonation_patterns
+          topic: "articulate basic intonation patterns (statement, question, imperative)"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l185 }
+          used_in: [module_construction, lesson_planning, base_material]
+      orthografie:
+        - id: fk.o.copy_write
+          topic: "copy/write lexis securely"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l186 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.o.spell
+          topic: "spell learned lexis without errors"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l186 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.o.basic_rules
+          topic: "apply basic orthographic rules"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l186 }
+          used_in: [module_construction, lesson_planning, base_material]
+        - id: fk.o.free_writing
+          topic: "write short, free texts on familiar topics appropriately"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l186 }
+          used_in: [module_construction, lesson_planning, base_material, test_generation]
+        - id: fk.o.proofread
+          topic: "proofread and correct own written output using aids, incl. digital"
+          mode: [produce]
+          source: { doc: lehrplan-2019, location: l186 }
+          used_in: [module_construction, lesson_planning, base_material]
+  interkulturell:
+    anforderungen:
+      - id: ik.a.openness
+        skill_area: intercultural
+        statement: "Offenheit gegenüber anderen Kulturen weiter ausbauen"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l192 }
+        used_in: [module_construction, lesson_planning]
+      - id: ik.a.readiness
+        skill_area: intercultural
+        statement: "Bereitschaft entwickeln, sich auf fremde Situationen einzustellen und sich im Alltag angemessen zu verhalten"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l192 }
+        used_in: [module_construction, lesson_planning]
+      - id: ik.a.apply_orientation_knowledge
+        skill_area: intercultural
+        statement: "Orientierungswissen im Rahmen von wiederkehrenden Alltagssituationen anwenden"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l193 }
+        used_in: [module_construction, lesson_planning]
+      - id: ik.a.communicate_appropriately
+        skill_area: intercultural
+        statement: "altersgemäß entsprechend den Inhalten aus den genannten Kompetenzbereichen, auch im virtuellen Raum, kommunizieren"
+        mode: [produce]
+        source: { doc: lehrplan-2019, location: l193 }
+        used_in: [module_construction, lesson_planning]
+    orientierungswissen:
+      - id: ik.o.alltagskultur_uk
+        field: alltagskultur_in_grossbritannien
+        text: "Lebensweise der Menschen; Feste, Sitten, Bräuche"
+        source: { doc: lehrplan-2019, location: l199 }
+        used_in: [module_construction, lesson_planning]
+      - id: ik.o.geografie_uk
+        field: geografische_aspekte
+        text: "Lage Großbritanniens und der einzelnen Landesteile; Sehenswürdigkeiten einzelner Städte"
+        source: { doc: lehrplan-2019, location: l200 }
+        used_in: [module_construction, lesson_planning]
+      - id: ik.o.gesellschaft
+        field: gesellschaftliche_aspekte
+        text: "Zusammenleben in einer multikulturellen Gesellschaft"
+        source: { doc: lehrplan-2019, location: l201 }
+        used_in: [module_construction, lesson_planning]
+  methodisch:
+    - id: m.textrezeption.1
+      text: "erste Texterschließungsstrategien (titles, keywords, marking) anwenden"
+      source: { doc: lehrplan-2019, location: l207 }
+      used_in: [lesson_planning, base_material]
+    - id: m.textrezeption.2
+      text: "grundlegende Techniken im Umgang mit dem zweisprachigen Wörterbuch anwenden (z. B. Lexik auffinden, Aussprache entnehmen, Wortarten erkennen, Symbole entschlüsseln)"
+      source: { doc: lehrplan-2019, location: l207 }
+      used_in: [lesson_planning, base_material]
+    - id: m.textrezeption.3
+      text: "zunehmend unbekannte Lexik aus dem Kontext erschließen"
+      source: { doc: lehrplan-2019, location: l207 }
+      used_in: [lesson_planning, base_material]
+    - id: m.textrezeption.4
+      text: "den hybriden Charakter von digitalen Texten erkennen"
+      source: { doc: lehrplan-2019, location: l207 }
+      used_in: [lesson_planning, base_material]
+    - id: m.textproduktion.1
+      text: "mit Wortschatzsammlungen und anderen Hilfsmitteln umgehen"
+      source: { doc: lehrplan-2019, location: l208 }
+      used_in: [lesson_planning, base_material]
+    - id: m.textproduktion.2
+      text: "Texte schreiben, ergänzen und umgestalten, ggf. mit digitalen Hilfsmitteln"
+      source: { doc: lehrplan-2019, location: l208 }
+      used_in: [lesson_planning, base_material]
+    - id: m.textproduktion.3
+      text: "ansatzweise unbekannte Lexik umschreiben"
+      source: { doc: lehrplan-2019, location: l208 }
+      used_in: [lesson_planning, base_material]
+    - id: m.textproduktion.4
+      text: "mit Hilfen wesentliche Gedanken von gehörten oder gelesenen Vorgaben durch Notieren von Stichworten festhalten (note-taking)"
+      source: { doc: lehrplan-2019, location: l208 }
+      used_in: [lesson_planning, base_material]
+    - id: m.interaktion.1
+      text: "auf classroom phrases reagieren und diese anwenden"
+      source: { doc: lehrplan-2019, location: l209 }
+      used_in: [lesson_planning, base_material]
+    - id: m.interaktion.2
+      text: "sich in der Klasse, in der Gruppe und mit dem Partner in der Fremdsprache verständigen und einen einfachen Dialog aufrechterhalten"
+      source: { doc: lehrplan-2019, location: l209 }
+      used_in: [lesson_planning, base_material]
+    - id: m.interaktion.3
+      text: "digitale Wege und Werkzeuge unter Anleitung in einfachen Kommunikationssituationen nutzen"
+      source: { doc: lehrplan-2019, location: l209 }
+      used_in: [lesson_planning, base_material]
+    - id: m.interaktion.4
+      text: "Kommunikationssituationen mithilfe von digitalen Werkzeugen und Endgeräten simulieren"
+      source: { doc: lehrplan-2019, location: l209 }
+      used_in: [lesson_planning, base_material]
+    - id: m.interaktion.5
+      text: "mit persönlichen Daten (u. a. Adressen, Fotos) in digitalen Umgebungen zunehmend verantwortungsbewusst umgehen"
+      source: { doc: lehrplan-2019, location: l209 }
+      used_in: [lesson_planning, base_material]
+    - id: m.praesentation.1
+      text: "Visualisierungstechniken (z. B. illustrating, mind-mapping) anwenden"
+      source: { doc: lehrplan-2019, location: l210 }
+      used_in: [lesson_planning, base_material]
+    - id: m.praesentation.2
+      text: "bei der Nutzung von digitalen Inhalten das Recht an Bild und Text anwenden"
+      source: { doc: lehrplan-2019, location: l210 }
+      used_in: [lesson_planning, base_material]
+    - id: m.praesentation.3
+      text: "Internetquellen in einfacher Form angeben"
+      source: { doc: lehrplan-2019, location: l210 }
+      used_in: [lesson_planning, base_material]
+    - id: m.praesentation.4
+      text: "Hard- und Software unter Anleitung funktional aufgabenbezogen nutzen"
+      source: { doc: lehrplan-2019, location: l210 }
+      used_in: [lesson_planning, base_material]
+    - id: m.praesentation.5
+      text: "Arbeitsergebnisse über verschiedene Medien (z. B. Poster, Fotos, Erklärvideos) präsentieren"
+      source: { doc: lehrplan-2019, location: l210 }
+      used_in: [lesson_planning, base_material]
+    - id: m.praesentation.6
+      text: "auditive und visuelle Medien und/oder Lernprogramme nutzen"
+      source: { doc: lehrplan-2019, location: l210 }
+      used_in: [lesson_planning, base_material]
+    - id: m.lernstrategien.1
+      text: "mit Wortschatzsammlungen und ansatzweise mit zweisprachigen, auch digitalen Wörterbüchern umgehen und deren Möglichkeiten nutzen"
+      source: { doc: lehrplan-2019, location: l211 }
+      used_in: [lesson_planning, base_material]
+    - id: m.lernstrategien.2
+      text: "Verfahren, auch digitale, zur Vernetzung (z. B. Mindmap), Strukturierung (z. B. Wortfelder) und Speicherung (z. B. Wortkarteien) von sprachlichen Inputs anwenden und auf andere Kontexte transferieren"
+      source: { doc: lehrplan-2019, location: l211 }
+      used_in: [lesson_planning, base_material]
+    - id: m.lernstrategien.3
+      text: "Strategien zum Nachfragen und zum Ausgleich von Wissenslücken sinnvoll einsetzen"
+      source: { doc: lehrplan-2019, location: l211 }
+      used_in: [lesson_planning, base_material]
+    - id: m.lernorganisation.1
+      text: "sich in Partner- und Gruppenarbeit selbstständig über die Rollenverteilung verständigen und längere Zeit zusammenarbeiten"
+      source: { doc: lehrplan-2019, location: l212 }
+      used_in: [lesson_planning, base_material]
+    - id: m.lernorganisation.2
+      text: "den eigenen sprachlichen Fortschritt ggf. durch die Nutzung eines (digitalen) Portfolios oder von Sprachlernsoftware mit Hilfestellung einschätzen und dokumentieren"
+      source: { doc: lehrplan-2019, location: l212 }
+      used_in: [lesson_planning, base_material]
+content_fields:
+  - id: c.personal.family_friends
+    field: persoenliches_umfeld
+    text: "eigene Person, Familie und Freundeskreis"
+    source: { doc: lehrplan-2019, location: l167 }
+    used_in: [module_construction, lesson_planning]
+  - id: c.social.freizeit_schule
+    field: soziales_umfeld
+    text: "Freizeitaktivitäten, Schule"
+    source: { doc: lehrplan-2019, location: l168 }
+    used_in: [module_construction, lesson_planning]
+  - id: c.alltag.dienstleistung_tagesablauf
+    field: alltagsleben
+    text: "Dienstleistungsgespräche, Tagesablauf"
+    source: { doc: lehrplan-2019, location: l169 }
+    used_in: [module_construction, lesson_planning]
+  - id: c.natur.wetter
+    field: natur
+    text: "Wetter"
+    source: { doc: lehrplan-2019, location: l170 }
+    used_in: [module_construction, lesson_planning]
+text_types:
+  receptive: [poem, song, comic, weather_report, timetable, announcements, menu, instructions_worksheet, film_clip]
+  productive: [letter, postcard, email, short_message, invitation, poster, experience_report, short_dialogue, person_and_route_description, profile, social_media_post, note_cards]
