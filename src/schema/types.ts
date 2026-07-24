@@ -1,10 +1,17 @@
 export type Mode = 'understand' | 'produce';
+export const MODE_VALUES: readonly Mode[] = ['understand', 'produce'];
 
 export type UsedIn =
   | 'module_construction'
   | 'lesson_planning'
   | 'base_material'
   | 'test_generation';
+export const USED_IN_VALUES: readonly UsedIn[] = [
+  'module_construction',
+  'lesson_planning',
+  'base_material',
+  'test_generation',
+];
 
 export interface Source {
   doc: string;

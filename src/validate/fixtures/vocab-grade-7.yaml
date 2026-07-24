@@ -1,0 +1,8 @@
+class: grade-7
+inherits_from: grade-6
+cumulative: true
+generated_from: { curriculum: test.band, method: agent-role-assignment }
+required_leveling: { frequency_list: ngsl-1.2 }
+modules:
+  m1: [environment, pollution]
+taught_through: m1

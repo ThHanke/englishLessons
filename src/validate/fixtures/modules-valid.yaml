@@ -1,0 +1,21 @@
+class: test-class
+curriculum: test.band
+total_weeks: DRAFT
+weekly_lessons: DRAFT
+buffer_weeks: DRAFT
+draft: true
+modules:
+  - id: m1
+    title: "Module 1"
+    weeks: DRAFT
+    content_fields: [c.social.freizeit]
+    goals: ["talk about free time"]
+    covers:
+      - { id: fk.g.simple_present, required_depth: produce }
+      - { id: fk.k.hoer.1, required_depth: understand }
+    milestone:
+      type: test
+      assesses: [fk.g.simple_present]
+    pedagogy:
+      new_grammar: [fk.g.simple_present]
+    draft: true

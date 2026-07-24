@@ -1,0 +1,8 @@
+class: grade-6
+inherits_from: grade-5
+cumulative: true
+generated_from: { curriculum: test.band, method: agent-role-assignment }
+required_leveling: { frequency_list: ngsl-1.2 }
+modules:
+  m1: [region, countryside]
+taught_through: m1

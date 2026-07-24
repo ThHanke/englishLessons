@@ -1,0 +1,40 @@
+id: test.band
+grades: [5, 6]
+cefr_target: A1-A2
+competence_areas:
+  funktional_kommunikativ:
+    kommunikativ:
+      - id: fk.k.hoer.1
+        skill_area: listening
+        statement: "understand simple statements"
+        mode: [understand]
+        source: { doc: test-doc, location: l1 }
+        used_in: [module_construction, lesson_planning]
+    sprachliche_mittel:
+      grammatik:
+        - id: fk.g.simple_present
+          topic: "simple present"
+          mode: [understand, produce]
+          source: { doc: test-doc, location: l2 }
+          used_in: [module_construction, lesson_planning, test_generation]
+        - id: fk.g.present_perfect
+          topic: "simple present perfect"
+          mode: [understand]
+          source: { doc: test-doc, location: l3 }
+          used_in: [module_construction, lesson_planning]
+      wortschatz: []
+      aussprache: []
+      orthografie: []
+  interkulturell:
+    anforderungen: []
+    orientierungswissen: []
+  methodisch: []
+content_fields:
+  - id: c.social.freizeit
+    field: soziales_umfeld
+    text: "Freizeit"
+    source: { doc: test-doc, location: l4 }
+    used_in: [module_construction]
+text_types:
+  receptive: [poem]
+  productive: [letter]

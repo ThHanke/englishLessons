@@ -1,0 +1,8 @@
+class: grade-5
+inherits_from: null
+cumulative: true
+generated_from: { curriculum: test.band, method: agent-role-assignment }
+required_leveling: { frequency_list: ngsl-1.2 }
+modules:
+  m1: [free time, hobby]
+taught_through: m1
