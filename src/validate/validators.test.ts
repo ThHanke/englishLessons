@@ -4,6 +4,7 @@ import type { GradeBand, ModulesFile, VocabularyFile } from '../schema/types.ts'
 import { validateGradeBand } from './curriculumValidator.ts';
 import {
   validateModulesReferential,
+  checkCoverageLintAcrossModules,
   validateVocabReference,
   validateVocabChain,
 } from './referentialValidator.ts';
@@ -87,8 +88,29 @@ describe('referentialValidator: module <-> band references', () => {
     const modulesFile = loadModules();
     // required_depth downgraded to understand, but the milestone still assesses it as if produced
     modulesFile.modules[0]!.covers[0]!.required_depth = 'understand';
-    const issues = validateModulesReferential({ modulesFile, modulesFilePath: 'modules-valid.yaml', band });
+    const issues = checkCoverageLintAcrossModules(
+      modulesFile.modules.map((module) => ({ module, filePath: 'modules-valid.yaml' })),
+      band,
+    );
     expect(issues.some((i) => i.code === 'produce_not_covered' && i.id === 'fk.g.simple_present')).toBe(true);
+  });
+
+  it('a produce-mode grammar item covered in a later file in the sequence is fine (split-band case, KTD5)', () => {
+    const band = loadBand();
+    const grade5Modules = loadModules();
+    grade5Modules.modules[0]!.covers = grade5Modules.modules[0]!.covers.filter(
+      (c) => c.id !== 'fk.g.simple_present',
+    );
+    grade5Modules.modules[0]!.milestone.assesses = [];
+    const grade6Modules = loadModules();
+    grade6Modules.modules[0]!.id = 'm2';
+
+    const ordered = [
+      ...grade5Modules.modules.map((module) => ({ module, filePath: 'grade-5-modules.yaml' })),
+      ...grade6Modules.modules.map((module) => ({ module, filePath: 'grade-6-modules.yaml' })),
+    ];
+    const issues = checkCoverageLintAcrossModules(ordered, band);
+    expect(issues.filter((i) => i.code === 'produce_not_covered')).toEqual([]);
   });
 
   it('DRAFT time fields report the weeks-sum check as deferred, not failed', () => {

@@ -68,25 +68,44 @@ function checkReferences(modulesFile: ModulesFile, bandIds: Set<string>, modules
   return issues;
 }
 
-function checkCoverageLint(modulesFile: ModulesFile, band: GradeBand, modulesFilePath: string): Issue[] {
+export function validateModulesReferential(params: {
+  modulesFile: ModulesFile;
+  modulesFilePath: string;
+  band: GradeBand;
+}): Issue[] {
+  const { modulesFile, modulesFilePath, band } = params;
+  const bandIds = collectBandEntryIds(band);
+  return [...checkReferences(modulesFile, bandIds, modulesFilePath), ...checkTimeFields(modulesFile, modulesFilePath)];
+}
+
+/**
+ * Coverage lint aggregated across every modules.yaml that references the same curriculum band
+ * (e.g. the 5/6 band splits across grade-5 and grade-6 files, KTD5) — a produce-mode grammar
+ * item only needs to be covered by *some* module in the chronological sequence, not by every
+ * individual file. `orderedModules` must already be in teaching order (e.g. grade 5's modules
+ * before grade 6's).
+ */
+export function checkCoverageLintAcrossModules(
+  orderedModules: Array<{ module: ModulesFile['modules'][number]; filePath: string }>,
+  band: GradeBand,
+): Issue[] {
   const issues: Issue[] = [];
   const produceGrammarIds = band.competence_areas.funktional_kommunikativ.sprachliche_mittel.grammatik
     .filter((g) => g.mode.includes('produce'))
     .map((g) => g.id);
 
-  const modules = modulesFile.modules;
   for (const gid of produceGrammarIds) {
-    const coverIdx = modules.findIndex((m) =>
-      m.covers.some((c) => c.id === gid && c.required_depth === 'produce'),
+    const coverIdx = orderedModules.findIndex(({ module }) =>
+      module.covers.some((c) => c.id === gid && c.required_depth === 'produce'),
     );
-    const assessIdx = modules.findIndex((m) => m.milestone.assesses.includes(gid));
+    const assessIdx = orderedModules.findIndex(({ module }) => module.milestone.assesses.includes(gid));
 
     if (coverIdx === -1) {
       issues.push({
         severity: 'error',
         code: 'produce_not_covered',
         message: `Produce-mode grammar item "${gid}" is not covered at required_depth=produce by any module`,
-        file: modulesFilePath,
+        file: orderedModules[0]?.filePath ?? '<no modules>',
         id: gid,
       });
       continue;
@@ -95,27 +114,13 @@ function checkCoverageLint(modulesFile: ModulesFile, band: GradeBand, modulesFil
       issues.push({
         severity: 'error',
         code: 'produce_covered_after_milestone',
-        message: `Produce-mode grammar item "${gid}" is covered at module index ${coverIdx} but assessed earlier at module index ${assessIdx}`,
-        file: modulesFilePath,
+        message: `Produce-mode grammar item "${gid}" is covered at position ${coverIdx} (${orderedModules[coverIdx]!.filePath}) but assessed earlier at position ${assessIdx} (${orderedModules[assessIdx]!.filePath})`,
+        file: orderedModules[assessIdx]!.filePath,
         id: gid,
       });
     }
   }
   return issues;
-}
-
-export function validateModulesReferential(params: {
-  modulesFile: ModulesFile;
-  modulesFilePath: string;
-  band: GradeBand;
-}): Issue[] {
-  const { modulesFile, modulesFilePath, band } = params;
-  const bandIds = collectBandEntryIds(band);
-  return [
-    ...checkReferences(modulesFile, bandIds, modulesFilePath),
-    ...checkCoverageLint(modulesFile, band, modulesFilePath),
-    ...checkTimeFields(modulesFile, modulesFilePath),
-  ];
 }
 
 export function validateVocabReference(params: {
