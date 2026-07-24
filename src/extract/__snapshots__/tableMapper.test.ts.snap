@@ -1,0 +1,62 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`extractBand56Rows > matches the known row snapshot for the trimmed fixture 1`] = `
+[
+  {
+    "area": "funktional_kommunikativ",
+    "band": "5-6",
+    "bereich": "Hör- und Hör-/Sehverstehen",
+    "bulletText": "einfache Äußerungen verstehen",
+    "sourceLine": 9,
+    "subarea": "kommunikative_kompetenzen",
+  },
+  {
+    "area": "funktional_kommunikativ",
+    "band": "5-6",
+    "bereich": "Hör- und Hör-/Sehverstehen",
+    "bulletText": "Hauptgedanken erfassen",
+    "sourceLine": 9,
+    "subarea": "kommunikative_kompetenzen",
+  },
+  {
+    "area": "funktional_kommunikativ",
+    "band": "5-6",
+    "bereich": "Grammatik",
+    "bulletText": "Aussagen, Fragen und Aufforderungen in bejahter und verneinter Form verstehen und formulieren",
+    "sourceLine": 15,
+    "subarea": "sprachliche_mittel",
+  },
+  {
+    "area": "funktional_kommunikativ",
+    "band": "5-6",
+    "bereich": "Grammatik",
+    "bulletText": "Handlungen, Ereignisse und Sachverhalte als gegenwärtig (*simple present* und *present progressive*), vergangen (*simple past*) und zukünftig (*going to future*, *will-future*) erkennen und wiedergeben sowie das *simple present perfect* verstehen",
+    "sourceLine": 15,
+    "subarea": "sprachliche_mittel",
+  },
+  {
+    "area": "funktional_kommunikativ",
+    "band": "5-6",
+    "bereich": "Grammatik",
+    "bulletText": "Anzahl, Art und Zugehörigkeit von Gegenständen, Lebewesen und Sachverhalten (Zahlen, Präpositionen, Pronomen, Artikel, Singular- und Pluralformen von Substantiven, Genitiv) verstehen und selbst formulieren",
+    "sourceLine": 15,
+    "subarea": "sprachliche_mittel",
+  },
+  {
+    "area": "funktional_kommunikativ",
+    "band": "5-6",
+    "bereich": "Grammatik",
+    "bulletText": "Adjektive und ihre Steigerungsformen verstehen und anwenden",
+    "sourceLine": 15,
+    "subarea": "sprachliche_mittel",
+  },
+  {
+    "area": "funktional_kommunikativ",
+    "band": "5-6",
+    "bereich": "Persönliches Umfeld",
+    "bulletText": "eigene Person, Familie und Freundeskreis",
+    "sourceLine": 22,
+    "subarea": "kommunikative_inhalte",
+  },
+]
+`;
