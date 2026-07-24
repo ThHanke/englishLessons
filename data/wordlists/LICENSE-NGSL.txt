@@ -1,0 +1,16 @@
+New General Service List (NGSL) 1.2
+
+New General Service List by Browne, C., Culligan, B., and Phillips, J. is licensed under a
+Creative Commons Attribution-ShareAlike 4.0 International License.
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Source: NGSL_12_stats.csv, downloaded from https://www.newgeneralservicelist.com/
+(the official NGSL Project website — note the .com domain; the .org domain referenced in
+earlier project notes has since been taken over by unrelated content and is no longer the
+official site).
+
+File: ngsl-1.2.csv
+Columns: Lemma, SFI Rank, SFI, Adjusted Frequency per Million (U)
+~2800 high-frequency headwords, frequency-ranked (not CEFR-graded — used here as a frequency
+screen per 01-data-model §3.6a, with a CEFR-fallback pass for words legitimately absent from
+the list, e.g. proper nouns and topic-specific lexis).
