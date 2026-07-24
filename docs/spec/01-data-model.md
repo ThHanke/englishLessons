@@ -316,6 +316,8 @@ vocabulary/
 
 ```yaml
 class: 7a-2025-realschule
+inherits_from: grade-6              # predecessor plan whose full cumulative vocab is pre-known
+cumulative: true                   # this file lists only lexis NEW at this grade (never re-lists inherited words)
 generated_from:
   curriculum: sa-sek-en-2019.7-8.rs   # content fields + grammar + text types per module
   method: agent-role-assignment       # committed file is source of truth; regen = draft to diff, no seed
@@ -328,12 +330,31 @@ taught_through: m4                    # teacher-set marker of actual progress (d
 overrides: { add: [ ... ], remove: [ ... ] }   # teacher corrections, optional
 ```
 
-`known_vocab_ref` in the lesson spec resolves to the union of all module lists up to
-`taught_through`, plus overrides. The `@<module>` suffix in the ref (e.g. `…@m5`) is a
+**Cross-grade progression (chained).** Vocabulary is not independent per grade — it chains
+5 → 6 → 7 via `inherits_from`, so a pupil's known lexis accumulates monotonically across school
+years exactly as the coverage model accumulates competences (`prior_covered`, §3.4/§3.7). Rules:
+
+- **Single canonical introduction.** Every word is introduced exactly once in the whole chain,
+  at its first (grade, module). A later grade never re-lists a word already known via its
+  inheritance chain (no re-introduction) — enforced by a validator over the committed files.
+- **Sequential cumulative generation.** Each grade's list is generated with the frozen cumulative
+  vocabulary of all predecessor grades supplied as "already known, exclude", so it proposes only
+  new-at-this-grade lexis. Generation is chain-ordered: grade 5 (no inheritance) frozen before
+  grade 6 generates, grade 6 frozen before grade 7. This keeps the whole 5–7 vocabulary
+  consistent and de-duplicated.
+- **5/6 band special case.** Grade 6 sets `inherits_from: grade-5` while both point at the same
+  `sa-sek-en-2019.5-6` curriculum — correct, because that single band legitimately spans two
+  school years (§3.1 grade-split).
+
+`known_vocab_ref` in the lesson spec resolves to the union of all module lists **across the
+`inherits_from` chain** — every predecessor grade in full, plus the current grade up to
+`taught_through` — plus overrides. The `@<module>` suffix in the ref (e.g. `…@m5`) is a
 lookup label for the current lesson only; the vocabulary cutoff always comes from
 `taught_through`, independent of the suffix. The generator (G) and exercise skills (H)
 treat the resolved set as a hard allow-list for target/new vocabulary; unavoidable new
-words are surfaced as a pre-taught glossary, never silently used.
+words are surfaced as a pre-taught glossary, never silently used. This is what makes "a lesson
+may only use previously-introduced vocabulary" enforceable — the allow-list is the chained
+cumulative set, so no grade can suddenly use lexis a pupil has not met.
 
 ### 3.6b Textbook references — teacher-supplied per lesson, citation only
 
