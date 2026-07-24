@@ -1,0 +1,70 @@
+class: grade-7-realschule-2026
+curriculum: sa-sek-en-2019.7-8.rs
+total_weeks: DRAFT
+weekly_lessons: DRAFT
+buffer_weeks: DRAFT
+draft: true
+modules:
+  - id: m1
+    title: "Back in school — who does what"
+    weeks: DRAFT
+    content_fields: [c.social.freizeit_medien]
+    goals:
+      - "Describe actions and processes from the receiver's perspective using the passive voice"
+      - "Open, continue and close conversations with typical phrases"
+    covers:
+      - { id: fk.g.passive, required_depth: produce }
+      - { id: fk.k.hoer.1, required_depth: understand }
+      - { id: fk.k.lesen.1, required_depth: understand }
+      - { id: fk.k.sprechen.1, required_depth: produce }
+      - { id: fk.w.open_continue_close_conversations, required_depth: produce }
+    milestone:
+      type: test
+      assesses: [fk.g.passive]
+    pedagogy:
+      new_grammar: [fk.g.passive]
+    draft: true
+  - id: m2
+    title: "What has changed since primary school"
+    weeks: DRAFT
+    content_fields: [c.alltag.institutionen_soziale_netzwerke]
+    goals:
+      - "Talk about changes and experiences that still matter now using the present perfect"
+      - "Recognise question tags in spoken and written English"
+    covers:
+      - { id: fk.g.present_perfect, required_depth: produce }
+      - { id: fk.g.question_tag, required_depth: understand }
+      - { id: fk.k.hoer.2, required_depth: understand }
+      - { id: fk.k.sprechen.2, required_depth: produce }
+      - { id: fk.k.schreiben.1, required_depth: produce }
+      - { id: fk.w.differentiated_personal_questions, required_depth: produce }
+    milestone:
+      type: test
+      assesses: [fk.g.present_perfect]
+    pedagogy:
+      new_grammar: [fk.g.present_perfect, fk.g.question_tag]
+    draft: true
+  - id: m3
+    title: "Media habits and note-making"
+    weeks: DRAFT
+    content_fields: [c.social.freizeit_medien, c.alltag.institutionen_soziale_netzwerke]
+    goals:
+      - "Talk about hobbies and habits using the gerund"
+      - "Take and make notes on media use; reflect on UK/US everyday culture"
+    covers:
+      - { id: fk.g.gerund, required_depth: produce }
+      - { id: fk.k.lesen.4, required_depth: produce }
+      - { id: fk.k.sprachmittlung.1, required_depth: produce }
+      - { id: fk.w.media_vocabulary, required_depth: produce }
+      - { id: fk.a.pronounce_unknown, required_depth: produce }
+      - { id: fk.o.free_writing, required_depth: produce }
+      - { id: ik.a.reflect_own_and_foreign_ways_of_life, required_depth: understand }
+      - { id: ik.o.alltagskultur_uk_usa, required_depth: understand }
+      - { id: m.textrezeption.1, required_depth: understand }
+      - { id: m.textproduktion.1, required_depth: produce }
+    milestone:
+      type: test
+      assesses: [fk.g.gerund]
+    pedagogy:
+      new_grammar: [fk.g.gerund]
+    draft: true

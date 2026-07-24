@@ -1,0 +1,78 @@
+class: grade-5-2026
+curriculum: sa-sek-en-2019.5-6
+total_weeks: DRAFT
+weekly_lessons: DRAFT
+buffer_weeks: DRAFT
+draft: true
+modules:
+  - id: m1
+    title: "Me, my family and friends"
+    weeks: DRAFT
+    content_fields: [c.personal.family_friends]
+    goals:
+      - "Introduce oneself and family members using the simple present"
+      - "Ask and answer simple personal questions"
+    covers:
+      - { id: fk.g.sentence_forms, required_depth: produce }
+      - { id: fk.g.simple_present, required_depth: produce }
+      - { id: fk.g.numbers, required_depth: produce }
+      - { id: fk.w.introduce_self, required_depth: produce }
+      - { id: fk.w.personal_questions, required_depth: produce }
+      - { id: fk.k.hoer.1, required_depth: understand }
+      - { id: fk.k.sprechen.1, required_depth: produce }
+    milestone:
+      type: test
+      assesses: [fk.g.simple_present, fk.w.introduce_self]
+    pedagogy:
+      new_grammar: [fk.g.sentence_forms, fk.g.simple_present, fk.g.numbers]
+    draft: true
+  - id: m2
+    title: "School and free time"
+    weeks: DRAFT
+    content_fields: [c.social.freizeit_schule]
+    goals:
+      - "Talk about school subjects and free-time activities happening now"
+      - "Open, continue and close simple conversations"
+    covers:
+      - { id: fk.g.present_progressive, required_depth: produce }
+      - { id: fk.g.articles, required_depth: produce }
+      - { id: fk.g.pronouns, required_depth: produce }
+      - { id: fk.w.open_close_conversations, required_depth: produce }
+      - { id: fk.w.invite, required_depth: produce }
+      - { id: fk.k.lesen.1, required_depth: understand }
+      - { id: fk.k.schreiben.1, required_depth: produce }
+      - { id: fk.a.articulate_known, required_depth: produce }
+    milestone:
+      type: test
+      assesses: [fk.g.present_progressive]
+    pedagogy:
+      new_grammar: [fk.g.present_progressive, fk.g.articles, fk.g.pronouns]
+    draft: true
+  - id: m3
+    title: "People and places around us"
+    weeks: DRAFT
+    content_fields: [c.personal.family_friends, c.social.freizeit_schule]
+    goals:
+      - "Describe people and belongings, including plural forms"
+      - "Follow classroom instructions and manage simple everyday interactions"
+    covers:
+      - { id: fk.g.noun_plural, required_depth: produce }
+      - { id: fk.k.hoer.2, required_depth: understand }
+      - { id: fk.k.lesen.4, required_depth: understand }
+      - { id: fk.k.sprechen.2, required_depth: produce }
+      - { id: fk.k.sprachmittlung.1, required_depth: produce }
+      - { id: fk.a.pronounce_unknown, required_depth: produce }
+      - { id: fk.o.copy_write, required_depth: produce }
+      - { id: fk.o.spell, required_depth: produce }
+      - { id: fk.o.basic_rules, required_depth: produce }
+      - { id: ik.a.openness, required_depth: produce }
+      - { id: ik.o.alltagskultur_uk, required_depth: understand }
+      - { id: m.textrezeption.1, required_depth: understand }
+      - { id: m.interaktion.1, required_depth: produce }
+      - { id: m.lernstrategien.1, required_depth: produce }
+    milestone:
+      type: test
+      assesses: [fk.g.noun_plural]
+    pedagogy:
+      new_grammar: [fk.g.noun_plural]
+    draft: true
