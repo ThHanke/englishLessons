@@ -1,0 +1,8 @@
+state: Sachsen-Anhalt
+school_type: Sekundarschule
+subject: Englisch
+valid_from: "2019-08-01"
+source_file: docs/lecture_plans/sachsen-anhalt-sekundarschule-englisch-lehrplan-2019-08-01.md
+cefr_targets:
+  5-6: A1-A2
+  7-8-realschule: B1
