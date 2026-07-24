@@ -45,14 +45,6 @@ export interface ContentField {
   used_in: UsedIn[];
 }
 
-export interface TextType {
-  id: string;
-  name: string;
-  kind: 'receptive' | 'productive';
-  source: Source;
-  used_in: UsedIn[];
-}
-
 export interface TaskPatternPointer {
   id: string;
   format: string;
