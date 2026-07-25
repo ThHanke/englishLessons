@@ -1,0 +1,20 @@
+state: test-state
+school_year: 2026/2027
+first_school_day: 2026-09-01
+last_school_day: 2026-09-25
+holidays:
+  - name: Holiday A
+    from: 2026-09-07
+    to: 2026-09-09
+  - name: Holiday B
+    from: 2026-09-14
+    to: 2026-09-16
+events: []
+pace_factors:
+  pre_holiday_days: 1
+  pre_holiday_factor: 0.5
+  post_holiday_days: 1
+  post_holiday_factor: 0.5
+class_schedule:
+  test-class:
+    lesson_days: [Mon, Wed, Fri]

@@ -1,0 +1,23 @@
+state: test-state
+school_year: 2026/2027
+first_school_day: 2026-09-01
+last_school_day: 2026-09-30
+holidays:
+  - name: Test Holiday
+    from: 2026-09-14
+    to: 2026-09-18
+events:
+  - name: Blocked Event
+    date: 2026-09-02
+    capacity: 0
+  - name: Half Day
+    date: 2026-09-04
+    capacity: 0.5
+pace_factors:
+  pre_holiday_days: 2
+  pre_holiday_factor: 0.6
+  post_holiday_days: 2
+  post_holiday_factor: 0.8
+class_schedule:
+  test-class:
+    lesson_days: [Mon, Wed, Fri]
