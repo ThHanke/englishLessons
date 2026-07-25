@@ -1,0 +1,36 @@
+[
+  {
+    "date": "2026-08-17",
+    "covered": [
+      { "competence": "fk.g.passive", "depth": "introduced", "via": ["gap_fill"] },
+      { "competence": "fk.k.hoer.1", "depth": "introduced", "via": ["listening_comprehension"] }
+    ],
+    "topics": ["back_to_school"],
+    "vocab_introduced": ["timetable", "subject"]
+  },
+  {
+    "date": "2026-08-19",
+    "covered": [
+      { "competence": "fk.g.passive", "depth": "practiced", "via": ["gap_fill"] },
+      { "competence": "fk.k.lesen.1", "depth": "practiced", "via": ["reading_comprehension"] }
+    ],
+    "topics": ["back_to_school"],
+    "vocab_introduced": []
+  },
+  {
+    "date": "2026-08-21",
+    "covered": [
+      { "competence": "fk.k.sprechen.1", "depth": "practiced", "via": ["reading_comprehension"] }
+    ],
+    "topics": ["back_to_school"],
+    "vocab_introduced": []
+  },
+  {
+    "date": "2026-09-02",
+    "covered": [
+      { "competence": "fk.g.passive", "depth": "assessed", "via": ["writing_prompt"] }
+    ],
+    "topics": ["back_to_school"],
+    "vocab_introduced": []
+  }
+]
