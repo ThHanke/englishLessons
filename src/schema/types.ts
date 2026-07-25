@@ -154,6 +154,42 @@ export interface ClassFile {
   curriculum: string;
 }
 
+export interface Holiday {
+  name: string;
+  from: string;
+  to: string;
+}
+
+export interface CalendarEvent {
+  name: string;
+  from?: string;
+  to?: string;
+  date?: string;
+  capacity: number;
+}
+
+export interface PaceFactors {
+  pre_holiday_days: number;
+  pre_holiday_factor: number;
+  post_holiday_days: number;
+  post_holiday_factor: number;
+}
+
+export interface ClassScheduleEntry {
+  lesson_days: string[];
+}
+
+export interface CalendarFile {
+  state: string;
+  school_year: string;
+  first_school_day: string;
+  last_school_day: string;
+  holidays: Holiday[];
+  events: CalendarEvent[];
+  pace_factors: PaceFactors;
+  class_schedule: Record<string, ClassScheduleEntry>;
+}
+
 export interface VocabularyFile {
   class: string;
   inherits_from: string | null;
