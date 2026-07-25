@@ -6,6 +6,9 @@ material/
 
 node_modules/
 
+# Per-agent isolated worktrees created by the harness during ce-work.
+.claude/worktrees/
+
 # Re-extraction/regeneration output — diffed against the committed file, never
 # silently overwritten (KTD3).
 *.draft.yaml
