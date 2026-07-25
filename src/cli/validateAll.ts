@@ -1,7 +1,7 @@
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadYaml } from '../schema/yaml.ts';
-import type { GradeBand, ModulesFile, ClassFile, VocabularyFile } from '../schema/types.ts';
+import type { GradeBand, ModulesFile, ClassFile, VocabularyFile, CalendarFile } from '../schema/types.ts';
 import { validateGradeBand, type Issue } from '../validate/curriculumValidator.ts';
 import {
   validateModulesReferential,
@@ -9,6 +9,7 @@ import {
   validateVocabReference,
   validateVocabChain,
 } from '../validate/referentialValidator.ts';
+import { validateCalendar } from '../validate/calendarValidator.ts';
 
 const REPO_ROOT = new URL('../../', import.meta.url).pathname;
 
@@ -77,6 +78,17 @@ function loadModulesFiles(): LoadedModules[] {
   return loaded.sort((a, b) => a.classFile.grade - b.classFile.grade);
 }
 
+function loadCalendarFiles(): { files: CalendarFile[]; paths: string[] } {
+  const calendarDir = join(REPO_ROOT, 'calendar');
+  const files: CalendarFile[] = [];
+  const paths: string[] = [];
+  for (const file of walkYamlFiles(calendarDir)) {
+    files.push(loadYaml<CalendarFile>(file));
+    paths.push(relPath(file));
+  }
+  return { files, paths };
+}
+
 function loadVocabFiles(): { files: Record<string, VocabularyFile>; paths: Record<string, string> } {
   const vocabDir = join(REPO_ROOT, 'vocabulary');
   const files: Record<string, VocabularyFile> = {};
@@ -138,6 +150,12 @@ function run(): number {
     allIssues.push(...checkCoverageLintAcrossModules(ordered, band));
   }
 
+  const knownClassNames = new Set(modulesFiles.map((m) => m.classFile.name));
+  const { files: calendarFiles, paths: calendarPaths } = loadCalendarFiles();
+  calendarFiles.forEach((calendar, i) => {
+    allIssues.push(...validateCalendar(calendar, calendarPaths[i]!, knownClassNames));
+  });
+
   const { files: vocabFiles, paths: vocabPaths } = loadVocabFiles();
   for (const [grade, vocab] of Object.entries(vocabFiles)) {
     allIssues.push(
@@ -157,7 +175,7 @@ function run(): number {
   }
 
   console.log(
-    `\n${errors.length} error(s), ${deferred.length} deferred, ${bandsById.size} band(s), ${modulesFiles.length} modules file(s), ${Object.keys(vocabFiles).length} vocab file(s) checked.`,
+    `\n${errors.length} error(s), ${deferred.length} deferred, ${bandsById.size} band(s), ${modulesFiles.length} modules file(s), ${calendarFiles.length} calendar file(s), ${Object.keys(vocabFiles).length} vocab file(s) checked.`,
   );
 
   return errors.length === 0 ? 0 : 1;
