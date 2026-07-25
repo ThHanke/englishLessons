@@ -1,13 +1,12 @@
 class: grade-7-realschule-2026
 curriculum: sa-sek-en-2019.7-8.rs
-total_weeks: DRAFT
-weekly_lessons: DRAFT
-buffer_weeks: DRAFT
-draft: true
+total_weeks: 40
+weekly_lessons: 3
+buffer_weeks: 4
 modules:
   - id: m1
     title: "Back in school — who does what"
-    weeks: DRAFT
+    weeks: 9
     content_fields: [c.social.freizeit_medien]
     goals:
       - "Describe actions and processes from the receiver's perspective using the passive voice"
@@ -23,10 +22,9 @@ modules:
       assesses: [fk.g.passive]
     pedagogy:
       new_grammar: [fk.g.passive]
-    draft: true
   - id: m2
     title: "What has changed since primary school"
-    weeks: DRAFT
+    weeks: 10
     content_fields: [c.alltag.institutionen_soziale_netzwerke]
     goals:
       - "Talk about changes and experiences that still matter now using the present perfect"
@@ -43,10 +41,9 @@ modules:
       assesses: [fk.g.present_perfect]
     pedagogy:
       new_grammar: [fk.g.present_perfect, fk.g.question_tag]
-    draft: true
   - id: m3
     title: "Media habits and note-making"
-    weeks: DRAFT
+    weeks: 17
     content_fields: [c.social.freizeit_medien, c.alltag.institutionen_soziale_netzwerke]
     goals:
       - "Talk about hobbies and habits using the gerund"
@@ -67,4 +64,3 @@ modules:
       assesses: [fk.g.gerund]
     pedagogy:
       new_grammar: [fk.g.gerund]
-    draft: true

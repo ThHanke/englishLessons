@@ -144,7 +144,7 @@ export interface ModulesFile {
   weekly_lessons: number | 'DRAFT';
   modules: Module[];
   buffer_weeks: number | 'DRAFT';
-  draft: true;
+  draft?: boolean;
 }
 
 export interface ClassFile {
