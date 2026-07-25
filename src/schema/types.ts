@@ -190,6 +190,27 @@ export interface CalendarFile {
   class_schedule: Record<string, ClassScheduleEntry>;
 }
 
+/** §3.4 — a single dated lesson-spec export, the contract handed to the generator (Phase 3). */
+export interface LessonSpec {
+  class: string;
+  date: string;
+  school_week: number;
+  module: { id: string; title: string; week_in_module: number; of: number };
+  phase: string;
+  pace_factor: number;
+  pace_reason: string;
+  focus_competences: Array<{ id: string; topic: string; mode: Mode[] }>;
+  content_field: { id: string; text: string };
+  text_types: string[];
+  milestone_context: { next: string; in_slots: number; assesses: string[] };
+  prior_covered: string[];
+  cefr_target: string;
+  known_vocab_ref: string;
+  textbook_refs: Array<{ book: string; citation: string; slot: string }>;
+  suggested_exercise_types: string[];
+  curriculum_ref: string;
+}
+
 export interface VocabularyFile {
   class: string;
   inherits_from: string | null;
