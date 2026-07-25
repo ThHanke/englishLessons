@@ -1,4 +1,5 @@
 import { writeYaml } from '../schema/yaml.ts';
+import { addDaysIso } from '../schema/dates.ts';
 import type { CalendarFile, Holiday, PaceFactors } from '../schema/types.ts';
 
 export interface OpenHolidaysPeriod {
@@ -9,13 +10,6 @@ export interface OpenHolidaysPeriod {
 }
 
 const OPENHOLIDAYS_BASE = 'https://openholidaysapi.org';
-
-function addDaysIso(iso: string, days: number): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  const date = new Date(Date.UTC(y!, m! - 1, d!));
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
-}
 
 /** Maps a raw OpenHolidaysAPI response into §3.3 `holidays[]` shape, preferring the EN name. */
 export function mapSchoolHolidays(response: OpenHolidaysPeriod[]): Holiday[] {

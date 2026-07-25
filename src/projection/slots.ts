@@ -1,4 +1,5 @@
 import type { CalendarFile, CalendarEvent, Holiday } from '../schema/types.ts';
+import { addDaysIso } from '../schema/dates.ts';
 import type { TeachingSlot } from './types.ts';
 
 export interface RawSlot {
@@ -11,13 +12,6 @@ const WEEKDAY_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 function isoWeekday(dateIso: string): string {
   const [y, m, d] = dateIso.split('-').map(Number);
   return WEEKDAY_ABBR[new Date(Date.UTC(y!, m! - 1, d!)).getUTCDay()]!;
-}
-
-function addDaysIso(dateIso: string, days: number): string {
-  const [y, m, d] = dateIso.split('-').map(Number);
-  const date = new Date(Date.UTC(y!, m! - 1, d!));
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
 }
 
 function isHoliday(dateIso: string, holidays: Holiday[]): boolean {
