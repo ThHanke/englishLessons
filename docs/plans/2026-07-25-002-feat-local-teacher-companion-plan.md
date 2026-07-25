@@ -100,6 +100,15 @@ just click a date and start planning.
   lesson changes in conversation, but does not write to repo files
   (`modules.yaml`, `lesson-spec.json`, etc.) itself. File edits stay a teacher
   action until `prepare-lesson` (O) exists to own writes.
+- R10. The web app detects whether it is being served by the companion's own
+  local server (via the per-session token handshake, KTD9) on load. If that
+  handshake fails or is absent — e.g. the built frontend is ever served
+  statically, such as by an accidental future GitHub Pages deploy alongside
+  Component F's separate static site — the Chat tab renders disabled with an
+  explanatory message instead of a broken/inert chat UI; the Calendar still
+  attempts to render from whatever `/api/calendar` data is reachable. UX-only
+  safeguard: R4/R7/R8's actual security guarantees (origin check, token
+  requirement, deny-list) do not depend on this and are unaffected either way.
 
 ### Key Decisions
 
@@ -602,7 +611,7 @@ flowchart TB
 - **Goal:** assistant-ui Thread/Message/Composer wired to `POST /api/chat` via a
   custom `useExternalStoreRuntime` adapter that streams responses; date-seeded on
   open; confirms before switching dates mid-conversation.
-- **Requirements:** R2, R3, F1, F2, F3
+- **Requirements:** R2, R3, F1, F2, F3, R10
 - **Dependencies:** U3, U4
 - **Files:** `src/companion/web/Chat.tsx`, `src/companion/web/runtime.ts`,
   `src/companion/web/Chat.test.tsx`
@@ -612,8 +621,12 @@ flowchart TB
   first-class Agent SDK adapter); opening a date seeds the first turn with U2's
   assembled context; a confirm dialog gates switching to a different date while a
   session is active, after which the prior date's conversation stays resumable
-  via R6.
+  via R6. Accepts a `serverAvailable` prop (owned/computed by U6's App shell per
+  R10) and renders disabled with an explanatory message when false, instead of
+  attempting to open a chat session against a server that isn't there.
 - **Test scenarios:**
+  - Edge: `serverAvailable: false` renders the tab disabled with an explanatory
+    message and never attempts to open a chat session (R10).
   - Happy path: opening a date with no prior session starts a fresh seeded
     conversation (F2).
   - Happy path: opening a date with a prior session resumes it with history
@@ -632,14 +645,18 @@ flowchart TB
 
 - **Goal:** top-level app composing U4 + U5, plus a class switcher (KTD7) sourced
   from existing `class.yaml` files, so F1-F4 work end-to-end for grades 5/6/7.
-- **Requirements:** R1, R2, F1, F2, F3, F4 (KTD7)
+- **Requirements:** R1, R2, F1, F2, F3, F4, R10 (KTD7)
 - **Dependencies:** U4, U5
 - **Files:** `src/companion/web/App.tsx`, `src/companion/web/ClassSwitcher.tsx`,
   `src/companion/web/ClassSwitcher.test.tsx`
 - **Approach:** read available classes from `plans/grade-*/class.yaml` at server
   startup and expose via a small API or build-time data load; switching classes
   re-scopes the calendar to that class's plan/calendar data; the active class +
-  date together form the session key used throughout U1-U3.
+  date together form the session key used throughout U1-U3. On mount, App.tsx
+  performs the R10 server-presence handshake (attempts the per-session token
+  fetch from U3's security layer) and passes the resulting `serverAvailable`
+  boolean down to U5's Chat tab; a failed/absent handshake never blocks the
+  Calendar from rendering.
 - **Test scenarios:**
   - Happy path: switching the class dropdown re-renders the calendar for the
     newly selected class's modules/gaps.
@@ -648,6 +665,8 @@ flowchart TB
   - Integration: an end-to-end (server + UI) run-through of F1 (existing
     lesson-spec date) and F2 (new date) for one grade-5 class, using real fixture
     data.
+  - Edge: when the token handshake fails (simulated), the Calendar still renders
+    and the Chat tab shows disabled (R10).
 - **Verification:** component test for the switcher; one integration-level test
   exercising the real API layer against fixture class data (Agent SDK still
   mocked).
