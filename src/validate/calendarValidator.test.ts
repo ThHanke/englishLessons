@@ -28,6 +28,17 @@ describe('validateCalendar: schema errors', () => {
     expect(issue!.id).toBe('Autumn Holidays');
   });
 
+  it('flags an event range with from after to, naming the event and file', () => {
+    const calendar = loadFixture();
+    calendar.events[0]!.from = '2026-05-29';
+    calendar.events[0]!.to = '2026-05-28';
+    const issues = validateCalendar(calendar, 'calendar-valid.yaml', new Set(['test-class']));
+    const issue = issues.find((i) => i.code === 'calendar_invalid_event_range');
+    expect(issue).toBeDefined();
+    expect(issue!.file).toBe('calendar-valid.yaml');
+    expect(issue!.id).toBe('Sportfest');
+  });
+
   it('flags a class_schedule key with no matching class.yaml', () => {
     const calendar = loadFixture();
     const issues = validateCalendar(calendar, 'calendar-valid.yaml', new Set(['some-other-class']));

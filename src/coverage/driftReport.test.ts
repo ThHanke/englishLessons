@@ -51,6 +51,19 @@ describe('driftReport', () => {
     expect(report.calendarDrift.behindBySlots).toBe(3);
   });
 
+  it('falls back actualSlotIndex to plannedSlotIndex when actualLastTaughtDate is null (no lessons taught yet, KTD5)', () => {
+    const ledger: CoverageLedger = { competences: {}, modules: [] };
+    const report = driftReport({
+      asOfDate: dates[4]!,
+      placements: [placement],
+      ledger,
+      modulesFile: modulesFile(),
+      actualLastTaughtDate: null,
+    });
+    expect(report.calendarDrift.actualSlotIndex).toBe(report.calendarDrift.plannedSlotIndex);
+    expect(report.calendarDrift.behindBySlots).toBe(0);
+  });
+
   it('returns a clean/on-track result with zero gaps and zero calendar drift', () => {
     const ledger: CoverageLedger = {
       competences: { c1: { competenceId: 'c1', maxDepth: 'assessed', datesTouched: [dates[0]!], exerciseTypesUsed: [] } },

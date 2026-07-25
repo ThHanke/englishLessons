@@ -1,12 +1,23 @@
 import type { ModulesFile, Module } from '../schema/types.ts';
 import type { TeachingSlot, PlacedSlot, ModulePlacement, MilestoneShift, Phase } from './types.ts';
 
-/** Step 3: `module.budget = module.weeks * weekly_lessons`, in the same weight units as slots. */
+/**
+ * Step 3: `module.budget = module.weeks * weekly_lessons`, in the same weight units as slots.
+ * Throws on a still-DRAFT modules file (KTD7) rather than silently computing NaN budgets -
+ * this engine is class-agnostic (grades 5/6 will run it once their plans are finalized), so a
+ * caller feeding it a still-DRAFT file is a real, not speculative, failure mode.
+ */
 export function computeBudgets(modulesFile: ModulesFile): Record<string, number> {
-  const weeklyLessons = modulesFile.weekly_lessons as number;
+  if (modulesFile.weekly_lessons === 'DRAFT') {
+    throw new Error(`modules file "${modulesFile.class}" has DRAFT weekly_lessons - finalize time fields before projecting`);
+  }
+  const weeklyLessons = modulesFile.weekly_lessons;
   const budgets: Record<string, number> = {};
   for (const module of modulesFile.modules) {
-    budgets[module.id] = (module.weeks as number) * weeklyLessons;
+    if (module.weeks === 'DRAFT') {
+      throw new Error(`module "${module.id}" in "${modulesFile.class}" has DRAFT weeks - finalize time fields before projecting`);
+    }
+    budgets[module.id] = module.weeks * weeklyLessons;
   }
   return budgets;
 }
@@ -54,6 +65,7 @@ function tagPhase(slots: TeachingSlot[], module: Module, weeklyLessons: number, 
  */
 export function fillModules(weightedSlots: TeachingSlot[], modulesFile: ModulesFile): ModulePlacement[] {
   const budgets = computeBudgets(modulesFile);
+  // computeBudgets already threw above if weekly_lessons were DRAFT, so this cast is safe here.
   const weeklyLessons = modulesFile.weekly_lessons as number;
   let cursor = 0;
   const placements: ModulePlacement[] = [];

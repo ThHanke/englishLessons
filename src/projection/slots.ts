@@ -79,7 +79,10 @@ export function weightSlots(slots: RawSlot[], calendar: CalendarFile): TeachingS
       if (slot.date < holiday.from) beforeIdx.push(i);
       if (slot.date > holiday.to) afterIdx.push(i);
     });
-    for (const i of beforeIdx.slice(-pre_holiday_days)) preDegraded.add(i);
+    // `.slice(-0)` is `.slice(0)` in JS (the whole array), not empty -- guard the zero case
+    // explicitly so pre_holiday_days: 0 degrades nothing instead of every slot before every holiday.
+    const preSlice = pre_holiday_days > 0 ? beforeIdx.slice(-pre_holiday_days) : [];
+    for (const i of preSlice) preDegraded.add(i);
     for (const i of afterIdx.slice(0, post_holiday_days)) postDegraded.add(i);
   }
 

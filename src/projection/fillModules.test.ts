@@ -74,6 +74,23 @@ describe('milestone forward-only placement (KTD6)', () => {
     // naive last slot). The shift consumed that slot for m1's milestone, so m2's start moved later.
     expect(m2.slots[0]!.date).toBe('2026-09-10');
   });
+
+  it('leaves the milestone on the degraded candidate, unshifted, when no healthy slot exists before the school year ends', () => {
+    // Every slot from the crossing point onward is degraded, all the way to the end of the array.
+    const slots: TeachingSlot[] = [
+      { date: '2026-09-01', capacity: 1, weight: 1 },
+      { date: '2026-09-03', capacity: 1, weight: 0.5 },
+      { date: '2026-09-05', capacity: 1, weight: 0.6 }, // degraded, crosses m1's budget=2
+      { date: '2026-09-08', capacity: 1, weight: 0.5 }, // degraded
+      { date: '2026-09-10', capacity: 1, weight: 0.5 }, // degraded - last slot in the calendar
+    ];
+    const placements = fillModules(slots, modulesFile());
+    const m1 = placements.find((p) => p.moduleId === 'm1')!;
+
+    expect(m1.milestoneShift).toBeNull();
+    expect(m1.milestoneDate).toBe('2026-09-05');
+    expect(() => fillModules(slots, modulesFile())).not.toThrow();
+  });
 });
 
 describe('fillModules', () => {

@@ -54,4 +54,13 @@ describe('weightSlots', () => {
     expect(weighted.length).toBeGreaterThan(0);
     for (const slot of weighted) expect(slot.weight).toBe(1);
   });
+
+  it('degrades nothing when pre_holiday_days is 0 (slice(-0) boundary, not the whole array)', () => {
+    const zeroPreCalendar: CalendarFile = { ...smallCalendar, pace_factors: { ...smallCalendar.pace_factors, pre_holiday_days: 0 } };
+    const slots = enumerateSlots(zeroPreCalendar, 'test-class');
+    const weighted = weightSlots(slots, zeroPreCalendar);
+    // Only post_holiday_days=2 should degrade anything; every pre-holiday slot stays full weight.
+    const preHolidaySlots = weighted.filter((s) => s.date < '2026-09-14');
+    for (const slot of preHolidaySlots) expect(slot.weight).toBe(slot.capacity);
+  });
 });
