@@ -44,10 +44,3 @@ export interface WhichModuleResult {
   phase: Phase | null;
   reason: string;
 }
-
-export interface CalendarDrift {
-  asOfDate: string;
-  plannedSlotIndex: number;
-  actualSlotIndex: number;
-  behindBySlots: number;
-}

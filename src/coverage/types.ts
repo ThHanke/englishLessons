@@ -48,3 +48,17 @@ export interface GapReport {
   asOfDate: string;
   gaps: Gap[];
 }
+
+export interface CalendarDrift {
+  asOfDate: string;
+  plannedSlotIndex: number;
+  actualSlotIndex: number;
+  behindBySlots: number;
+}
+
+export interface DriftReport {
+  asOfDate: string;
+  calendarDrift: CalendarDrift;
+  coverageGaps: Gap[];
+  onTrack: boolean;
+}
