@@ -1,0 +1,19 @@
+class: fixture-class-no-artifacts
+curriculum: fixture-curriculum
+total_weeks: 4
+weekly_lessons: 3
+buffer_weeks: 0
+modules:
+  - id: m1
+    title: Module One
+    weeks: 2
+    content_fields: []
+    goals: []
+    covers:
+      - id: c.uncovered
+        required_depth: understand
+    milestone:
+      type: test
+      assesses: [c.uncovered]
+    pedagogy:
+      new_grammar: []

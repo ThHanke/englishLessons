@@ -1,0 +1,21 @@
+{
+  "class": "class-a",
+  "date": "2026-08-10",
+  "school_week": 2,
+  "module": { "id": "m1", "title": "Module One", "week_in_module": 2, "of": 2 },
+  "phase": "practice",
+  "pace_factor": 1,
+  "pace_reason": "no pre/post-holiday degradation on this slot",
+  "focus_competences": [
+    { "id": "c.y", "topic": "fixture topic y", "mode": ["produce"] }
+  ],
+  "content_field": { "id": "c.fixture", "text": "fixture content field" },
+  "text_types": ["dialog"],
+  "milestone_context": { "next": "test", "in_slots": 2, "assesses": ["c.y"] },
+  "prior_covered": ["c.x"],
+  "cefr_target": "B1",
+  "known_vocab_ref": "class-a@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": ["writing_prompt"],
+  "curriculum_ref": "fixture-curriculum"
+}

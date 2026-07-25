@@ -1,0 +1,32 @@
+class: fixture-class
+curriculum: fixture-curriculum
+total_weeks: 4
+weekly_lessons: 3
+buffer_weeks: 0
+modules:
+  - id: m1
+    title: Module One
+    weeks: 2
+    content_fields: []
+    goals: []
+    covers:
+      - id: c.uncovered
+        required_depth: understand
+      - id: c.underdepth
+        required_depth: produce
+    milestone:
+      type: test
+      assesses: [c.uncovered, c.underdepth]
+    pedagogy:
+      new_grammar: []
+  - id: m2
+    title: Module Two
+    weeks: 2
+    content_fields: []
+    goals: []
+    covers: []
+    milestone:
+      type: none
+      assesses: []
+    pedagogy:
+      new_grammar: []
