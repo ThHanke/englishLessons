@@ -123,17 +123,32 @@ just click a date and start planning.
   - All classes (`plans/*/class.yaml`) render simultaneously in one calendar; the
     color legend (previously per-module) becomes per-class/grade groups, toggleable
     via the same CalendarPanel mechanism U4 already built.
-  - Each module becomes one spanning task/appointment (start = its placement's
-    first slot date, end = its last slot date), not one event per specific weekday.
-  - Hovering or clicking a module task shows its planned detail, including existing
-    `lesson-spec.json` artifacts already landed within its date range.
-  - Hovering a specific day shows a "Plan lesson" button (repurposing the calendar
-    framework's native add-affordance rather than a bespoke overlay); clicking it
-    opens a small form asking which grade the lesson is for (a day can now span
-    multiple grades' modules at once), then opens the chat tab seeded exactly as R2
-    specifies — a routing step only: no file writes, stays inside R8's
-    read/advisory-only boundary and the plan's own "`prepare-lesson` (O) is out of
-    scope" boundary.
+  - Each module becomes one spanning task (start = its placement's first slot
+    date, end = its last slot date) for overview, **plus** one real Appointment
+    per actual teaching slot from the projection engine's own `placement.slots`
+    (not a fabricated weekday pattern) — the real per-date click target.
+    Clicking a task shows its planned detail (including existing
+    `lesson-spec.json` artifacts landed within its range); clicking an
+    appointment — which already carries its own `classId` + `date` — goes
+    straight to the same lesson-preview context (module/phase/gaps/existing
+    lesson-spec) with one "Open chat" action, no grade/date form needed for the
+    common case. Appointments are anchored to a fixed display time (8:00,
+    client-side only — the projection engine has no real per-lesson clock
+    time) purely so day/week view has something to render them at.
+  - **Investigated and confirmed not available:** a native per-day-cell hover/
+    click affordance in this library's month view. `StoreActions`' complete
+    action set (navigate-to, navigate-time, add-event, update-event,
+    delete-event, select-event, move-event, filter-events) has no cell-click
+    action; month view has no documented or working cell interaction; week/day
+    view supports creation only via drag-select (`dragCreate`), not a click.
+    The toolbar's `+` button (which does fire `add-event`, intercepted and
+    repurposed) is the real entry point for planning a lesson **outside** the
+    regular schedule — it opens a small form asking grade + date (a day can
+    span multiple grades' modules at once so neither can be inferred), with
+    the same lesson preview, then opens chat seeded exactly as R2 specifies —
+    a routing step only: no file writes, stays inside R8's read/advisory-only
+    boundary and the plan's own "`prepare-lesson` (O) is out of scope"
+    boundary.
   - Day/week/month view switching (the calendar framework's built-in views) ships;
     Timeline/Resources/Agenda/Year views are confirmed PRO-only in the installed
     open-source `@svar-ui/react-calendar` edition (verified via its docs during U4)
