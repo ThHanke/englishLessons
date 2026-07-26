@@ -2,7 +2,7 @@ import type { TasksRangeResponse } from '../server/routes/tasks.ts';
 import type { DateContext } from '../server/dateContext.ts';
 
 export type { TasksRangeResponse } from '../server/routes/tasks.ts';
-export type { ClassSummary, ModuleTask } from '../server/moduleTasks.ts';
+export type { ClassSummary, ModuleTask, Appointment } from '../server/moduleTasks.ts';
 export type { DateContext, TeachingDayContext, NonTeachingDayContext } from '../server/dateContext.ts';
 
 /** `GET /api/tasks?from=<from>&to=<to>` — the multi-grade overlay's data source (R11). Response

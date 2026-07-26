@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { groupColorClass, taskEventClass, taskToEvent, worstGapSeverity } from './calendarMapping.ts';
-import type { ModuleTask } from './api.ts';
+import {
+  appointmentEventClass,
+  appointmentToEvent,
+  groupColorClass,
+  taskEventClass,
+  taskToEvent,
+  worstGapSeverity,
+} from './calendarMapping.ts';
+import type { Appointment, ModuleTask } from './api.ts';
 
 function task(overrides: Partial<ModuleTask> & { classId: string; moduleId: string }): ModuleTask {
   return {
@@ -10,6 +17,15 @@ function task(overrides: Partial<ModuleTask> & { classId: string; moduleId: stri
     endDate: '2026-08-14',
     gaps: [],
     plannedDates: [],
+    ...overrides,
+  };
+}
+
+function appointment(overrides: Partial<Appointment> & { classId: string; moduleId: string; date: string }): Appointment {
+  return {
+    classLabel: overrides.classId,
+    moduleTitle: overrides.moduleId,
+    hasLessonSpec: false,
     ...overrides,
   };
 }
@@ -67,5 +83,35 @@ describe('taskEventClass', () => {
     const order = new Map<string, number>();
     const cls = taskEventClass(task({ classId: 'grade-7-realschule-2026', moduleId: 'm1', gaps: [] }), order);
     expect(cls).toBe('companion-module-0');
+  });
+});
+
+describe('appointmentToEvent', () => {
+  it('anchors the appointment to a fixed display hour on its date, carrying class as calendarId', () => {
+    const a = appointment({ classId: 'grade-7-realschule-2026', moduleId: 'm1', moduleTitle: 'Module One', date: '2026-08-17' });
+    const ev = appointmentToEvent(a);
+
+    expect(ev.calendarId).toBe('grade-7-realschule-2026');
+    expect(ev.text).toBe('Module One');
+    expect(ev.allDay).toBe(false);
+    expect(ev.start.getHours()).toBe(8);
+    expect(ev.start < ev.end).toBe(true);
+  });
+
+  it('gives distinct appointments on the same date the same id shape but different classId/moduleId', () => {
+    const a = appointmentToEvent(appointment({ classId: 'grade-7-realschule-2026', moduleId: 'm1', date: '2026-08-17' }));
+    const b = appointmentToEvent(appointment({ classId: 'grade-5-2026', moduleId: 'm2', date: '2026-08-17' }));
+    expect(a.id).not.toBe(b.id);
+  });
+});
+
+describe('appointmentEventClass', () => {
+  it('marks a planned appointment distinctly from an unplanned one', () => {
+    const order = new Map<string, number>();
+    const planned = appointmentEventClass(appointment({ classId: 'c', moduleId: 'm1', date: '2026-08-17', hasLessonSpec: true }), order);
+    const unplanned = appointmentEventClass(appointment({ classId: 'c', moduleId: 'm1', date: '2026-08-18', hasLessonSpec: false }), order);
+
+    expect(planned).toContain('companion-planned');
+    expect(unplanned).not.toContain('companion-planned');
   });
 });

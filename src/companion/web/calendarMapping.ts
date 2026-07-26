@@ -1,5 +1,5 @@
 import type { CalendarEvent } from '@svar-ui/react-calendar';
-import type { ModuleTask } from '../server/moduleTasks.ts';
+import type { Appointment, ModuleTask } from '../server/moduleTasks.ts';
 import type { GapKind } from '../../coverage/types.ts';
 
 /** Deterministic class -> color-slot palette (cycled by first-seen order), so each grade reads as
@@ -36,8 +36,6 @@ export function worstGapSeverity(task: ModuleTask): GapKind | null {
   return worst;
 }
 
-/** One spanning `CalendarEvent` per module placement (R11) — `start`/`end` are the task's whole
- * date range, not a single day; `calendarId` is the class, so CalendarPanel groups by grade. */
 /** All-day calendar events must land on the right day in the *browser's local* calendar grid
  * regardless of the machine's UTC offset, so this deliberately uses local-time `Date` construction
  * (not `Date.UTC`) — a UTC-midnight instant displayed in a negative-offset timezone (e.g. US)
@@ -47,6 +45,8 @@ function isoDateToLocalDate(dateIso: string, endOfDay = false): Date {
   return endOfDay ? new Date(year, month - 1, day, 23, 59, 59) : new Date(year, month - 1, day);
 }
 
+/** One spanning `CalendarEvent` per module placement (R11) — `start`/`end` are the task's whole
+ * date range, not a single day; `calendarId` is the class, so CalendarPanel groups by grade. */
 export function taskToEvent(task: ModuleTask): CalendarEvent {
   return {
     id: `${task.classId}::${task.moduleId}`,
@@ -63,5 +63,33 @@ export function taskEventClass(task: ModuleTask, order: Map<string, number>): st
   const classes = [groupColorClass(task.classId, order)];
   const gap = worstGapSeverity(task);
   if (gap) classes.push(GAP_CLASS[gap]);
+  return classes.join(' ');
+}
+
+/** Display-only default slot (8:00-8:45): the projection engine only knows a module's date range
+ * and lesson-count budget, never a real clock time (no per-lesson schedule exists) — this anchors
+ * each real teaching-day appointment to a fixed time purely so day/week view has something to
+ * render it at; it is not a claim about when the lesson actually happens. */
+const APPOINTMENT_HOUR = 8;
+const APPOINTMENT_DURATION_MINUTES = 45;
+
+export function appointmentToEvent(appointment: Appointment): CalendarEvent {
+  const start = isoDateToLocalDate(appointment.date);
+  start.setHours(APPOINTMENT_HOUR, 0, 0, 0);
+  const end = new Date(start.getTime() + APPOINTMENT_DURATION_MINUTES * 60_000);
+  return {
+    id: `${appointment.classId}::${appointment.moduleId}::${appointment.date}`,
+    start,
+    end,
+    allDay: false,
+    text: appointment.moduleTitle,
+    calendarId: appointment.classId,
+    appointment,
+  };
+}
+
+export function appointmentEventClass(appointment: Appointment, order: Map<string, number>): string {
+  const classes = [groupColorClass(appointment.classId, order)];
+  if (appointment.hasLessonSpec) classes.push('companion-planned');
   return classes.join(' ');
 }

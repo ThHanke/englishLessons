@@ -27,6 +27,19 @@ export interface ModuleTask {
   plannedDates: string[];
 }
 
+/** One real teaching slot for a class+module (from the projection engine's own placement, not a
+ * fabricated weekday pattern) — the actual per-date click target (R11): unlike a `ModuleTask`'s
+ * whole-module span, an appointment already carries a specific `classId` + `date`, so clicking one
+ * can go straight to a lesson preview without the grade+date form. */
+export interface Appointment {
+  classId: string;
+  classLabel: string;
+  moduleId: string;
+  moduleTitle: string;
+  date: string;
+  hasLessonSpec: boolean;
+}
+
 /** `classFile.name` embeds a school-year-ish suffix (`grade-5-2026`, `grade-7-realschule-2026`)
  * that isn't actually the school year every class is scheduled against — every class currently
  * maps onto the same 2026/2027 calendar, so showing that suffix in the UI reads as a real (and
@@ -66,10 +79,13 @@ function loadCalendarForClass(className: string, repoRoot: string): CalendarFile
  * placements computed yet; it still appears in `classes[]` (so the panel/legend lists all grades)
  * but contributes zero tasks, rather than failing the whole response for every other class.
  */
-export function moduleTasks(params: { from: string; to: string; repoRoot?: string }): { classes: ClassSummary[]; tasks: ModuleTask[] } {
+export function moduleTasks(
+  params: { from: string; to: string; repoRoot?: string },
+): { classes: ClassSummary[]; tasks: ModuleTask[]; appointments: Appointment[] } {
   const repoRoot = params.repoRoot ?? DEFAULT_REPO_ROOT;
   const classes: ClassSummary[] = [];
   const tasks: ModuleTask[] = [];
+  const appointments: Appointment[] = [];
 
   for (const { modulesFile, classFile } of listAllClasses(repoRoot)) {
     classes.push({ id: classFile.name, label: classLabel(classFile) });
@@ -92,18 +108,36 @@ export function moduleTasks(params: { from: string; to: string; repoRoot?: strin
     const specs = listLessonSpecs(classFile.name, repoRoot);
     const moduleTitleById = new Map(modulesFile.modules.map((m) => [m.id, m.title]));
 
+    const plannedDateSet = new Set(specs.map((s) => s.date));
+
     for (const placement of placements) {
       if (placement.slots.length === 0) continue;
       const dates = placement.slots.map((s) => s.date);
       const startDate = dates.reduce((a, b) => (a < b ? a : b));
       const endDate = dates.reduce((a, b) => (a > b ? a : b));
-      if (endDate < params.from || startDate > params.to) continue;
+      const moduleTitle = moduleTitleById.get(placement.moduleId) ?? placement.moduleId;
 
+      // Appointments are filtered per-slot below (not by the task's overall [startDate, endDate]
+      // window), so a module that starts before `from` but has slots inside it still surfaces
+      // real click targets for those in-range dates.
+      for (const slot of placement.slots) {
+        if (slot.date < params.from || slot.date > params.to) continue;
+        appointments.push({
+          classId: classFile.name,
+          classLabel: classLabel(classFile),
+          moduleId: placement.moduleId,
+          moduleTitle,
+          date: slot.date,
+          hasLessonSpec: plannedDateSet.has(slot.date),
+        });
+      }
+
+      if (endDate < params.from || startDate > params.to) continue;
       tasks.push({
         classId: classFile.name,
         classLabel: classLabel(classFile),
         moduleId: placement.moduleId,
-        moduleTitle: moduleTitleById.get(placement.moduleId) ?? placement.moduleId,
+        moduleTitle,
         startDate,
         endDate,
         gaps: report.gaps.filter((g) => g.moduleId === placement.moduleId),
@@ -112,5 +146,5 @@ export function moduleTasks(params: { from: string; to: string; repoRoot?: strin
     }
   }
 
-  return { classes, tasks };
+  return { classes, tasks, appointments };
 }

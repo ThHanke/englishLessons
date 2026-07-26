@@ -32,6 +32,9 @@
 .companion-gap-under-depth.wx-bar-event, .companion-gap-under-depth.wx-box-event { border: 2px solid #d97706; }
 .companion-gap-at-risk.wx-bar-event, .companion-gap-at-risk.wx-box-event { border: 2px solid #dc2626; }
 
+/* A real teaching-day appointment whose date already has a lesson-spec.json (R11). */
+.companion-planned.wx-box-event, .companion-planned.wx-bar-event { border-left: 4px solid #16a34a; }
+
 /* Richer per-event chip content (TaskEventContent in Calendar.tsx) — title + grade + gap in one
  * line, ellipsized: the ~22px chip height (month view) only fits a single line. */
 .companion-event-content {

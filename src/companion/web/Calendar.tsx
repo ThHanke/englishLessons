@@ -4,8 +4,15 @@ import type { CalendarGroup, CalendarInstanceApi, EventContext, CalendarEvent, E
 import type { StoreActions } from '@svar-ui/calendar-store';
 import '@svar-ui/react-calendar/all.css';
 import { fetchLessonPreview, fetchModuleTasks } from './api.ts';
-import type { ClassSummary, DateContext, ModuleTask } from './api.ts';
-import { groupColorClass, taskEventClass, taskToEvent, worstGapSeverity } from './calendarMapping.ts';
+import type { Appointment, ClassSummary, DateContext, ModuleTask } from './api.ts';
+import {
+  appointmentEventClass,
+  appointmentToEvent,
+  groupColorClass,
+  taskEventClass,
+  taskToEvent,
+  worstGapSeverity,
+} from './calendarMapping.ts';
 
 export interface CalendarProps {
   baseUrl: string;
@@ -107,22 +114,92 @@ function PlanLessonForm({
   );
 }
 
-/** Denser chip content than a bare title (the previous build showed only `text`, which the
- * teacher couldn't act on without clicking through) — module title, grade, and worst gap
- * severity in one line: month-view bar chips are a fixed ~22px tall (confirmed against a live
- * build), too short to stack multiple lines without clipping, so this stays single-line with
- * `text-overflow: ellipsis` and leaves the full breakdown (including planned-lesson dates) to the
- * click-through task-detail panel, which already exists. */
-function TaskEventContent({ event }: { event: CalendarEvent; mode: EventContentMode }) {
-  const task = (event as CalendarEvent & { task?: ModuleTask }).task;
-  if (!task) return null;
-  const gap = worstGapSeverity(task);
+/** Preview + open-chat panel for a real scheduled appointment (R11) — unlike `PlanLessonForm`,
+ * class and date are already fixed (the appointment itself carries them), so this skips straight
+ * to the same seed-context preview, then a single "Open chat" action. */
+function AppointmentPreview({
+  appointment,
+  baseUrl,
+  onClose,
+  onOpenChat: onOpenChatForAppointment,
+}: {
+  appointment: Appointment;
+  baseUrl: string;
+  onClose: () => void;
+  onOpenChat: (classId: string, date: string) => void;
+}) {
+  const [preview, setPreview] = useState<DateContext | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchLessonPreview({ baseUrl, className: appointment.classId, date: appointment.date }).then(
+      (ctx) => {
+        if (!cancelled) setPreview(ctx);
+      },
+      (err) => {
+        if (!cancelled) setPreviewError((err as Error).message);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [baseUrl, appointment.classId, appointment.date]);
+
   return (
-    <span className="companion-event-content">
-      <strong>{task.moduleTitle}</strong> · {task.classLabel}
-      {gap && <> · {gap}</>}
-    </span>
+    <div role="dialog" aria-label="Lesson preview" data-testid="appointment-preview">
+      <p>
+        {appointment.classLabel} · {appointment.date} · {appointment.moduleTitle}
+      </p>
+      {previewError && <p data-testid="appointment-preview-error">{previewError}</p>}
+      {preview && preview.isTeachingDay && (
+        <>
+          <p>
+            Week {preview.weekInModule}, {preview.phase}
+          </p>
+          <p>{preview.gaps.length === 0 ? 'No coverage gaps' : `${preview.gaps.length} coverage gap(s)`}</p>
+          <p>{preview.lessonSpec ? `Existing lesson-spec: ${preview.lessonSpecPath}` : 'No lesson-spec planned yet'}</p>
+        </>
+      )}
+      <button type="button" onClick={onClose}>
+        Close
+      </button>
+      <button type="button" onClick={() => onOpenChatForAppointment(appointment.classId, appointment.date)}>
+        Open chat
+      </button>
+    </div>
   );
+}
+
+/** Denser chip content than a bare title (the previous build showed only `text`, which the
+ * teacher couldn't act on without clicking through) — module title, grade, and either worst gap
+ * severity (task bars) or a "planned" mark (appointment chips) in one line: month-view chips are
+ * a fixed ~22px tall (confirmed against a live build), too short to stack multiple lines without
+ * clipping, so this stays single-line with `text-overflow: ellipsis` and leaves the full
+ * breakdown to the click-through detail panels, which already exist. One renderer for both event
+ * kinds since `eventContent` is a single calendar-wide prop, not per-event-type. */
+function EventContent({ event }: { event: CalendarEvent; mode: EventContentMode }) {
+  const task = (event as CalendarEvent & { task?: ModuleTask }).task;
+  const appointment = (event as CalendarEvent & { appointment?: Appointment }).appointment;
+
+  if (task) {
+    const gap = worstGapSeverity(task);
+    return (
+      <span className="companion-event-content">
+        <strong>{task.moduleTitle}</strong> · {task.classLabel}
+        {gap && <> · {gap}</>}
+      </span>
+    );
+  }
+  if (appointment) {
+    return (
+      <span className="companion-event-content">
+        {appointment.moduleTitle}
+        {appointment.hasLessonSpec && <> · planned</>}
+      </span>
+    );
+  }
+  return null;
 }
 
 function todayIso(): string {
@@ -133,8 +210,10 @@ function todayIso(): string {
 export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarProps) {
   const [classes, setClasses] = useState<ClassSummary[]>([]);
   const [tasks, setTasks] = useState<ModuleTask[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [activeClassIds, setActiveClassIds] = useState<(string | number)[] | null>(null);
   const [selectedTask, setSelectedTask] = useState<ModuleTask | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showPlanLessonForm, setShowPlanLessonForm] = useState(false);
   // The calendar's own navigated-to date (prev/next/today, or a view switch) — tracked here and
   // fed back as `date` so it survives unrelated re-renders (e.g. toggling a CalendarPanel
@@ -154,6 +233,7 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
       if (!cancelled) {
         setClasses(res.classes);
         setTasks(res.tasks);
+        setAppointments(res.appointments);
       }
     });
     return () => {
@@ -161,7 +241,11 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
     };
   }, [baseUrl, month]);
 
-  const byId = useMemo(() => new Map(tasks.map((t) => [`${t.classId}::${t.moduleId}`, t])), [tasks]);
+  const taskById = useMemo(() => new Map(tasks.map((t) => [`${t.classId}::${t.moduleId}`, t])), [tasks]);
+  const appointmentById = useMemo(
+    () => new Map(appointments.map((a) => [`${a.classId}::${a.moduleId}::${a.date}`, a])),
+    [appointments],
+  );
   const groupOrder = useMemo(() => new Map<string, number>(), []);
   const groups: CalendarGroup[] = useMemo(
     () => classes.map((c) => ({ id: c.id, label: c.label, css: groupColorClass(c.id, groupOrder), active: true })),
@@ -180,20 +264,31 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
 
   const effectiveActiveIds = activeClassIds ?? classes.map((c) => c.id);
   const events = useMemo(
-    () => tasks.filter((t) => effectiveActiveIds.includes(t.classId)).map(taskToEvent),
+    () => [
+      ...tasks.filter((t) => effectiveActiveIds.includes(t.classId)).map(taskToEvent),
+      ...appointments.filter((a) => effectiveActiveIds.includes(a.classId)).map(appointmentToEvent),
+    ],
     // eslint-disable-next-line react-hooks/exhaustive-deps -- effectiveActiveIds is derived per render, comparing by value would thrash
-    [tasks, activeClassIds],
+    [tasks, appointments, activeClassIds],
   );
 
   function eventCss(ctx: EventContext): string {
-    const task = (ctx.event as CalendarEvent & { task?: ModuleTask }).task;
-    return task ? taskEventClass(task, groupOrder) : '';
+    const event = ctx.event as CalendarEvent & { task?: ModuleTask; appointment?: Appointment };
+    if (event.task) return taskEventClass(event.task, groupOrder);
+    if (event.appointment) return appointmentEventClass(event.appointment, groupOrder);
+    return '';
   }
 
   function handleSelectEvent(ev: { id: string | number | null }) {
     if (ev.id === null) return;
-    const task = byId.get(String(ev.id));
-    setSelectedTask(task ?? null);
+    const id = String(ev.id);
+    const task = taskById.get(id);
+    if (task) {
+      setSelectedTask(task);
+      return;
+    }
+    const appointment = appointmentById.get(id);
+    setSelectedAppointment(appointment ?? null);
   }
 
   function handlePanelChange(ev: { value: (string | number)[] }) {
@@ -235,7 +330,7 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
           view="month"
           views={['day', 'week', 'month']}
           eventCss={eventCss}
-          eventContent={TaskEventContent}
+          eventContent={EventContent}
           onSelectEvent={handleSelectEvent}
           init={handleInit}
         >
@@ -255,6 +350,18 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
               Close
             </button>
           </div>
+        )}
+
+        {selectedAppointment && (
+          <AppointmentPreview
+            appointment={selectedAppointment}
+            baseUrl={baseUrl}
+            onClose={() => setSelectedAppointment(null)}
+            onOpenChat={(classId, date) => {
+              onOpenChat(classId, date);
+              setSelectedAppointment(null);
+            }}
+          />
         )}
 
         {showPlanLessonForm && (

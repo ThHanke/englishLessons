@@ -1,12 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { moduleTasks } from '../moduleTasks.ts';
-import type { ClassSummary, ModuleTask } from '../moduleTasks.ts';
+import type { Appointment, ClassSummary, ModuleTask } from '../moduleTasks.ts';
 
 export interface TasksRangeResponse {
   from: string;
   to: string;
   classes: ClassSummary[];
   tasks: ModuleTask[];
+  appointments: Appointment[];
 }
 
 function sendJson(res: ServerResponse, statusCode: number, body: unknown): void {
@@ -30,8 +31,8 @@ export async function handleTasksRequest(req: IncomingMessage, res: ServerRespon
   }
 
   try {
-    const { classes, tasks } = moduleTasks({ from, to, repoRoot: config.repoRoot });
-    sendJson(res, 200, { from, to, classes, tasks } satisfies TasksRangeResponse);
+    const { classes, tasks, appointments } = moduleTasks({ from, to, repoRoot: config.repoRoot });
+    sendJson(res, 200, { from, to, classes, tasks, appointments } satisfies TasksRangeResponse);
   } catch (err) {
     sendJson(res, 500, { error: (err as Error).message });
   }

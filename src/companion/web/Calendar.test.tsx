@@ -28,7 +28,7 @@ function task(overrides: Partial<ModuleTask> & { classId: string; moduleId: stri
 }
 
 function mockFetch(classes: TasksRangeResponse['classes'], tasks: ModuleTask[]) {
-  const response: TasksRangeResponse = { from: '2026-08-01', to: '2026-08-31', classes, tasks };
+  const response: TasksRangeResponse = { from: '2026-08-01', to: '2026-08-31', classes, tasks, appointments: [] };
   vi.spyOn(api, 'fetchModuleTasks').mockResolvedValue(response);
 }
 

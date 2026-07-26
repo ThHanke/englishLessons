@@ -39,4 +39,27 @@ describe('moduleTasks', () => {
     const noArtifacts = tasks.find((t) => t.classId === 'fixture-class-no-artifacts')!;
     expect(noArtifacts.plannedDates).toEqual([]);
   });
+
+  it('returns one appointment per real teaching slot, each already carrying its own class + date', () => {
+    const { appointments } = moduleTasks({ from: '2026-08-03', to: '2026-08-05', repoRoot: FIXTURE_REPO_ROOT });
+    const monday = appointments.find((a) => a.classId === 'fixture-class' && a.date === '2026-08-03');
+
+    expect(monday).toBeDefined();
+    expect(monday?.moduleId).toBe('m1');
+    expect(monday?.moduleTitle).toBe('Module One');
+  });
+
+  it('flags an appointment whose date already has a lesson-spec.json', () => {
+    const { appointments } = moduleTasks({ from: '2026-08-05', to: '2026-08-05', repoRoot: FIXTURE_REPO_ROOT });
+    const planned = appointments.find((a) => a.classId === 'fixture-class' && a.date === '2026-08-05');
+    const unplanned = appointments.find((a) => a.classId === 'fixture-class-no-artifacts' && a.date === '2026-08-05');
+
+    expect(planned?.hasLessonSpec).toBe(true);
+    expect(unplanned?.hasLessonSpec).toBe(false);
+  });
+
+  it('only returns appointments for slots within [from, to], even for a module spanning outside it', () => {
+    const { appointments } = moduleTasks({ from: '2030-01-01', to: '2030-01-31', repoRoot: FIXTURE_REPO_ROOT });
+    expect(appointments).toEqual([]);
+  });
 });
