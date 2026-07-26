@@ -57,11 +57,16 @@ just click a date and start planning.
 
 - R1. The companion shows a calendar view of the projected year (module, phase,
   milestone/test dates, coverage gaps) computed directly from the Phase-1 projection
-  engine against the live repo data.
+  engine against the live repo data. **Superseded by R11** (2026-07-26): all classes
+  (grades 5/6/7) show simultaneously as toggleable overlay layers in one calendar,
+  not one class at a time.
 - R2. Clicking a date opens a chat tab seeded with that date's context: active module,
   week-in-module, and phase (`whichModule`), coverage gaps for the active module
   (`gapReport`), and the existing `lesson-spec.json`/artifacts for that date when
-  present.
+  present. **Amended by R11** (2026-07-26): since a date cell can now hold multiple
+  grades' modules at once, the click target moved from "the date cell itself" to a
+  per-date "Plan lesson" affordance that first asks which grade, then opens chat
+  seeded exactly as R2 originally specified.
 - R3. The chat session has access to the repo's existing skills (`curriculum-decompose`,
   `module-derive`, `vocab-generate`, and any future `prepare-lesson`/generator skills)
   exactly as under Claude Code, with no separate configuration. Skill tool-calls that
@@ -109,6 +114,31 @@ just click a date and start planning.
   attempts to render from whatever `/api/calendar` data is reachable. UX-only
   safeguard: R4/R7/R8's actual security guarantees (origin check, token
   requirement, deny-list) do not depend on this and are unaffected either way.
+- R11. **Multi-grade overlay calendar with module-spanning tasks** (added
+  2026-07-26, supersedes R1's single-class framing, amends R2/F1-F4). Raised by the
+  teacher after seeing U4's first working build: the specific per-weekday lesson
+  slots (Mon/Wed/Fri) rendered by that build were a placeholder assumption, not real
+  data — the projection engine only ever computed a module's overall date-range
+  budget, never a specific day-of-week pattern. Reframes the calendar accordingly:
+  - All classes (`plans/*/class.yaml`) render simultaneously in one calendar; the
+    color legend (previously per-module) becomes per-class/grade groups, toggleable
+    via the same CalendarPanel mechanism U4 already built.
+  - Each module becomes one spanning task/appointment (start = its placement's
+    first slot date, end = its last slot date), not one event per specific weekday.
+  - Hovering or clicking a module task shows its planned detail, including existing
+    `lesson-spec.json` artifacts already landed within its date range.
+  - Hovering a specific day shows a "Plan lesson" button (repurposing the calendar
+    framework's native add-affordance rather than a bespoke overlay); clicking it
+    opens a small form asking which grade the lesson is for (a day can now span
+    multiple grades' modules at once), then opens the chat tab seeded exactly as R2
+    specifies — a routing step only: no file writes, stays inside R8's
+    read/advisory-only boundary and the plan's own "`prepare-lesson` (O) is out of
+    scope" boundary.
+  - Day/week/month view switching (the calendar framework's built-in views) ships;
+    Timeline/Resources/Agenda/Year views are confirmed PRO-only in the installed
+    open-source `@svar-ui/react-calendar` edition (verified via its docs during U4)
+    and are not available without a paid license — explicitly out of scope, not a
+    gap.
 
 ### Key Decisions
 
@@ -670,6 +700,42 @@ flowchart TB
 - **Verification:** component test for the switcher; one integration-level test
   exercising the real API layer against fixture class data (Agent SDK still
   mocked).
+
+#### Amendment (2026-07-26, R11): concrete implementation shape
+
+Supersedes the Approach text above for U2-U4 and U6. U5's chat-seeding contract
+(R2/F1-F3/R6) is unaffected — only how a date+grade gets selected changes.
+
+- **U2 (`dateContext.ts`/new `moduleTasks.ts`):** add a `moduleTasks(params: {
+  from, to, repoRoot? })` function (no `class` param — scans every
+  `plans/*/class.yaml`) returning one `ModuleTask` per module placement whose
+  slot range overlaps `[from, to]`: `{ classId, classLabel, moduleId,
+  moduleTitle, startDate, endDate, gaps, plannedDates: string[] }` —
+  `moduleTitle` from `Module.title` (`schema/types.ts`, already on every module,
+  previously unused by this component); `plannedDates` from the same
+  `artifacts/<class>/**/lesson-spec.json` scan `buildLedger.ts` already does,
+  filtered to dates inside `[startDate, endDate]`. `dateContext.ts` itself
+  (single class + date, used to seed a chat session once a grade+date is
+  chosen) is unchanged.
+- **U3 (`routes/`):** add `GET /api/tasks?from=&to=` returning `{ classes:
+  {id, label}[], tasks: ModuleTask[] }` for all classes in range. The existing
+  `GET /api/calendar` (per-class, per-day) stays as-is; U4 stops calling it for
+  the grid and calls `/api/tasks` instead, but nothing depends on removing it.
+- **U4 (`Calendar.tsx`):** CalendarPanel groups become classes (`classId` as
+  `calendarId`, 3 fixed groups from `/api/tasks`' `classes[]`), each task is one
+  spanning event (`start`/`end` = the task's date range, not a single day);
+  `eventContent`/`tooltip` shows the module title + `plannedDates` on
+  hover/click. A day-cell hover exposes a "Plan lesson" affordance (the
+  calendar framework's own add-event trigger, intercepted rather than replaced
+  — KTD1-adjacent: reuse the library's own hover/add mechanics instead of
+  building a parallel one) opening a small grade-picker form; submitting it
+  calls the same `onOpenChat(classId, date)` contract U5/U6 already wire to
+  chat-seeding, unchanged. Add the view-switcher (`views={['day','week',
+  'month']}`) the original U4 build was missing.
+- **U6 (`App.tsx`):** the `ClassSwitcher` dropdown planned here is superseded —
+  class selection now happens per-click via the U4 grade-picker form, not a
+  global switcher. `App.tsx` still owns the R10 handshake and composes
+  Calendar + Chat.
 
 ### U7. Setup docs and dependencies
 
