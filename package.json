@@ -10,11 +10,28 @@
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.3.220",
-    "vite": "^5.4.21",
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "lucide-react": "^1.27.0",
+    "react": "^19.2.8",
+    "react-day-picker": "^10.0.1",
+    "react-dom": "^19.2.8",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.1.5",
     "yaml": "^2.5.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "jsdom": "^29.1.1",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   }
