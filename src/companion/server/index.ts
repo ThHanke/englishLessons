@@ -8,6 +8,8 @@ import tailwindcss from '@tailwindcss/vite';
 import { generateSessionToken } from './security.ts';
 import { handleCalendarRequest } from './routes/calendar.ts';
 import { handleChatRequest } from './routes/chat.ts';
+import { handleTasksRequest } from './routes/tasks.ts';
+import { handleLessonPreviewRequest } from './routes/lessonPreview.ts';
 
 const DEFAULT_REPO_ROOT = new URL('../../../', import.meta.url).pathname;
 
@@ -69,6 +71,14 @@ export async function createCompanionServer(params?: { port?: number; repoRoot?:
     }
     if (req.method === 'GET' && url.pathname === '/api/calendar') {
       void handleCalendarRequest(req, res, { repoRoot });
+      return;
+    }
+    if (req.method === 'GET' && url.pathname === '/api/tasks') {
+      void handleTasksRequest(req, res, { repoRoot });
+      return;
+    }
+    if (req.method === 'GET' && url.pathname === '/api/lesson-preview') {
+      void handleLessonPreviewRequest(req, res, { repoRoot });
       return;
     }
     if (req.method === 'POST' && url.pathname === '/api/chat') {

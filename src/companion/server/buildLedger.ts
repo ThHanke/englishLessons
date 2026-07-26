@@ -6,7 +6,7 @@ import { coverageLedger } from '../../coverage/ledger.ts';
 
 const DEFAULT_REPO_ROOT = new URL('../../../', import.meta.url).pathname;
 
-function walkLessonSpecFiles(dir: string): string[] {
+export function walkLessonSpecFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
@@ -52,4 +52,15 @@ export function buildLedger(className: string, modulesFile: ModulesFile, repoRoo
   const specFiles = walkLessonSpecFiles(classDir);
   const lessons = specFiles.map((f) => lessonSpecToCoverage(JSON.parse(readFileSync(f, 'utf-8')) as LessonSpec));
   return coverageLedger(lessons, modulesFile);
+}
+
+/** `{ date, moduleId }` for every `lesson-spec.json` already landed for a class — the "already
+ * planned lessons" markers a module's spanning task shows on hover (R11). */
+export function listLessonSpecs(className: string, repoRoot: string = DEFAULT_REPO_ROOT): Array<{ date: string; moduleId: string }> {
+  const classDir = join(repoRoot, 'artifacts', className);
+  if (!existsSync(classDir)) return [];
+  return walkLessonSpecFiles(classDir).map((f) => {
+    const spec = JSON.parse(readFileSync(f, 'utf-8')) as LessonSpec;
+    return { date: spec.date, moduleId: spec.module.id };
+  });
 }

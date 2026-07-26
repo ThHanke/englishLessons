@@ -9,8 +9,7 @@ const root = createRoot(document.getElementById('root')!);
 root.render(
   <Calendar
     baseUrl={window.location.origin}
-    className="grade-7-realschule-2026"
     month="2026-08-01"
-    onOpenChat={(date) => console.log('onOpenChat', date)}
+    onOpenChat={(classId, date) => console.log('onOpenChat', classId, date)}
   />,
 );
