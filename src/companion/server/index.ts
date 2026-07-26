@@ -1,7 +1,10 @@
 import { createServer as createHttpServer } from 'node:http';
 import type { Server } from 'node:http';
+import { join } from 'node:path';
 import { createServer as createViteServer } from 'vite';
 import type { ViteDevServer } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { generateSessionToken } from './security.ts';
 import { handleCalendarRequest } from './routes/calendar.ts';
 import { handleChatRequest } from './routes/chat.ts';
@@ -35,9 +38,10 @@ export interface CompanionServerHandle {
  * every request either matches one of the three API paths explicitly or falls through to Vite
  * unchanged.
  *
- * `appType: 'custom'` because this unit ships no built frontend yet (U4-U6 land the React UI and
- * its `index.html` later) - `appType: 'spa'` would have Vite try (and fail) to serve a
- * nonexistent `index.html` for every non-API path.
+ * `root: src/companion/web` (its `index.html`/`main.tsx`) with `appType: 'spa'`, so Vite serves
+ * the built UI and falls back to `index.html` for client-side routes; the three API paths are
+ * matched explicitly ahead of Vite's own middleware chain, so route ordering relative to Vite's
+ * internals (asset serving, HTML fallback) is never a concern.
  *
  * `port: 0` (the default) binds an OS-assigned ephemeral port so parallel test runs never
  * collide on a fixed port; pass an explicit port to run the companion for real use.
@@ -48,13 +52,11 @@ export async function createCompanionServer(params?: { port?: number; repoRoot?:
   let origin = '';
 
   const vite = await createViteServer({
-    root: repoRoot,
+    root: join(repoRoot, 'src/companion/web'),
     configFile: false,
-    appType: 'custom',
+    appType: 'spa',
+    plugins: [react(), tailwindcss()],
     server: { middlewareMode: true, host: HOST },
-    // No built frontend exists in this unit yet (U4-U6), so there's no entry point for Vite's
-    // dependency pre-bundler to discover - silence its otherwise-harmless warning about that.
-    optimizeDeps: { noDiscovery: true },
   });
 
   const httpServer = createHttpServer((req, res) => {

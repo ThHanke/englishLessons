@@ -1,16 +1,10 @@
-import { useEffect, useState } from 'react';
-import { eachDayOfInterval, endOfMonth, format, startOfMonth } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
+import { Calendar as SvarCalendar, CalendarPanel, Willow, WillowDark } from '@svar-ui/react-calendar';
+import type { CalendarGroup, EventContext, CalendarEvent } from '@svar-ui/react-calendar';
+import '@svar-ui/react-calendar/all.css';
 import { fetchCalendarRange } from './api.ts';
 import type { CalendarDayResponse } from './api.ts';
-import { cn } from './lib/cn.ts';
-
-/** Worst-of gap severity gets a distinct border/badge treatment per kind, ranked
- * uncovered < under-depth < at-risk (matches the server's own ranking in routes/calendar.ts). */
-const GAP_SEVERITY_STYLES: Record<'uncovered' | 'under-depth' | 'at-risk', string> = {
-  uncovered: 'border-slate-400 dark:border-slate-500',
-  'under-depth': 'border-amber-500 dark:border-amber-400',
-  'at-risk': 'border-red-600 dark:border-red-500',
-};
+import { eventClassFor, moduleColorClass, resolveSelection, toEvent } from './calendarMapping.ts';
 
 export interface CalendarProps {
   baseUrl: string;
@@ -18,15 +12,21 @@ export interface CalendarProps {
   /** `YYYY-MM-01` — any date within the month to render. */
   month: string;
   onOpenChat: (date: string) => void;
+  /** Renders the Willow-dark theme instead of the light one (KTD/plan's light/dark requirement). */
+  dark?: boolean;
 }
 
-export function Calendar({ baseUrl, className, month, onOpenChat }: CalendarProps) {
+export function Calendar({ baseUrl, className, month, onOpenChat, dark = false }: CalendarProps) {
   const [days, setDays] = useState<CalendarDayResponse[]>([]);
-  const [expandedNonTeachingDay, setExpandedNonTeachingDay] = useState<string | null>(null);
+  const [nonTeachingMessage, setNonTeachingMessage] = useState<{ date: string; reason: string } | null>(null);
+  const [activeModuleIds, setActiveModuleIds] = useState<(string | number)[] | null>(null);
 
   useEffect(() => {
-    const from = format(startOfMonth(new Date(month)), 'yyyy-MM-dd');
-    const to = format(endOfMonth(new Date(month)), 'yyyy-MM-dd');
+    // Date.UTC (not the local-time Date constructor) throughout, so the computed range never
+    // shifts a day off depending on the browser's local timezone.
+    const [year, monthNum] = month.slice(0, 7).split('-').map(Number) as [number, number];
+    const from = `${month.slice(0, 7)}-01`;
+    const to = new Date(Date.UTC(year, monthNum, 0)).toISOString().slice(0, 10);
     let cancelled = false;
     fetchCalendarRange({ baseUrl, className, from, to }).then((res) => {
       if (!cancelled) setDays(res.days);
@@ -36,63 +36,73 @@ export function Calendar({ baseUrl, className, month, onOpenChat }: CalendarProp
     };
   }, [baseUrl, className, month]);
 
-  const gridDays = eachDayOfInterval({
-    start: startOfMonth(new Date(month)),
-    end: endOfMonth(new Date(month)),
-  });
-  const byDate = new Map(days.map((d) => [d.date, d]));
+  const byDate = useMemo(() => new Map(days.map((d) => [d.date, d])), [days]);
 
-  function handleDayClick(day: CalendarDayResponse) {
-    if (day.isTeachingDay) {
-      setExpandedNonTeachingDay(null);
-      onOpenChat(day.date);
+  const moduleOrder = useMemo(() => new Map<string, number>(), []);
+  const modules: CalendarGroup[] = useMemo(() => {
+    const seen = new Map<string, CalendarGroup>();
+    for (const d of days) {
+      if (d.isTeachingDay && d.moduleId && !seen.has(d.moduleId)) {
+        seen.set(d.moduleId, { id: d.moduleId, label: d.moduleId, css: moduleColorClass(d.moduleId, moduleOrder), active: true });
+      }
+    }
+    return [...seen.values()];
+  }, [days, moduleOrder]);
+
+  // Every module starts active; once the panel toggles one off, that choice persists across
+  // re-fetches (a different month might not even contain the toggled-off module).
+  const effectiveActiveIds = activeModuleIds ?? modules.map((m) => m.id);
+
+  const events = useMemo(
+    () => days.map(toEvent).filter((ev) => ev.calendarId === undefined || effectiveActiveIds.includes(ev.calendarId as string)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- effectiveActiveIds is derived per render, comparing by value would thrash
+    [days, activeModuleIds],
+  );
+
+  function eventCss(ctx: EventContext): string {
+    const day = (ctx.event as CalendarEvent & { day?: CalendarDayResponse }).day as CalendarDayResponse | undefined;
+    return day ? eventClassFor(day, moduleOrder) : '';
+  }
+
+  function handleSelectEvent(ev: { id: string | number | null }) {
+    if (ev.id === null) return;
+    const day = byDate.get(String(ev.id));
+    if (!day) return;
+    const selection = resolveSelection(day);
+    if (selection.kind === 'open-chat') {
+      setNonTeachingMessage(null);
+      onOpenChat(selection.date);
     } else {
-      setExpandedNonTeachingDay((current) => (current === day.date ? null : day.date));
+      setNonTeachingMessage({ date: selection.date, reason: selection.reason });
     }
   }
 
-  return (
-    <div data-testid="companion-calendar" className="grid grid-cols-7 gap-1">
-      {gridDays.map((d) => {
-        const dateIso = format(d, 'yyyy-MM-dd');
-        const day = byDate.get(dateIso);
-        if (!day) {
-          return (
-            <div key={dateIso} data-date={dateIso} className="rounded border border-transparent p-2 text-sm text-muted-foreground" />
-          );
-        }
+  function handlePanelChange(ev: { value: (string | number)[] }) {
+    setActiveModuleIds(ev.value);
+  }
 
-        return (
-          <div key={dateIso} className="flex flex-col">
-            <button
-              type="button"
-              data-date={day.date}
-              data-teaching-day={day.isTeachingDay}
-              data-module-id={day.moduleId ?? undefined}
-              data-phase={day.phase ?? undefined}
-              data-gap-severity={day.gapSeverity ?? undefined}
-              onClick={() => handleDayClick(day)}
-              className={cn(
-                'rounded border p-2 text-left text-sm',
-                day.isTeachingDay ? 'border-border bg-card' : 'border-dashed border-muted-foreground/40 text-muted-foreground',
-                day.gapSeverity ? GAP_SEVERITY_STYLES[day.gapSeverity] : undefined,
-              )}
-            >
-              <div>{format(d, 'd')}</div>
-              {day.isTeachingDay && day.moduleId && (
-                <div className="truncate text-xs" title={`${day.moduleId} — ${day.phase}`}>
-                  {day.moduleId}
-                </div>
-              )}
-            </button>
-            {!day.isTeachingDay && expandedNonTeachingDay === day.date && (
-              <div role="status" className="rounded border border-muted-foreground/40 p-1 text-xs text-muted-foreground">
-                {day.reason ?? 'No lesson scheduled on this date.'}
-              </div>
-            )}
+  const Theme = dark ? WillowDark : Willow;
+
+  return (
+    <Theme>
+      <div data-testid="companion-calendar" style={{ height: '600px' }}>
+        <SvarCalendar
+          events={events}
+          date={new Date(`${month.slice(0, 7)}-01T00:00:00`)}
+          view="month"
+          views={['month']}
+          readonly
+          eventCss={eventCss}
+          onSelectEvent={handleSelectEvent}
+        >
+          {modules.length > 0 && <CalendarPanel open calendars={modules} onChange={handlePanelChange} />}
+        </SvarCalendar>
+        {nonTeachingMessage && (
+          <div role="status" data-testid="non-teaching-message">
+            {nonTeachingMessage.reason}
           </div>
-        );
-      })}
-    </div>
+        )}
+      </div>
+    </Theme>
   );
 }

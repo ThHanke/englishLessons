@@ -1,1 +1,26 @@
 @import "tailwindcss";
+
+/* Module color palette (companion-module-0..7), a fixed set of visually distinct hues so any
+ * number of modules gets a consistent, distinguishable color without per-moduleId CSS.
+ * Combined with SVAR's own `.wx-bar-event`/`.wx-box-event` classes (its month/week event chip
+ * classes, per @svar-ui/react-calendar's own demo CSS convention) for enough specificity to
+ * override the library's default event background. */
+.companion-module-0.wx-bar-event, .companion-module-0.wx-box-event { background: #93c5fd; }
+.companion-module-1.wx-bar-event, .companion-module-1.wx-box-event { background: #86efac; }
+.companion-module-2.wx-bar-event, .companion-module-2.wx-box-event { background: #fde68a; }
+.companion-module-3.wx-bar-event, .companion-module-3.wx-box-event { background: #fca5a5; }
+.companion-module-4.wx-bar-event, .companion-module-4.wx-box-event { background: #c4b5fd; }
+.companion-module-5.wx-bar-event, .companion-module-5.wx-box-event { background: #67e8f9; }
+.companion-module-6.wx-bar-event, .companion-module-6.wx-box-event { background: #fdba74; }
+.companion-module-7.wx-bar-event, .companion-module-7.wx-box-event { background: #f9a8d4; }
+
+.companion-non-teaching.wx-bar-event, .companion-non-teaching.wx-box-event {
+  background: transparent;
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+/* Gap severity accents, ranked uncovered < under-depth < at-risk (routes/calendar.ts). */
+.companion-gap-uncovered.wx-bar-event, .companion-gap-uncovered.wx-box-event { border: 2px solid #64748b; }
+.companion-gap-under-depth.wx-bar-event, .companion-gap-under-depth.wx-box-event { border: 2px solid #d97706; }
+.companion-gap-at-risk.wx-bar-event, .companion-gap-at-risk.wx-box-event { border: 2px solid #dc2626; }
