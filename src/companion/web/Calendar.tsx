@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Calendar as SvarCalendar, CalendarPanel, Willow, WillowDark } from '@svar-ui/react-calendar';
 import type { CalendarGroup, CalendarInstanceApi, EventContext, CalendarEvent, EventContentMode } from '@svar-ui/react-calendar';
 import type { StoreActions } from '@svar-ui/calendar-store';
@@ -207,6 +207,23 @@ function todayIso(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function toIsoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Defaulting the "Plan lesson" form to `todayIso()` breaks the moment today isn't a real
+ * teaching day (weekend/holiday) — the preview then always shows "no lesson can be planned here"
+ * and blocks submit. Picks the nearest real appointment date to `reference` instead (on-or-after
+ * first, since planning ahead is the common case; falls back to the closest one before it if
+ * `reference` is past every known appointment); `todayIso()` only when there are no appointments
+ * to anchor to at all (e.g. every class still DRAFT). */
+function nearestAppointmentDate(appointments: Appointment[], reference: Date): string {
+  if (appointments.length === 0) return todayIso();
+  const referenceIso = toIsoDate(reference);
+  const dates = [...new Set(appointments.map((a) => a.date))].sort();
+  return dates.find((d) => d >= referenceIso) ?? dates[dates.length - 1]!;
+}
+
 export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarProps) {
   const [classes, setClasses] = useState<ClassSummary[]>([]);
   const [tasks, setTasks] = useState<ModuleTask[]>([]);
@@ -214,11 +231,20 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
   const [activeClassIds, setActiveClassIds] = useState<(string | number)[] | null>(null);
   const [selectedTask, setSelectedTask] = useState<ModuleTask | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const [showPlanLessonForm, setShowPlanLessonForm] = useState(false);
+  // The date to prefill the "Plan lesson" form with — null means the form is closed. Set from a
+  // real drag-selected date (week/day view) when available, otherwise the nearest real
+  // appointment date to the currently viewed date (see nearestAppointmentDate).
+  const [planLessonInitialDate, setPlanLessonInitialDate] = useState<string | null>(null);
   // The calendar's own navigated-to date (prev/next/today, or a view switch) — tracked here and
   // fed back as `date` so it survives unrelated re-renders (e.g. toggling a CalendarPanel
   // checkbox), instead of snapping back to `month`'s fixed value on every render.
   const [currentDate, setCurrentDate] = useState(() => new Date(`${month.slice(0, 7)}-01T00:00:00`));
+  // `init` (below) fires once at mount, so its closure would otherwise capture stale state (e.g.
+  // `appointments` still `[]`, before the fetch resolves) — refs let it always read the latest.
+  const appointmentsRef = useRef(appointments);
+  appointmentsRef.current = appointments;
+  const currentDateRef = useRef(currentDate);
+  currentDateRef.current = currentDate;
 
   useEffect(() => {
     // Fetches a generous window around `month` (2 months back, 10 months forward — roughly a
@@ -309,8 +335,14 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
     // (the `EventBus<StoreActions, keyof StoreActions>` alias @svar-ui/react-calendar builds its
     // public API from), not narrowed per literal action name, so the handler parameter has to
     // accept the union rather than being narrowed via the type system.
-    const onAddEvent = (_action: StoreActions[keyof StoreActions]) => {
-      setShowPlanLessonForm(true);
+    const onAddEvent = (action: StoreActions[keyof StoreActions]) => {
+      // Drag-select in week/day view provides a real start date; the toolbar `+` button doesn't
+      // (it fires `{ event: {}, edit: true }` — confirmed against a live build), so fall back to
+      // the nearest real appointment date instead of blindly defaulting to today, which breaks
+      // the moment today isn't a real teaching day.
+      const dragStart = 'event' in action ? action.event.start : undefined;
+      const initialDate = dragStart instanceof Date ? toIsoDate(dragStart) : nearestAppointmentDate(appointmentsRef.current, currentDateRef.current);
+      setPlanLessonInitialDate(initialDate);
       return false;
     };
     api.intercept('add-event', onAddEvent);
@@ -364,15 +396,15 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
           />
         )}
 
-        {showPlanLessonForm && (
+        {planLessonInitialDate && (
           <PlanLessonForm
-            initialDate={todayIso()}
+            initialDate={planLessonInitialDate}
             baseUrl={baseUrl}
             classes={plannableClassesFirst}
-            onCancel={() => setShowPlanLessonForm(false)}
+            onCancel={() => setPlanLessonInitialDate(null)}
             onSubmit={(classId, date) => {
               onOpenChat(classId, date);
-              setShowPlanLessonForm(false);
+              setPlanLessonInitialDate(null);
             }}
           />
         )}
