@@ -14,14 +14,16 @@
   after drafting the plan and embeds them as teacher-directed steps (§4.2, §4.6). A
   citation is not copyrighted content, so artifacts stay publishable. The controlled
   vocabulary is agent-generated from the curriculum (§3.6a), not from any book.
-- **Primary interface is conversational, not the web app.** The teacher asks the agent
-  to prepare a lesson; the `prepare-lesson` orchestrator (§4.6) locates the module, recalls
-  prior lessons in the module, drafts + confirms a summary, asks for textbook refs, then
-  generates. The website is published output, browsed after the fact.
-- **Delivery: static site on GitHub Pages, no backend/DB/SPA** (§4.7). Agent writes
-  files → `git push` → stable per-date static URLs. Artifacts are framework-free
-  single-file HTML; site chrome is static-generated (hand-rolled week grid; optional
-  Eleventy/MIT). No interactive calendar lib (FullCalendar is GPL/commercial — avoided).
+- **Primary interface is the companion app (calendar + chat).** The teacher manages
+  lesson scheduling via an interactive calendar (drag-create lesson series per half-year)
+  and plans lessons through an embedded chat backed by the Claude Agent SDK. Clicking an
+  appointment shows module context; "Plan lesson" opens a seeded chat session with
+  pedagogical skills. The `prepare-lesson` orchestrator (§4.6) runs inside this chat.
+- **Two-layer delivery: local companion + static published output** (§4.7). The companion
+  (Express + Vite + React, `127.0.0.1` only) is the authoring environment. Generated
+  artifacts are committed; `git push` → GitHub Pages → stable per-date static URLs.
+  Artifacts remain framework-free single-file HTML. The calendar uses `@svar-ui/react-
+  calendar` (MIT).
 - **Component A = our own flat typed extraction, NOT the ontology.** One parse of the
   Lehrplan into typed entries (competence, grammar_item, content_field, text_type,
   vocabulary[derived], task_pattern[pointer], hint_method, reference) each tagged with
@@ -65,9 +67,11 @@ logic; they read `covered` records once lessons exist). Deliverable: `whichModul
 week table, two-dimensional `driftReport`. **Insurance spike:** hand-write one
 `lesson-spec.json` + one `gap_fill` widget to sanity-check worksheet quality early.
 
-**Phase 2 — Spec export + web tool read view (E, F).** Exporter skill + a read-only
-calendar web view that shows modules, events, pace, and lets you pick a date and export
-a spec. Deliverable: the teacher can browse the year and get a JSON spec per date.
+**Phase 2 — Companion app + spec export (E, F).** Local companion with interactive
+calendar (multi-grade overlay, lesson series management via drag-create), embedded chat
+(Claude Agent SDK), and lesson-spec export. Deliverable: the teacher can manage their
+schedule, browse the projected year, click an appointment to see module context, and
+start a chat session to plan a lesson.
 
 **Phase 3 — Generation (G + first 3 H skills).** Lesson generator plus the first three of
 the decided first-build set (§06): `gap_fill`, `mcq`, `matching` (`error_correction`,
@@ -86,9 +90,10 @@ extensibility, drift-driven re-planning in the tool, grades feed.
 1. ~~**Runtime.**~~ RESOLVED: **TypeScript**. One language across engine + static build;
    WASM-native (client-side validation/logic path later); a compiled component framework
    (Svelte/Lit) gives clean interactive exercises that still bundle to self-contained HTML.
-2. ~~**Web tool framework.**~~ RESOLVED: no SPA/framework. Static-generated HTML on
-   GitHub Pages; framework-free single-file artifacts; hand-rolled week grid (optional
-   Eleventy/MIT). See §4.7 and Decisions log.
+2. ~~**Web tool framework.**~~ RESOLVED: **local companion app** (Express + Vite +
+   React + `@svar-ui/react-calendar`). Teacher-facing authoring environment on
+   `127.0.0.1`; published artifacts remain framework-free static HTML on GitHub Pages.
+   See §4.1, §4.7 and Decisions log.
 3. ~~**Listening materials.**~~ RESOLVED: browser **Web Speech API** (`speechSynthesis`)
    reads text at runtime — no bundled audio, stays single-file. Ship transcript fallback;
    voices vary by device. Piper-pre-rendered audio deferred (§4.4).
@@ -137,8 +142,9 @@ Investigate:
    needed now — worksheet answer-keys are checked in review + the confirm step. May return
    IF generated grammar keys prove unreliable; a WASM grammar checker client-side would be
    the TS-native path then.
-7. ~~**Calendar UI components**~~ RESOLVED: none needed — hand-rolled static CSS week grid
-   (§4.7). FullCalendar avoided (GPL/commercial).
+7. ~~**Calendar UI components**~~ RESOLVED: **`@svar-ui/react-calendar`** (MIT) in the
+   local companion app. FullCalendar avoided (GPL/commercial). The published static site
+   remains framework-free.
 8. ~~**Existing lesson-plan generators / EFL frameworks**~~ RESOLVED — prior-art scan done
    (§5.7): k12-teacher-skills (Apache-2.0) is the pattern to mirror.
 9. **English operator list + exam Bewertung model** (feeds `test-generator`, §5.6).
@@ -207,6 +213,9 @@ These were flagged in review; no decision taken yet. Listed so they aren't lost.
   conscious call needed on authenticity vs. legality per material.
 - **Calendar auto-projection over-build.** Keep projection advisory with trivial manual
   override; do not over-invest in automated re-planning before the teacher validates it.
+  Note: lesson scheduling (lesson_slots via companion UI) and module projection
+  (weekly_lessons) are now explicitly decoupled — projection stays deterministic and
+  independent of the interactive calendar.
 
 ## 5.6 Test-generator skill (`klassenarbeit`)
 

@@ -1,45 +1,40 @@
 # Generation Pipeline (Components E, G, H) and Web Tool (F)
 
-## 4.1 Planning web tool (F)
+## 4.1 Teacher companion (F) — calendar + chat
 
-Purpose: let the teacher browse the projected year, pick a date, export a lesson spec,
-and reach generated artifacts. Explicitly *not* an authoring IDE — editing plans is
-done in the YAML files (optionally through the tool later).
+Purpose: let the teacher browse the projected year, manage lesson scheduling, and plan
+lessons through an embedded chat — all in one local app.
 
-**Three view modes** (toggle, same data): **Week**, **Month**, and **full school-year
-overview**. All three:
-- mark **today** distinctly;
-- show **modules** as colored bands so the current module is obvious at a glance;
-- mark **holidays/Ferien** and school **events** (Projektwoche, Sportfest…);
-- mark **test / milestone dates**;
-- shade pace-degraded slots; badge dates that have generated artifacts.
+**Architecture.** A single local Node process (Vite in middleware mode + Express) serves
+a React frontend and API on one origin (`127.0.0.1` only). The calendar uses
+`@svar-ui/react-calendar` for interactive day/week/month views. Auth uses a local file
+token, no external service.
 
-**Detail on hover or click.** Hovering a day/week shows a tooltip (module, phase, pace
-reason, next-milestone countdown). Clicking a day opens a detail window showing that
-day's full **lesson spec** (Component E) — readable, plus the raw `lesson-spec.json` with
-a **Copy** button — and links: "Open artifacts" (if present). Because the exporter (E) is
-purely deterministic (projection + curriculum + coverage, no AI), **every day's spec is
-pre-computed at build time and embedded** in the static site; viewing and copying it needs
-no model call. The copied spec is exactly what the teacher hands to the generator (O/G),
-or the orchestrator (§4.6) recomputes it itself — same deterministic contract either way.
+**Calendar.** All in-scope grades (5, 6, 7) display simultaneously as toggleable
+overlay layers on one calendar. Modules appear as colored task bars spanning their
+projected date ranges. Holidays and non-school events are marked.
 
-**Grade dropdown (use-case switcher).** Choose **grade 5 / 6 / 7** (the in-scope classes;
-generic over `plans/*`). Switching re-renders the views for that grade's plan + calendar.
-Adding a class = adding a plan file, no code change.
+**Lesson series creation.** The teacher defines their schedule by drag-creating in
+day/week view or via a "+" button. This opens a form to create a recurring lesson series
+for a grade in a selected half-year. Appointments are generated for every valid school
+day, skipping holidays, weekends, and `capacity: 0` events. Series persist as
+`lesson_slots` in the calendar YAML. The half-year boundary is derived from Winter
+Holidays with an explicit override field. Deleting a series removes all its slots.
 
-Tech direction (settled, §4.7): **static, no backend, no SPA.** All plan/calendar/artifact
-data is pre-rendered to embedded JSON at build time; the three view modes, the grade
-dropdown, and the hover/click tooltips run on **small inline vanilla JS** over that
-embedded data — client-side view toggling and tooltips are not a backend and not an SPA
-framework. Served by GitHub Pages. Read/browse only; authoring happens via the
-conversational orchestrator (§4.6) and the YAML files.
+**Appointment click → context → chat.** Clicking an appointment shows the curriculum
+module context for that date (active module, week-in-module, phase, coverage gaps).
+Clicking "Plan lesson" opens a chat session seeded with that context. The chat runs as
+a Claude Agent SDK session with access to pedagogical skills (`save_lesson_spec`,
+`save_material`, and the repo's existing curriculum/vocab skills). Each date's
+conversation persists across sessions.
 
-**Companion skill (`lesson-spec` skill).** A Claude Code skill accompanies the tool so
-the teacher can, from the terminal or the tool's "generate" action, run:
-`export the lesson spec for 7a on 2026-01-14` → the skill invokes the deterministic
-exporter, validates against the curriculum, and writes `lesson-spec.json`. Keeping this
-as a skill (not buried in the web app) makes it scriptable and lets the generator chain
-off it.
+**Generated artifacts** (lesson specs, materials) are written to the repo. The lesson
+spec feeds the build ledger to track module progress. After `git push`, artifacts are
+served statically via GitHub Pages at stable per-date URLs.
+
+**Projection independence.** The projection engine uses `weekly_lessons` from
+`modules.yaml` to map modules to weeks. It does not read `lesson_slots`. Lesson
+scheduling (which specific days/times) and module projection are separate concerns.
 
 ## 4.2 Lesson generator (G)
 
@@ -131,63 +126,75 @@ new skill file; the generator discovers it from a registry manifest.
 
 ## 4.5 End-to-end flow
 
-The **primary interface is conversational**, not the web app. The teacher asks the
-agent to prepare a lesson; the static site is the published *output*, browsed after the
-fact. See §4.6 for the orchestrator and §4.7 for hosting.
+The **primary interface is the companion app** — calendar + embedded chat. The teacher
+manages their schedule in the calendar and plans lessons through the chat. Generated
+artifacts are committed and served statically after `git push`.
 
 ```
-teacher: "prepare tomorrow's lesson for 7a"
-  -> prepare-lesson orchestrator (§4.6)
-     -> projection engine (D): which module, week-in-module, pace factor
-     -> pull prior generated lessons in the same module (continuity)
-     -> draft plan  --> SHORT SUMMARY to teacher --> confirm/adjust
-     -> ASK teacher for textbook references to slot in (citations only)
-     -> lesson-spec (E) -> lesson generator (G) plans + emits exercise requests
-        -> exercise-type skills (H) each build one widget
-        -> optional homework via skills
-     -> write artifacts + update calendar index (I)
-     -> teacher REVIEWS worksheets + answer keys (required)
-  -> teacher: git push -> GitHub Pages -> static URLs live
+1. Teacher opens companion app (localhost)
+2. Calendar shows all grades with module task bars, holidays, lesson appointments
+3. Teacher creates lesson series (drag or + button) → recurring appointments for a
+   half-year, skipping non-school days → persisted as lesson_slots in calendar YAML
+4. Teacher clicks an appointment → context panel shows:
+   - active module, week-in-module, phase, pace factor
+   - coverage gaps for the active module (gapReport)
+   - existing lesson-spec/artifacts for that date (if any)
+5. Teacher clicks "Plan lesson" → chat session starts, seeded with date context
+6. Chat (Claude Agent SDK) uses pedagogical skills:
+   - draft plan → confirm/adjust with teacher
+   - ask for textbook references (citations only)
+   - save_lesson_spec → writes spec, feeds build ledger for module progress
+   - save_material → exercise skills (H) each build one widget
+   - teacher REVIEWS worksheets + answer keys (required)
+7. Teacher: git push → GitHub Pages → static URLs live
 ```
 
-## 4.6 The `prepare-lesson` orchestrator (primary interface)
+## 4.6 The `prepare-lesson` orchestrator (companion chat)
 
-One skill that runs the conversation the teacher actually has. Steps:
+The conversation the teacher has through the companion's embedded chat. The chat session
+is seeded with date context from the calendar click (§4.1) and backed by the Claude
+Agent SDK with access to pedagogical skills. Steps:
 
-1. **Locate.** Resolve the target date via the projection engine (§02): active module/
-   module, week-in-module, phase, pace factor and reason.
-2. **Recall (load-bearing).** Load the `gapReport` (§02) and prior generated lessons in
-   the *same module* plus the accumulated `known_vocab`. The new lesson is biased toward
-   **uncovered / under-depth / at-risk** competences (§3.7) so it continues the sequence
-   and closes gaps instead of repeating or contradicting earlier lessons. This coverage-
-   driven continuity is the whole point (§00 §2).
+1. **Context (pre-seeded).** The companion pre-builds context when the teacher clicks an
+   appointment: active module, week-in-module, phase, pace factor (from projection
+   engine §02), coverage gaps (`gapReport`), and prior generated lessons in the same
+   module plus accumulated `known_vocab`.
+2. **Recall (load-bearing).** The chat session is biased toward **uncovered / under-depth
+   / at-risk** competences (§3.7) so it continues the sequence and closes gaps instead of
+   repeating or contradicting earlier lessons. This coverage-driven continuity is the
+   whole point (§00 §2).
 3. **Draft + confirm.** Produce a short human-readable plan summary (objectives, stages,
    which exercises, milestone proximity) and present it. Teacher confirms or adjusts
    before anything is generated.
 4. **Textbook references.** Ask the teacher which textbook citations to include
    (e.g. "S. 45, Aufgabe 1.4"). Embed as teacher-directed steps. Citations only — never
    book content (§4.2).
-5. **Generate.** Run lesson-spec export (E) → lesson generator (G) → exercise skills (H)
-   → optional homework.
+5. **Generate.** Use `save_lesson_spec` to write the spec (feeds the build ledger for
+   module progress tracking) → `save_material` for exercise widgets (H) → optional
+   homework.
 6. **Review the artifacts (required, distinct from step 3).** The teacher opens the
    generated worksheets, tests, and **answer keys** — not just the earlier outline — and
    approves or requests regeneration. Nothing publishes on the strength of an approved
    outline alone; an incorrect answer key or ungrammatical item must be caught here before
    it reaches pupils or a public URL.
-7. **Publish.** Write the dated artifacts and update the calendar index (§4.7). Teacher
-   pushes; GitHub Pages serves.
+7. **Publish.** Artifacts are already written to the repo. Teacher pushes; GitHub Pages
+   serves.
 
-## 4.7 Delivery: static site on GitHub Pages
+## 4.7 Delivery: companion (local) + static site (published)
 
-No backend, no database, no SPA. The agent writes files; `git push` publishes them via
-GitHub Pages at stable per-date URLs.
+Two layers:
+
+**Local companion** (`src/companion/`): Express + Vite (middleware mode) + React on
+`127.0.0.1`. The teacher's authoring environment — calendar, lesson series management,
+chat-based lesson planning. Runs locally; never exposed to the internet. Auth via a
+local file token.
+
+**Published output** (GitHub Pages): generated artifacts are committed to the repo;
+`git push` publishes them at stable per-date URLs. No backend needed for the published
+site — it is pure static HTML.
 
 - **Artifacts** (lesson pages, worksheets, tests, homework): self-contained static HTML,
   inline JS/CSS, framework-free (§4.4). Work on Pages, `file://`, and printed.
-- **Site chrome** (calendar index, lesson pages): static-generated HTML from the
-  projection output — a hand-rolled CSS week grid colored by module, plain `<a>` links
-  to dated pages. No interactive calendar library (avoid FullCalendar — GPL/commercial).
-  Optional generator: Eleventy (MIT) if hand-templating gets tedious.
 - **URL scheme** (stable, permanent once pushed):
   ```
   /                                             year calendar index

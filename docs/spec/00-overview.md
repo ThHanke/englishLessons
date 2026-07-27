@@ -58,15 +58,19 @@ A teacher must:
 | C | School-year calendar | data | official Ferien/holiday dates | `calendar/<year>.yaml` (weeks, events, pace factors) |
 | D | Projection engine | deterministic code | B + C | week→module map, "where are we now", drift alerts |
 | E | Lesson-spec exporter | code + skill | D + curriculum | `lesson-spec.json` for a date |
-| O | **`prepare-lesson` orchestrator** (primary interface) | skill/agent | D + prior lessons | drives the conversation → E/G/H, confirm step, textbook-ref step (§4.6) |
+| O | **`prepare-lesson` orchestrator** (primary interface) | skill/agent | D + prior lessons | drives the conversation → E/G/H, confirm step, textbook-ref step (§4.6); surfaced via companion chat (§4.5) |
 | G | Lesson generator | skill/agent | `lesson-spec.json` | `lesson-plan.html` + `materials/*.html` |
 | H | Exercise-type skills | skills | lesson plan slice | one interactive HTML widget each |
 | I | Artifact registry | data | G/H/O outputs | dated static pages under `/classes/<class>/<date>/` |
-| F | Static planning site | static-gen HTML + small inline JS | D + I | week / month / full-year views; today + modules + holidays + test dates marked; hover/click detail; grade 5/6/7 dropdown; links dated pages; **no backend/SPA** (§4.1, §4.7) |
+| F | **Teacher companion** (calendar + chat) | local Express/React app | D + I + Agent SDK | interactive calendar (SVAR) with multi-grade overlay; drag-create lesson series per half-year; click appointment → context panel → chat; generated artifacts served statically after `git push` (§4.1, §4.5, §4.7) |
 
-Interface note: the teacher works through **conversation** with O, not a web app. F is
-the *published output* — static HTML on GitHub Pages with stable per-date URLs, browsed
-after generation. See `03-generation.md` §4.5–4.7.
+Interface note: the teacher works through the **companion app** (F) — a local
+Express/React application with an interactive calendar and embedded chat. Clicking a
+calendar appointment shows module context; clicking "Plan lesson" opens a chat session
+seeded with that date's projection/coverage data and backed by the Claude Agent SDK.
+The chat has access to pedagogical skills that produce lesson specs and materials.
+Generated artifacts are committed and served statically via GitHub Pages after
+`git push`. See `03-generation.md` §4.1, §4.5–4.7.
 
 See `01-data-model.md` for schemas, `02-projection.md` for calendar math,
 `03-generation.md` for the skill/agent pipeline, `04-roadmap.md` for phasing and
