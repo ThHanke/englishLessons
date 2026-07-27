@@ -1,6 +1,7 @@
 import type { CalendarFile, CalendarEvent, Holiday } from '../schema/types.ts';
 import { addDaysIso } from '../schema/dates.ts';
 import type { TeachingSlot } from './types.ts';
+import { deriveHalfYearBoundary, dateHalfYear } from './halfYear.ts';
 
 export interface RawSlot {
   date: string;
@@ -14,11 +15,11 @@ function isoWeekday(dateIso: string): string {
   return WEEKDAY_ABBR[new Date(Date.UTC(y!, m! - 1, d!)).getUTCDay()]!;
 }
 
-function isHoliday(dateIso: string, holidays: Holiday[]): boolean {
+export function isHoliday(dateIso: string, holidays: Holiday[]): boolean {
   return holidays.some((h) => dateIso >= h.from && dateIso <= h.to);
 }
 
-function matchesEvent(dateIso: string, event: CalendarEvent): boolean {
+export function matchesEvent(dateIso: string, event: CalendarEvent): boolean {
   if (event.date) return event.date === dateIso;
   if (event.from && event.to) return dateIso >= event.from && dateIso <= event.to;
   return false;
@@ -34,20 +35,53 @@ export function enumerateSlots(calendar: CalendarFile, className: string): RawSl
   if (!schedule) {
     throw new Error(`No class_schedule entry for "${className}" in calendar`);
   }
-  const lessonDays = new Set(schedule.lesson_days ?? []);
   const slots: RawSlot[] = [];
 
-  let cursor = calendar.first_school_day;
-  while (cursor <= calendar.last_school_day) {
-    if (lessonDays.has(isoWeekday(cursor)) && !isHoliday(cursor, calendar.holidays)) {
-      const matchingEvents = calendar.events.filter((e) => matchesEvent(cursor, e));
-      const isBlocked = matchingEvents.some((e) => e.capacity === 0);
-      if (!isBlocked) {
-        const reducing = matchingEvents.find((e) => e.capacity > 0 && e.capacity < 1);
-        slots.push({ date: cursor, capacity: reducing ? reducing.capacity : 1 });
-      }
+  if (schedule.lesson_slots && schedule.lesson_slots.length > 0) {
+    // Half-year-aware lesson_slots path
+    let boundary: string | null = null;
+    try {
+      boundary = deriveHalfYearBoundary(calendar);
+    } catch {
+      console.warn('Could not derive half-year boundary; treating all lesson_slots as active');
     }
-    cursor = addDaysIso(cursor, 1);
+
+    let cursor = calendar.first_school_day;
+    while (cursor <= calendar.last_school_day) {
+      if (!isHoliday(cursor, calendar.holidays)) {
+        const weekday = isoWeekday(cursor);
+        const cursorHalfYear = boundary ? dateHalfYear(cursor, boundary) : null;
+        const matchingSlots = schedule.lesson_slots.filter(
+          (slot) => slot.day === weekday && (cursorHalfYear === null || slot.half_year === cursorHalfYear),
+        );
+
+        for (const _slot of matchingSlots) {
+          const matchingEvents = calendar.events.filter((e) => matchesEvent(cursor, e));
+          const isBlocked = matchingEvents.some((e) => e.capacity === 0);
+          if (!isBlocked) {
+            const reducing = matchingEvents.find((e) => e.capacity > 0 && e.capacity < 1);
+            slots.push({ date: cursor, capacity: reducing ? reducing.capacity : 1 });
+          }
+        }
+      }
+      cursor = addDaysIso(cursor, 1);
+    }
+  } else {
+    // Legacy lesson_days path
+    const lessonDays = new Set(schedule.lesson_days ?? []);
+
+    let cursor = calendar.first_school_day;
+    while (cursor <= calendar.last_school_day) {
+      if (lessonDays.has(isoWeekday(cursor)) && !isHoliday(cursor, calendar.holidays)) {
+        const matchingEvents = calendar.events.filter((e) => matchesEvent(cursor, e));
+        const isBlocked = matchingEvents.some((e) => e.capacity === 0);
+        if (!isBlocked) {
+          const reducing = matchingEvents.find((e) => e.capacity > 0 && e.capacity < 1);
+          slots.push({ date: cursor, capacity: reducing ? reducing.capacity : 1 });
+        }
+      }
+      cursor = addDaysIso(cursor, 1);
+    }
   }
 
   return slots;
@@ -66,18 +100,37 @@ export function weightSlots(slots: RawSlot[], calendar: CalendarFile): TeachingS
   const preDegraded = new Set<number>();
   const postDegraded = new Set<number>();
 
+  // Build a map of unique dates (in order) to their slot indices, so that
+  // pre/post holiday windows count by calendar day, not by slot index.
+  // This matters when multiple slots share a date (e.g. double periods).
+  const dateOrder: string[] = [];
+  const dateToIndices = new Map<string, number[]>();
+  slots.forEach((slot, i) => {
+    let indices = dateToIndices.get(slot.date);
+    if (!indices) {
+      indices = [];
+      dateToIndices.set(slot.date, indices);
+      dateOrder.push(slot.date);
+    }
+    indices.push(i);
+  });
+
   for (const holiday of calendar.holidays) {
-    const beforeIdx: number[] = [];
-    const afterIdx: number[] = [];
-    slots.forEach((slot, i) => {
-      if (slot.date < holiday.from) beforeIdx.push(i);
-      if (slot.date > holiday.to) afterIdx.push(i);
-    });
+    const beforeDates: string[] = [];
+    const afterDates: string[] = [];
+    for (const date of dateOrder) {
+      if (date < holiday.from) beforeDates.push(date);
+      if (date > holiday.to) afterDates.push(date);
+    }
     // `.slice(-0)` is `.slice(0)` in JS (the whole array), not empty -- guard the zero case
     // explicitly so pre_holiday_days: 0 degrades nothing instead of every slot before every holiday.
-    const preSlice = pre_holiday_days > 0 ? beforeIdx.slice(-pre_holiday_days) : [];
-    for (const i of preSlice) preDegraded.add(i);
-    for (const i of afterIdx.slice(0, post_holiday_days)) postDegraded.add(i);
+    const preDates = pre_holiday_days > 0 ? beforeDates.slice(-pre_holiday_days) : [];
+    for (const date of preDates) {
+      for (const i of dateToIndices.get(date)!) preDegraded.add(i);
+    }
+    for (const date of afterDates.slice(0, post_holiday_days)) {
+      for (const i of dateToIndices.get(date)!) postDegraded.add(i);
+    }
   }
 
   return slots.map((slot, i) => {
