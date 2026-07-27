@@ -34,7 +34,7 @@ export function enumerateSlots(calendar: CalendarFile, className: string): RawSl
   if (!schedule) {
     throw new Error(`No class_schedule entry for "${className}" in calendar`);
   }
-  const lessonDays = new Set(schedule.lesson_days);
+  const lessonDays = new Set(schedule.lesson_days ?? []);
   const slots: RawSlot[] = [];
 
   let cursor = calendar.first_school_day;

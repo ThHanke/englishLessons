@@ -175,8 +175,17 @@ export interface PaceFactors {
   post_holiday_factor: number;
 }
 
+export interface LessonSlot {
+  id: string;
+  day: string;
+  start: string;
+  end: string;
+  half_year: 1 | 2;
+}
+
 export interface ClassScheduleEntry {
-  lesson_days: string[];
+  lesson_days?: string[];
+  lesson_slots?: LessonSlot[];
 }
 
 export interface CalendarFile {
@@ -184,6 +193,7 @@ export interface CalendarFile {
   school_year: string;
   first_school_day: string;
   last_school_day: string;
+  half_year_boundary?: string;
   holidays: Holiday[];
   events: CalendarEvent[];
   pace_factors: PaceFactors;
