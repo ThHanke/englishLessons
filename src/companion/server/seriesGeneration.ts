@@ -44,10 +44,8 @@ export function validateSeriesInput(params: {
 export function validateSlotId(
   slotId: string,
 ): { valid: true } | { valid: false; error: string } {
-  const uuidRe =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRe.test(slotId)) {
-    return { valid: false, error: "slotId must be a valid UUID" };
+  if (!slotId || !/^[A-Za-z0-9_-]+$/.test(slotId)) {
+    return { valid: false, error: "slotId must be a non-empty alphanumeric/hyphen/underscore string" };
   }
   return { valid: true };
 }

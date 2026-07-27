@@ -83,17 +83,33 @@ export function taskEventClass(
   return classes.join(" ");
 }
 
-/** Display-only default slot (8:00-8:45): the projection engine only knows a module's date range
- * and lesson-count budget, never a real clock time (no per-lesson schedule exists) — this anchors
- * each real teaching-day appointment to a fixed time purely so day/week view has something to
- * render it at; it is not a claim about when the lesson actually happens. */
-const APPOINTMENT_HOUR = 8;
-const APPOINTMENT_DURATION_MINUTES = 45;
+const DEFAULT_HOUR = 8;
+const DEFAULT_MINUTE = 0;
+const DEFAULT_DURATION_MINUTES = 45;
+
+function parseTime(time: string): [number, number] {
+  const [h, m] = time.split(":").map(Number) as [number, number];
+  return [h, m];
+}
 
 export function appointmentToEvent(appointment: Appointment): CalendarEvent {
   const start = isoDateToLocalDate(appointment.date);
-  start.setHours(APPOINTMENT_HOUR, 0, 0, 0);
-  const end = new Date(start.getTime() + APPOINTMENT_DURATION_MINUTES * 60_000);
+  if (appointment.start) {
+    const [h, m] = parseTime(appointment.start);
+    start.setHours(h, m, 0, 0);
+  } else {
+    start.setHours(DEFAULT_HOUR, DEFAULT_MINUTE, 0, 0);
+  }
+
+  let end: Date;
+  if (appointment.end) {
+    end = isoDateToLocalDate(appointment.date);
+    const [h, m] = parseTime(appointment.end);
+    end.setHours(h, m, 0, 0);
+  } else {
+    end = new Date(start.getTime() + DEFAULT_DURATION_MINUTES * 60_000);
+  }
+
   return {
     id: `${appointment.classId}::${appointment.moduleId}::${appointment.date}`,
     start,

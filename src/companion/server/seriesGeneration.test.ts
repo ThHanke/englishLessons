@@ -97,8 +97,12 @@ describe("validateSlotId", () => {
     });
   });
 
-  it("rejects a non-UUID string", () => {
-    expect(validateSlotId("not-a-uuid").valid).toBe(false);
+  it("accepts a short alphanumeric ID", () => {
+    expect(validateSlotId("g7-s1").valid).toBe(true);
+  });
+
+  it("rejects an empty string", () => {
+    expect(validateSlotId("").valid).toBe(false);
   });
 });
 

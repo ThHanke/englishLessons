@@ -9,8 +9,28 @@ import type {
 } from "../../schema/types.ts";
 import {
   enumerateProjectionSlots,
+  enumerateSlots,
   weightSlots,
 } from "../../projection/slots.ts";
+import {
+  deriveHalfYearBoundary,
+  dateHalfYear,
+} from "../../projection/halfYear.ts";
+
+const WEEKDAY_ABBR = [
+  "Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+] as const;
+
+function isoWeekday(dateIso: string): string {
+  const [y, m, d] = dateIso.split("-").map(Number);
+  return WEEKDAY_ABBR[new Date(Date.UTC(y!, m! - 1, d!)).getUTCDay()]!;
+}
 import { fillModules } from "../../projection/fillModules.ts";
 import { gapReport } from "../../coverage/gapReport.ts";
 import type { Gap } from "../../coverage/types.ts";
@@ -46,6 +66,9 @@ export interface Appointment {
   moduleTitle: string;
   date: string;
   hasLessonSpec: boolean;
+  start?: string;
+  end?: string;
+  slotId?: string;
 }
 
 /** `classFile.name` embeds a school-year-ish suffix (`grade-5-2026`, `grade-7-realschule-2026`)
@@ -116,9 +139,9 @@ export function moduleTasks(params: {
     classes.push({ id: classFile.name, label: classLabel(classFile) });
 
     let placements;
+    const calendar = loadCalendarForClass(classFile.name, repoRoot);
+    if (!calendar) continue;
     try {
-      const calendar = loadCalendarForClass(classFile.name, repoRoot);
-      if (!calendar) continue;
       const weeklyLessons = modulesFile.weekly_lessons;
       if (weeklyLessons === "DRAFT") continue;
       const weighted = weightSlots(
@@ -155,21 +178,6 @@ export function moduleTasks(params: {
       const moduleTitle =
         moduleTitleById.get(placement.moduleId) ?? placement.moduleId;
 
-      // Appointments are filtered per-slot below (not by the task's overall [startDate, endDate]
-      // window), so a module that starts before `from` but has slots inside it still surfaces
-      // real click targets for those in-range dates.
-      for (const slot of placement.slots) {
-        if (slot.date < params.from || slot.date > params.to) continue;
-        appointments.push({
-          classId: classFile.name,
-          classLabel: classLabel(classFile),
-          moduleId: placement.moduleId,
-          moduleTitle,
-          date: slot.date,
-          hasLessonSpec: plannedDateSet.has(slot.date),
-        });
-      }
-
       if (endDate < params.from || startDate > params.to) continue;
       tasks.push({
         classId: classFile.name,
@@ -188,6 +196,50 @@ export function moduleTasks(params: {
           )
           .map((s) => s.date),
       });
+    }
+
+    const classLessonSlots =
+      calendar.class_schedule[classFile.name]?.lesson_slots ?? [];
+    const hasLessonSlots = classLessonSlots.length > 0;
+
+    if (hasLessonSlots) {
+      const scheduledDates = enumerateSlots(calendar, classFile.name);
+      let boundary: string | null = null;
+      try {
+        boundary = deriveHalfYearBoundary(calendar);
+      } catch {
+        /* no boundary */
+      }
+
+      for (const sd of scheduledDates) {
+        if (sd.date < params.from || sd.date > params.to) continue;
+        const mod = placements.find(
+          (p) =>
+            p.slots.length > 0 &&
+            sd.date >= p.slots[0]!.date &&
+            sd.date <= p.slots[p.slots.length - 1]!.date,
+        );
+        if (!mod) continue;
+        const weekday = isoWeekday(sd.date);
+        const halfYear = boundary ? dateHalfYear(sd.date, boundary) : null;
+        const matchingSlot = classLessonSlots.find(
+          (ls: LessonSlot) =>
+            ls.day === weekday &&
+            (halfYear === null || ls.half_year === halfYear),
+        );
+        appointments.push({
+          classId: classFile.name,
+          classLabel: classLabel(classFile),
+          moduleId: mod.moduleId,
+          moduleTitle:
+            moduleTitleById.get(mod.moduleId) ?? mod.moduleId,
+          date: sd.date,
+          hasLessonSpec: plannedDateSet.has(sd.date),
+          start: matchingSlot?.start,
+          end: matchingSlot?.end,
+          slotId: matchingSlot?.id,
+        });
+      }
     }
   }
 

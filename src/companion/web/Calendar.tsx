@@ -26,7 +26,6 @@ import type {
   ClassSummary,
   DateContext,
   ModuleTask,
-  TasksRangeResponse,
 } from "./api.ts";
 import type { LessonSlot } from "../../schema/types.ts";
 import {
@@ -57,11 +56,17 @@ function AppointmentPreview({
   baseUrl,
   onClose,
   onOpenChat: onOpenChatForAppointment,
+  onDeleteSlot,
+  deletingSlotId,
+  canEdit,
 }: {
   appointment: Appointment;
   baseUrl: string;
   onClose: () => void;
   onOpenChat: (classId: string, date: string) => void;
+  onDeleteSlot?: (classId: string, slotId: string) => void;
+  deletingSlotId: string | null;
+  canEdit: boolean;
 }) {
   const [preview, setPreview] = useState<DateContext | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -92,7 +97,11 @@ function AppointmentPreview({
       data-testid="appointment-preview"
     >
       <p>
-        {appointment.classLabel} · {appointment.date} ·{" "}
+        {appointment.classLabel} · {appointment.date}
+        {appointment.start && appointment.end && (
+          <> · {appointment.start}–{appointment.end}</>
+        )}
+        {" · "}
         {appointment.moduleTitle}
       </p>
       {previewError && (
@@ -114,6 +123,15 @@ function AppointmentPreview({
               : "No lesson-spec planned yet"}
           </p>
         </>
+      )}
+      {canEdit && appointment.slotId && onDeleteSlot && (
+        <button
+          type="button"
+          disabled={deletingSlotId === appointment.slotId}
+          onClick={() => onDeleteSlot(appointment.classId, appointment.slotId!)}
+        >
+          {deletingSlotId === appointment.slotId ? "Removing..." : "Remove slot"}
+        </button>
       )}
       <button type="button" onClick={onClose}>
         Close
@@ -195,6 +213,8 @@ export function Calendar({
   const [selectedTask, setSelectedTask] = useState<ModuleTask | null>(null);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
+  const selectedAppointmentRef = useRef(selectedAppointment);
+  selectedAppointmentRef.current = selectedAppointment;
   const [calendarApi, setCalendarApi] = useState<CalendarInstanceApi | null>(
     null,
   );
@@ -306,16 +326,52 @@ export function Calendar({
     return "";
   }
 
+  const lastClickRef = useRef<{ id: string; time: number }>({ id: "", time: 0 });
+
   function handleSelectEvent(ev: { id: string | number | null }) {
     if (ev.id === null) return;
     const id = String(ev.id);
+    const now = Date.now();
+    const last = lastClickRef.current;
+    const isDoubleClick = last.id === id && now - last.time < 400;
+    lastClickRef.current = { id, time: now };
+
     const task = taskById.get(id);
     if (task) {
       setSelectedTask(task);
+      calendarApi?.getStores().data.setState({ editorData: null });
       return;
     }
     const appointment = appointmentById.get(id);
-    setSelectedAppointment(appointment ?? null);
+    if (appointment) {
+      setSelectedAppointment(appointment);
+      if (isDoubleClick && calendarApi) {
+        const store = calendarApi.getStores().data;
+        const ed = (store.getState() as { editorData?: Record<string, unknown> }).editorData;
+        if (ed) {
+          const day = appointment.start
+            ? WEEKDAY_ABBR[new Date(`${appointment.date}T${appointment.start}:00`).getDay()]!
+            : WEEKDAY_ABBR[new Date(`${appointment.date}T00:00:00`).getDay()]!;
+          ed.seriesClassName = appointment.classId;
+          ed.seriesDay = day;
+          ed.seriesStart = appointment.start ?? "";
+          ed.seriesEnd = appointment.end ?? "";
+          ed.seriesHalfYear = defaultHalfYear(appointment.date);
+          ed.seriesRecurring = true;
+          store.setState({ editorData: { ...ed } as CalendarEvent });
+          setSeriesFormState({
+            seriesClassName: appointment.classId,
+            seriesDay: day,
+            seriesStart: appointment.start ?? "",
+            seriesEnd: appointment.end ?? "",
+            seriesHalfYear: defaultHalfYear(appointment.date) as 1 | 2,
+            seriesRecurring: true,
+          });
+        }
+      } else {
+        calendarApi?.getStores().data.setState({ editorData: null });
+      }
+    }
   }
 
   function handlePanelChange(ev: { value: (string | number)[] }) {
@@ -376,14 +432,6 @@ export function Calendar({
     });
     api.intercept("update-event", () => false);
     api.intercept("move-event", () => false);
-    api.intercept("edit-event", (action: StoreActions[keyof StoreActions]) => {
-      const ev =
-        "event" in action
-          ? (action as { event: Record<string, unknown> }).event
-          : null;
-      if (!ev || !("seriesDay" in ev)) return false;
-      return undefined;
-    });
   }
 
   const handleEditorChange = useCallback(
@@ -404,18 +452,30 @@ export function Calendar({
     calendarApi.exec("select-event", { id: null });
   }, [calendarApi]);
 
+  const [confirmDelete, setConfirmDelete] = useState<{
+    classId: string;
+    slotId: string;
+  } | null>(null);
+
   const handleEditorAction = useCallback(
     async (obj: {
-      item?: { id: string };
-      values?: Record<string, unknown>;
+      item: { id?: string | number };
+      values: Record<string, unknown>;
+      changes: Record<string, unknown>;
     }) => {
-      const actionId = obj.item?.id;
-      if (
-        actionId === "close" ||
-        actionId === "cancel" ||
-        actionId === "delete"
-      ) {
+      const actionId = obj.item?.id != null ? String(obj.item.id) : undefined;
+      if (actionId === "close" || actionId === "cancel") {
         closeEditor();
+        return;
+      }
+      if (actionId === "delete") {
+        const fv = seriesFormStateRef.current as Partial<SeriesFormValues>;
+        const appt = selectedAppointmentRef.current;
+        if (appt?.slotId && fv.seriesClassName) {
+          setConfirmDelete({ classId: fv.seriesClassName, slotId: appt.slotId });
+        } else {
+          closeEditor();
+        }
         return;
       }
       if (actionId === "save" || actionId === "create") {
@@ -601,6 +661,9 @@ export function Calendar({
               onOpenChat(classId, date);
               setSelectedAppointment(null);
             }}
+            onDeleteSlot={handleDeleteSlot}
+            deletingSlotId={deletingSlotId}
+            canEdit={canEdit}
           />
         )}
 
@@ -615,6 +678,60 @@ export function Calendar({
             onChange={handleEditorChange}
             onAction={handleEditorAction}
           />
+        )}
+
+        {confirmDelete && (
+          <div
+            role="alertdialog"
+            aria-label="Delete options"
+            data-testid="confirm-delete-series"
+            style={{
+              position: "fixed",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(0,0,0,0.4)",
+              zIndex: 9999,
+            }}
+          >
+            <div style={{ background: "var(--wx-background, #fff)", padding: "1.5rem", borderRadius: "8px", maxWidth: "400px" }}>
+              <p><strong>What do you want to delete?</strong></p>
+              {deleteError && <p style={{ color: "red" }}>{deleteError}</p>}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "1rem" }}>
+                <button
+                  type="button"
+                  disabled={deletingSlotId !== null}
+                  onClick={async () => {
+                    setConfirmDelete(null);
+                    closeEditor();
+                    setSelectedAppointment(null);
+                  }}
+                >
+                  Delete this appointment only
+                </button>
+                <button
+                  type="button"
+                  disabled={deletingSlotId !== null}
+                  style={{ color: "red" }}
+                  onClick={async () => {
+                    await handleDeleteSlot(confirmDelete.classId, confirmDelete.slotId);
+                    setConfirmDelete(null);
+                    closeEditor();
+                    setSelectedAppointment(null);
+                  }}
+                >
+                  {deletingSlotId ? "Deleting..." : "Delete entire series"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </Theme>

@@ -52,33 +52,8 @@ half_year_boundary: 2027-02-01
 class_schedule:
   grade-7-realschule-2026:
     lesson_slots:
-      - id: g7-s1
+      - id: 6dc29a36-9be9-411d-9502-3b9a678ddc72
         day: Mon
-        start: 08:00
-        end: 08:45
-        half_year: 1
-      - id: g7-s2
-        day: Wed
-        start: 08:00
-        end: 08:45
-        half_year: 1
-      - id: g7-s3
-        day: Fri
-        start: 08:00
-        end: 08:45
-        half_year: 1
-      - id: g7-s4
-        day: Mon
-        start: 08:00
-        end: 08:45
-        half_year: 2
-      - id: g7-s5
-        day: Wed
-        start: 08:00
-        end: 08:45
-        half_year: 2
-      - id: g7-s6
-        day: Fri
-        start: 08:00
-        end: 08:45
+        start: 09:00
+        end: 10:15
         half_year: 2
