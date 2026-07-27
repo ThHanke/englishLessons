@@ -37,25 +37,45 @@ function buildSeedContent(target: PreviewTarget, ctx: DateContext): string {
   const parts: string[] = [`Date: ${target.date}, Class: ${target.classId}`];
   if (ctx.isTeachingDay) {
     const t = ctx as TeachingDayContext;
-    parts.push(`Module: ${t.moduleTitle} (${t.moduleId}), Week ${t.weekInModule}, Phase: ${t.phase}`);
-    if (t.moduleGoals.length > 0) {
+    parts.push(`Module: ${t.moduleTitle ?? t.moduleId}, Week ${t.weekInModule}, Phase: ${PHASE_LABELS[t.phase] ?? t.phase}`);
+    if (t.moduleGoals?.length > 0) {
       parts.push(`Module goals:\n${t.moduleGoals.map((g) => `- ${g}`).join("\n")}`);
     }
     if (t.gaps.length > 0) {
       parts.push(
-        `Coverage gaps:\n${t.gaps.map((g) => `- ${g.kind}: ${g.competenceId} (${g.currentDepth ?? "none"} → ${g.requiredDepth})`).join("\n")}`,
+        `Coverage gaps for this lesson:\n${t.gaps.map((g) => `- ${GAP_KIND_LABELS[g.kind] ?? g.kind}: ${competenceLabel(g.competenceId)} [${g.competenceId}] (current: ${g.currentDepth ?? "not started"}, needs: ${g.requiredDepth})`).join("\n")}`,
       );
     }
     if (t.lessonSpec) {
       parts.push(`Existing lesson-spec at: ${t.lessonSpecPath}`);
+      const spec = t.lessonSpec;
+      parts.push(`Focus competences: ${spec.focus_competences.map((fc) => `${competenceLabel(fc.id)} [${fc.id}] — ${fc.topic} (${fc.mode.join(", ")})`).join("; ")}`);
+      parts.push(`Content: ${spec.content_field.text}`);
+      parts.push(`Text types: ${spec.text_types.join(", ")}`);
+      parts.push(`CEFR target: ${spec.cefr_target}`);
+      if (spec.textbook_refs.length > 0) {
+        parts.push(`Textbook: ${spec.textbook_refs.map((r) => `${r.book} ${r.citation}`).join("; ")}`);
+      }
+      parts.push(`Upcoming milestone: ${spec.milestone_context.next} in ${spec.milestone_context.in_slots} lessons, assesses: ${spec.milestone_context.assesses.map((id) => `${competenceLabel(id)} [${id}]`).join(", ")}`);
     } else {
-      parts.push("No lesson-spec planned yet");
+      parts.push("No lesson plan exists yet for this date.");
     }
   } else {
     const nt = ctx as NonTeachingDayContext;
     parts.push(`Non-teaching day: ${nt.reason}`);
   }
   return parts.join("\n");
+}
+
+function buildInitialPrompt(ctx: DateContext | null): string {
+  if (!ctx || !ctx.isTeachingDay) {
+    return "What can I help you with for this date?";
+  }
+  const t = ctx as TeachingDayContext;
+  if (t.lessonSpec) {
+    return "A lesson plan already exists for this date. What would you like to work on?";
+  }
+  return "I'd like to plan this lesson. What are our options?";
 }
 
 export function Chat({
@@ -71,10 +91,11 @@ export function Chat({
   const hasMessagesRef = useRef(false);
 
   const runtimeOptions = { baseUrl, sessionToken: sessionToken ?? "" };
-  const { runtime, messages, setMessages, error } = useCompanionRuntime(
+  const { runtime, messages, setMessages, sendMessage, error } = useCompanionRuntime(
     activeSession,
     runtimeOptions,
   );
+  const pendingInitialPromptRef = useRef<string | null>(null);
   hasMessagesRef.current = messages.length > 0;
 
   const loadPreview = useCallback(
@@ -124,19 +145,28 @@ export function Chat({
     loadPreview(target);
   }, [classId, date, serverAvailable, sessionToken, activeSession, loadPreview]);
 
+  useEffect(() => {
+    if (!activeSession || !pendingInitialPromptRef.current) return;
+    const prompt = pendingInitialPromptRef.current;
+    pendingInitialPromptRef.current = null;
+    sendMessage(prompt);
+  }, [activeSession, sendMessage]);
+
   function handleConfirmChat() {
     if (!preview?.target) return;
     const session: ChatSession = preview.target;
+    const ctx = preview.context;
     setMessages([]);
-    if (preview.context) {
+    if (ctx) {
       setMessages([
         {
           role: "system",
-          content: buildSeedContent(preview.target, preview.context),
+          content: buildSeedContent(preview.target, ctx),
           id: "seed-context",
         },
       ]);
     }
+    pendingInitialPromptRef.current = buildInitialPrompt(ctx);
     setActiveSession(session);
     setPreview(null);
   }

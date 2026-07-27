@@ -57,6 +57,19 @@ export function useCompanionRuntime(
   const abortRef = useRef<AbortController | null>(null);
   const streamingTextRef = useRef("");
   const noticeRef = useRef<string | null>(null);
+  const seedSentRef = useRef(false);
+
+  const prevSessionRef = useRef(session);
+  if (
+    session?.classId !== prevSessionRef.current?.classId ||
+    session?.date !== prevSessionRef.current?.date
+  ) {
+    seedSentRef.current = false;
+    prevSessionRef.current = session;
+  }
+
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
 
   const onNew = useCallback(
     async (message: AppendMessage) => {
@@ -73,6 +86,18 @@ export function useCompanionRuntime(
               .join("");
 
       if (!userText.trim()) return;
+
+      let prompt = userText;
+      if (!seedSentRef.current) {
+        const seedParts = messagesRef.current
+          .filter((m) => m.role === "system")
+          .map((m) => (typeof m.content === "string" ? m.content : ""))
+          .filter(Boolean);
+        if (seedParts.length > 0) {
+          prompt = `<lesson-context>\n${seedParts.join("\n")}\n</lesson-context>\n\n${userText}`;
+        }
+        seedSentRef.current = true;
+      }
 
       abortRef.current?.abort();
       const controller = new AbortController();
@@ -101,7 +126,7 @@ export function useCompanionRuntime(
           body: JSON.stringify({
             classId: session.classId,
             date: session.date,
-            prompt: userText,
+            prompt,
             sessionToken: options.sessionToken,
           }),
           signal: controller.signal,
@@ -248,5 +273,21 @@ export function useCompanionRuntime(
     convertMessage: (msg) => msg,
   });
 
-  return { runtime, messages, setMessages, isRunning, error, notice: noticeRef.current };
+  const sendMessage = useCallback(
+    (text: string) => {
+      const msg = {
+        parentId: null,
+        sourceId: null,
+        runConfig: undefined,
+        role: "user" as const,
+        content: [{ type: "text" as const, text }],
+        createdAt: new Date(),
+        metadata: { custom: {} },
+      };
+      void onNew(msg as unknown as AppendMessage);
+    },
+    [onNew],
+  );
+
+  return { runtime, messages, setMessages, sendMessage, isRunning, error, notice: noticeRef.current };
 }
