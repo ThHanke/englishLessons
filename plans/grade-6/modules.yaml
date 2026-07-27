@@ -1,13 +1,12 @@
 class: grade-6-2027
 curriculum: sa-sek-en-2019.5-6
-total_weeks: DRAFT
-weekly_lessons: DRAFT
-buffer_weeks: DRAFT
-draft: true
+total_weeks: 40
+weekly_lessons: 4
+buffer_weeks: 4
 modules:
   - id: m1
     title: "Yesterday and daily routines"
-    weeks: DRAFT
+    weeks: 12
     content_fields: [c.alltag.dienstleistung_tagesablauf]
     goals:
       - "Narrate past events using the simple past"
@@ -25,10 +24,9 @@ modules:
       assesses: [fk.g.simple_past]
     pedagogy:
       new_grammar: [fk.g.simple_past, fk.g.prepositions]
-    draft: true
   - id: m2
     title: "Future plans and the weather"
-    weeks: DRAFT
+    weeks: 12
     content_fields: [c.natur.wetter]
     goals:
       - "Talk about future plans and predictions"
@@ -45,10 +43,9 @@ modules:
       assesses: [fk.g.going_to_future, fk.g.will_future]
     pedagogy:
       new_grammar: [fk.g.going_to_future, fk.g.will_future, fk.g.adjectives_comparison]
-    draft: true
   - id: m3
     title: "What has changed — the UK"
-    weeks: DRAFT
+    weeks: 12
     content_fields: [c.alltag.dienstleistung_tagesablauf]
     goals:
       - "Recognise the present perfect for change up to now"
@@ -95,4 +92,3 @@ modules:
       assesses: [fk.g.genitive]
     pedagogy:
       new_grammar: [fk.g.present_perfect, fk.g.genitive]
-    draft: true

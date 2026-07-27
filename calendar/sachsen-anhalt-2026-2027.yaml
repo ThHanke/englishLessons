@@ -50,6 +50,10 @@ pace_factors:
   post_holiday_factor: 0.8
 half_year_boundary: 2027-02-01
 class_schedule:
+  grade-5-2026:
+    lesson_slots: []
+  grade-6-2027:
+    lesson_slots: []
   grade-7-realschule-2026:
     lesson_slots:
       - id: 6dc29a36-9be9-411d-9502-3b9a678ddc72
