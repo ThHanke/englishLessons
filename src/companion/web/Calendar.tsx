@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Calendar as SvarCalendar, CalendarPanel, Willow, WillowDark } from '@svar-ui/react-calendar';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { Calendar as SvarCalendar, CalendarPanel, Editor, Willow, WillowDark } from '@svar-ui/react-calendar';
 import type { CalendarGroup, CalendarInstanceApi, EventContext, CalendarEvent, EventContentMode } from '@svar-ui/react-calendar';
 import type { StoreActions } from '@svar-ui/calendar-store';
 import '@svar-ui/react-calendar/all.css';
-import { fetchLessonPreview, fetchModuleTasks } from './api.ts';
-import type { Appointment, ClassSummary, DateContext, ModuleTask } from './api.ts';
+import { createLessonSeries, fetchLessonPreview, fetchModuleTasks } from './api.ts';
+import type { Appointment, ClassSummary, DateContext, ModuleTask, TasksRangeResponse } from './api.ts';
+import { getSeriesEditorItems, defaultHalfYear, WEEKDAY_ABBR, formatTime } from './seriesEditorItems.tsx';
+import type { SeriesFormValues } from './seriesEditorItems.tsx';
 import {
   appointmentEventClass,
   appointmentToEvent,
@@ -235,6 +237,12 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
   // real drag-selected date (week/day view) when available, otherwise the nearest real
   // appointment date to the currently viewed date (see nearestAppointmentDate).
   const [planLessonInitialDate, setPlanLessonInitialDate] = useState<string | null>(null);
+  const [calendarApi, setCalendarApi] = useState<CalendarInstanceApi | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [viewRange, setViewRange] = useState<{ from: string; to: string }>({ from: '', to: '' });
+  const [seriesFormState, setSeriesFormState] = useState<Record<string, unknown>>({});
+  const seriesFormStateRef = useRef(seriesFormState);
+  seriesFormStateRef.current = seriesFormState;
   // The calendar's own navigated-to date (prev/next/today, or a view switch) — tracked here and
   // fed back as `date` so it survives unrelated re-renders (e.g. toggling a CalendarPanel
   // checkbox), instead of snapping back to `month`'s fixed value on every render.
@@ -247,6 +255,13 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
   currentDateRef.current = currentDate;
 
   useEffect(() => {
+    fetch(new URL('/api/session-token', baseUrl).toString())
+      .then((r) => r.json())
+      .then((data) => setSessionToken(data.token))
+      .catch(() => {}); // non-fatal — form just won't open without a token
+  }, [baseUrl]);
+
+  useEffect(() => {
     // Fetches a generous window around `month` (2 months back, 10 months forward — roughly a
     // full school year) rather than just the one visible month, since in-calendar navigation
     // (prev/next, switching to week/day view) isn't wired to trigger a refetch per move; this
@@ -254,6 +269,7 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
     const [year, monthNum] = month.slice(0, 7).split('-').map(Number) as [number, number];
     const from = new Date(Date.UTC(year, monthNum - 1 - 2, 1)).toISOString().slice(0, 10);
     const to = new Date(Date.UTC(year, monthNum - 1 + 10, 0)).toISOString().slice(0, 10);
+    setViewRange({ from, to });
     let cancelled = false;
     fetchModuleTasks({ baseUrl, from, to }).then((res) => {
       if (!cancelled) {
@@ -326,22 +342,38 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
   }
 
   function handleInit(api: CalendarInstanceApi) {
-    // Repurpose the calendar's own "add" affordance (the toolbar `+` button) as the "Plan lesson"
-    // entry point (R11) instead of building a parallel trigger: intercepting and cancelling
-    // 'add-event' opens our grade+date form instead of letting the library create a real
-    // (unpersisted) event. 'update-event'/'move-event' are blocked the same way so dragging a
-    // task chip can't locally mutate state that never round-trips to the server anyway.
-    // The event-bus's `intercept` types every action name against the full StoreActions union
-    // (the `EventBus<StoreActions, keyof StoreActions>` alias @svar-ui/react-calendar builds its
-    // public API from), not narrowed per literal action name, so the handler parameter has to
-    // accept the union rather than being narrowed via the type system.
+    setCalendarApi(api);
+
     const onAddEvent = (action: StoreActions[keyof StoreActions]) => {
-      // Drag-select in week/day view provides a real start date; the toolbar `+` button doesn't
-      // (it fires `{ event: {}, edit: true }` — confirmed against a live build), so fall back to
-      // the nearest real appointment date instead of blindly defaulting to today, which breaks
-      // the moment today isn't a real teaching day.
-      const dragStart = 'event' in action ? action.event.start : undefined;
-      const initialDate = dragStart instanceof Date ? toIsoDate(dragStart) : nearestAppointmentDate(appointmentsRef.current, currentDateRef.current);
+      const dragStart = 'event' in action ? (action as { event: { start?: unknown } }).event.start : undefined;
+      const dragEnd = 'event' in action ? (action as { event: { end?: unknown } }).event.end : undefined;
+
+      if (dragStart instanceof Date) {
+        // Drag-select in day/week view → seed custom properties on the event for the SVAR Editor
+        const ev = (action as { event: Record<string, unknown> }).event;
+        const dayAbbr = WEEKDAY_ABBR[dragStart.getDay()]!;
+        ev.text = 'New lesson series';
+        ev.seriesClassName = '';
+        ev.seriesDay = dayAbbr;
+        ev.seriesStart = formatTime(dragStart);
+        ev.seriesEnd = dragEnd instanceof Date ? formatTime(dragEnd) : formatTime(dragStart);
+        ev.seriesHalfYear = defaultHalfYear(toIsoDate(dragStart));
+        ev.seriesRecurring = true;
+        ev._seriesPreview = 0;
+        // Seed the form state ref so the preview component picks up initial values
+        setSeriesFormState({
+          seriesClassName: '',
+          seriesDay: dayAbbr,
+          seriesStart: ev.seriesStart,
+          seriesEnd: ev.seriesEnd,
+          seriesHalfYear: ev.seriesHalfYear,
+          seriesRecurring: true,
+        });
+        // Return undefined (not false) — let SVAR create the event and open the Editor
+        return undefined;
+      }
+      // Toolbar + → PlanLessonForm (prevent SVAR default)
+      const initialDate = nearestAppointmentDate(appointmentsRef.current, currentDateRef.current);
       setPlanLessonInitialDate(initialDate);
       return false;
     };
@@ -349,6 +381,68 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
     api.intercept('update-event', () => false);
     api.intercept('move-event', () => false);
   }
+
+  const handleEditorChange = useCallback((obj: { id: string; value: unknown }) => {
+    setSeriesFormState(prev => ({ ...prev, [obj.id]: obj.value }));
+  }, []);
+
+  const handleEditorAction = useCallback(async (obj: { id: string; values?: Record<string, unknown> }) => {
+    if (obj.id === 'close' || obj.id === 'cancel') {
+      // Close the editor and delete the temporary event
+      if (calendarApi) {
+        const state = calendarApi.getState() as { editorData?: { id?: string | number } };
+        if (state.editorData?.id) {
+          calendarApi.exec('delete-event', { id: state.editorData.id });
+        }
+        calendarApi.exec('select-event', { id: null });
+      }
+      return;
+    }
+    if (obj.id === 'save' || obj.id === 'create') {
+      const fv = seriesFormStateRef.current as Partial<SeriesFormValues>;
+      if (!fv.seriesClassName || !fv.seriesDay || !fv.seriesStart || !fv.seriesEnd || !fv.seriesHalfYear || !sessionToken) return;
+      try {
+        const response = await createLessonSeries({
+          baseUrl,
+          sessionToken,
+          className: fv.seriesClassName,
+          day: fv.seriesDay,
+          start: fv.seriesStart,
+          end: fv.seriesEnd,
+          halfYear: fv.seriesHalfYear,
+          from: viewRange.from,
+          to: viewRange.to,
+        });
+        setClasses(response.classes);
+        setTasks(response.tasks);
+        setAppointments(response.appointments);
+      } catch {
+        // Error handling — form stays open for retry
+        return;
+      }
+      // Clean up the temporary SVAR event and close editor
+      if (calendarApi) {
+        const state = calendarApi.getState() as { editorData?: { id?: string | number } };
+        if (state.editorData?.id) {
+          calendarApi.exec('delete-event', { id: state.editorData.id });
+        }
+        calendarApi.exec('select-event', { id: null });
+      }
+    }
+  }, [calendarApi, sessionToken, baseUrl, viewRange]);
+
+  const seriesEditorItems = useMemo(
+    () => getSeriesEditorItems({ classes: plannableClassesFirst, formState: seriesFormState, baseUrl }),
+    [plannableClassesFirst, seriesFormState, baseUrl],
+  );
+
+  const seriesBottomBar = useMemo(() => ({
+    items: [
+      { comp: 'spacer' as const },
+      { comp: 'button' as const, id: 'cancel', text: 'Cancel', type: 'default' as const },
+      { comp: 'button' as const, id: 'save', text: 'Create series', type: 'primary' as const },
+    ],
+  }), []);
 
   const Theme = dark ? WillowDark : Willow;
 
@@ -406,6 +500,19 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
               onOpenChat(classId, date);
               setPlanLessonInitialDate(null);
             }}
+          />
+        )}
+
+        {calendarApi && (
+          <Editor
+            api={calendarApi}
+            items={seriesEditorItems}
+            placement="modal"
+            autoSave={false}
+            topBar={false}
+            bottomBar={seriesBottomBar}
+            onChange={handleEditorChange}
+            onAction={handleEditorAction}
           />
         )}
       </div>
