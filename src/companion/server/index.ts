@@ -10,6 +10,7 @@ import { handleCalendarRequest } from './routes/calendar.ts';
 import { handleChatRequest } from './routes/chat.ts';
 import { handleTasksRequest } from './routes/tasks.ts';
 import { handleLessonPreviewRequest } from './routes/lessonPreview.ts';
+import { handleSeriesPreviewRequest, handleCreateSeriesRequest, handleDeleteSeriesRequest } from './routes/lessonSeries.ts';
 
 const DEFAULT_REPO_ROOT = new URL('../../../', import.meta.url).pathname;
 
@@ -79,6 +80,18 @@ export async function createCompanionServer(params?: { port?: number; repoRoot?:
     }
     if (req.method === 'GET' && url.pathname === '/api/lesson-preview') {
       void handleLessonPreviewRequest(req, res, { repoRoot });
+      return;
+    }
+    if (req.method === 'GET' && url.pathname === '/api/lesson-series/preview') {
+      void handleSeriesPreviewRequest(req, res, { repoRoot, expectedOrigin: origin });
+      return;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/lesson-series') {
+      void handleCreateSeriesRequest(req, res, { repoRoot, expectedOrigin: origin, sessionToken });
+      return;
+    }
+    if (req.method === 'DELETE' && url.pathname === '/api/lesson-series') {
+      void handleDeleteSeriesRequest(req, res, { repoRoot, expectedOrigin: origin, sessionToken });
       return;
     }
     if (req.method === 'POST' && url.pathname === '/api/chat') {
