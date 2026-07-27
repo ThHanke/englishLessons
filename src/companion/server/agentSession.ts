@@ -97,7 +97,24 @@ When you create exercises, homework, tests, or notes, save each with \`save_mate
 - \`content\`: the full material content
 - \`format\`: "html" or "md"
 
-Saved materials become available as lesson attachments at the saved file path.`;
+Saved materials become available as lesson attachments at the saved file path.
+
+## Pedagogical skills
+
+Invoke these skills BEFORE generating content — they guide HOW you build exercises, plans, and assessments.
+
+| Situation | Invoke skill |
+|-----------|-------------|
+| Creating ANY exercise | \`eal-scaffold\` — scaffold for German L1 learners, preserving cognitive demand |
+| Planning a warm-up | \`retrieval-warm-up\` — structured 5-8 min retrieval practice from prior_covered |
+| Designing a full lesson opening | \`lesson-opening\` — 8-12 min opening (retrieval + bridge + "I can...") |
+| Error correction exercises | \`error-correction-design\` — realistic German→English transfer errors |
+| Creating an exercise SET (multiple items) | \`difficulty-progression\` — sequence supported → guided → independent |
+| Vocabulary is a lesson focus | \`vocab-teaching\` — Beck's Tier 1/2/3, explicit teaching targets |
+| Dialogue, writing prompt, or mediation tasks | \`sentence-frames\` — CEFR-graded frames for productive skills |
+| Creating a test or quiz | \`assessment-design\` — blueprint-before-items, competence × depth matrix |
+
+**Workflow:** For a full lesson plan, invoke \`lesson-opening\` first (which itself invokes \`retrieval-warm-up\`), then \`eal-scaffold\` + \`difficulty-progression\` for exercises, and \`vocab-teaching\` if vocabulary is a focus. For assessments, invoke \`assessment-design\` and present the blueprint for teacher confirmation before generating items.`;
 
 function buildQueryOptions(params: {
   cwd: string;
