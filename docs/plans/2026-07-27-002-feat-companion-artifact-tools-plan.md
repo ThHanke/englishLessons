@@ -1,7 +1,7 @@
 ---
 title: "feat: Companion agent artifact tools (save_lesson_spec, save_material)"
 type: feat
-status: active
+status: done
 date: 2026-07-27
 ---
 
@@ -82,7 +82,7 @@ src/companion/server/
 
 ## Implementation Units
 
-- [ ] **Unit 1: Add zod dependency**
+- [x] **Unit 1: Add zod dependency**
 
 **Goal:** Make zod an explicit dependency so tool schemas don't rely on a transitive import.
 
@@ -104,7 +104,7 @@ src/companion/server/
 
 ---
 
-- [ ] **Unit 2: Create `artifactTools.ts` with `save_lesson_spec` tool**
+- [x] **Unit 2: Create `artifactTools.ts` with `save_lesson_spec` tool**
 
 **Goal:** Implement the in-process MCP server with a `save_lesson_spec` tool that validates and writes `lesson-spec.json` scoped to a specific class+date.
 
@@ -144,7 +144,7 @@ src/companion/server/
 
 ---
 
-- [ ] **Unit 3: Add `save_material` tool to the MCP server**
+- [x] **Unit 3: Add `save_material` tool to the MCP server**
 
 **Goal:** Add a second tool for saving supplementary materials (exercises, homework, tests, notes) scoped to the current lesson.
 
@@ -181,7 +181,7 @@ src/companion/server/
 
 ---
 
-- [ ] **Unit 4: Wire MCP server into `buildQueryOptions` and agent session flow**
+- [x] **Unit 4: Wire MCP server into `buildQueryOptions` and agent session flow**
 
 **Goal:** Create the per-session MCP server in the chat request flow and pass it through to the SDK `query()` call.
 
@@ -215,7 +215,7 @@ src/companion/server/
 
 ---
 
-- [ ] **Unit 5: Update COMPANION_INSTRUCTIONS to describe artifact tools**
+- [x] **Unit 5: Update COMPANION_INSTRUCTIONS to describe artifact tools**
 
 **Goal:** Tell the agent about `save_lesson_spec` and `save_material` so it knows when and how to use them.
 

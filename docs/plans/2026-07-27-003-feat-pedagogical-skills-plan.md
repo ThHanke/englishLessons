@@ -1,7 +1,7 @@
 ---
 title: "feat: Pedagogical skills for companion agent"
 type: feat
-status: active
+status: done
 date: 2026-07-27
 ---
 
@@ -111,7 +111,7 @@ docs/
 
 ## Implementation Units
 
-- [ ] **Unit 1: `eal-scaffold` skill — EAL task scaffolding**
+- [x] **Unit 1: `eal-scaffold` skill — EAL task scaffolding**
 
 **Goal:** Foundational skill that guides the agent in scaffolding any exercise for German L1 / English L2 learners while preserving cognitive demand.
 
@@ -141,7 +141,7 @@ docs/
 
 ---
 
-- [ ] **Unit 2: `retrieval-warm-up` skill — structured warm-up design**
+- [x] **Unit 2: `retrieval-warm-up` skill — structured warm-up design**
 
 **Goal:** Skill that guides the agent in designing the first 5-8 minutes of a lesson with structured retrieval practice targeting prior coverage.
 
@@ -170,7 +170,7 @@ docs/
 
 ---
 
-- [ ] **Unit 3: `error-correction-design` skill — error correction exercise design**
+- [x] **Unit 3: `error-correction-design` skill — error correction exercise design**
 
 **Goal:** Skill for designing error correction exercises with deliberate, realistic errors targeting specific grammar misconceptions common to German L1 learners.
 
@@ -198,7 +198,7 @@ docs/
 
 ---
 
-- [ ] **Unit 4: `difficulty-progression` skill — exercise difficulty sequencing**
+- [x] **Unit 4: `difficulty-progression` skill — exercise difficulty sequencing**
 
 **Goal:** Skill for sequencing exercises within a set from near-transfer to far-transfer with graduated difficulty.
 
@@ -226,7 +226,7 @@ docs/
 
 ---
 
-- [ ] **Unit 5: `vocab-teaching` skill — vocabulary selection and tiering**
+- [x] **Unit 5: `vocab-teaching` skill — vocabulary selection and tiering**
 
 **Goal:** Skill for selecting which vocabulary to explicitly teach vs assume, using Beck's tiering model adapted for German→English EAL context.
 
@@ -255,7 +255,7 @@ docs/
 
 ---
 
-- [ ] **Unit 6: `sentence-frames` skill — sentence frame generation**
+- [x] **Unit 6: `sentence-frames` skill — sentence frame generation**
 
 **Goal:** Skill for generating proficiency-graded sentence frames for productive tasks (speaking, writing, mediation).
 
@@ -284,7 +284,7 @@ docs/
 
 ---
 
-- [ ] **Unit 7: `lesson-opening` skill — evidence-based lesson opening design**
+- [x] **Unit 7: `lesson-opening` skill — evidence-based lesson opening design**
 
 **Goal:** Skill for designing the first 8-12 minutes of a lesson with retrieval starter, prior knowledge bridge, and learning intention.
 
@@ -312,7 +312,7 @@ docs/
 
 ---
 
-- [ ] **Unit 8: `assessment-design` skill — test/quiz blueprint and item design**
+- [x] **Unit 8: `assessment-design` skill — test/quiz blueprint and item design**
 
 **Goal:** Skill for designing assessments aligned to competences and milestones using blueprint-before-items methodology.
 
@@ -342,7 +342,7 @@ docs/
 
 ---
 
-- [ ] **Unit 9: Update COMPANION_INSTRUCTIONS with skills routing section**
+- [x] **Unit 9: Update COMPANION_INSTRUCTIONS with skills routing section**
 
 **Goal:** Add a "Skills" section to COMPANION_INSTRUCTIONS that maps situations to skill names, so the agent knows when to invoke each pedagogical skill.
 
