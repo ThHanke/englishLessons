@@ -38,4 +38,5 @@ if (typeof Element !== "undefined") {
   globalThis.ResizeObserver ??=
     ResizeObserverStub as unknown as typeof ResizeObserver;
   Element.prototype.getBoundingClientRect = () => FAKE_RECT as DOMRect;
+  Element.prototype.scrollTo ??= () => {};
 }

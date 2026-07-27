@@ -18,13 +18,11 @@ import "@svar-ui/react-calendar/all.css";
 import {
   createLessonSeries,
   deleteLessonSeries,
-  fetchLessonPreview,
   fetchModuleTasks,
 } from "./api.ts";
 import type {
   Appointment,
   ClassSummary,
-  DateContext,
   ModuleTask,
 } from "./api.ts";
 import type { LessonSlot } from "../../schema/types.ts";
@@ -49,103 +47,6 @@ export interface CalendarProps {
   month: string;
   onOpenChat: (classId: string, date: string) => void;
   dark?: boolean;
-}
-
-function AppointmentPreview({
-  appointment,
-  baseUrl,
-  onClose,
-  onOpenChat: onOpenChatForAppointment,
-  onDeleteSlot,
-  deletingSlotId,
-  canEdit,
-}: {
-  appointment: Appointment;
-  baseUrl: string;
-  onClose: () => void;
-  onOpenChat: (classId: string, date: string) => void;
-  onDeleteSlot?: (classId: string, slotId: string) => void;
-  deletingSlotId: string | null;
-  canEdit: boolean;
-}) {
-  const [preview, setPreview] = useState<DateContext | null>(null);
-  const [previewError, setPreviewError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchLessonPreview({
-      baseUrl,
-      className: appointment.classId,
-      date: appointment.date,
-    }).then(
-      (ctx) => {
-        if (!cancelled) setPreview(ctx);
-      },
-      (err) => {
-        if (!cancelled) setPreviewError((err as Error).message);
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [baseUrl, appointment.classId, appointment.date]);
-
-  return (
-    <div
-      role="dialog"
-      aria-label="Lesson preview"
-      data-testid="appointment-preview"
-    >
-      <p>
-        {appointment.classLabel} · {appointment.date}
-        {appointment.start && appointment.end && (
-          <> · {appointment.start}–{appointment.end}</>
-        )}
-        {" · "}
-        {appointment.moduleTitle}
-      </p>
-      {previewError && (
-        <p data-testid="appointment-preview-error">{previewError}</p>
-      )}
-      {preview && preview.isTeachingDay && (
-        <>
-          <p>
-            Week {preview.weekInModule}, {preview.phase}
-          </p>
-          <p>
-            {preview.gaps.length === 0
-              ? "No coverage gaps"
-              : `${preview.gaps.length} coverage gap(s)`}
-          </p>
-          <p>
-            {preview.lessonSpec
-              ? `Existing lesson-spec: ${preview.lessonSpecPath}`
-              : "No lesson-spec planned yet"}
-          </p>
-        </>
-      )}
-      {canEdit && appointment.slotId && onDeleteSlot && (
-        <button
-          type="button"
-          disabled={deletingSlotId === appointment.slotId}
-          onClick={() => onDeleteSlot(appointment.classId, appointment.slotId!)}
-        >
-          {deletingSlotId === appointment.slotId ? "Removing..." : "Remove slot"}
-        </button>
-      )}
-      <button type="button" onClick={onClose}>
-        Close
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          onOpenChatForAppointment(appointment.classId, appointment.date)
-        }
-      >
-        Open chat
-      </button>
-    </div>
-  );
 }
 
 function EventContent({
@@ -344,8 +245,8 @@ export function Calendar({
     }
     const appointment = appointmentById.get(id);
     if (appointment) {
-      setSelectedAppointment(appointment);
-      if (isDoubleClick && calendarApi) {
+      if (isDoubleClick && canEdit && calendarApi) {
+        setSelectedAppointment(appointment);
         const store = calendarApi.getStores().data;
         const ed = (store.getState() as { editorData?: Record<string, unknown> }).editorData;
         if (ed) {
@@ -369,6 +270,7 @@ export function Calendar({
           });
         }
       } else {
+        onOpenChat(appointment.classId, appointment.date);
         calendarApi?.getStores().data.setState({ editorData: null });
       }
     }
@@ -446,10 +348,18 @@ export function Calendar({
     const state = calendarApi.getState() as {
       editorData?: { id?: string | number; seriesDay?: string };
     };
-    if (state.editorData?.id && state.editorData.seriesDay) {
+    // Only delete the temporary event created by the add-event intercept (new series).
+    // When editing an existing appointment (selectedAppointmentRef is set), the event
+    // is real data — deleting it would remove it from the calendar.
+    if (
+      state.editorData?.id &&
+      state.editorData.seriesDay &&
+      !selectedAppointmentRef.current
+    ) {
       calendarApi.exec("delete-event", { id: state.editorData.id });
     }
     calendarApi.exec("select-event", { id: null });
+    setSelectedAppointment(null);
   }, [calendarApi]);
 
   const [confirmDelete, setConfirmDelete] = useState<{
@@ -652,20 +562,6 @@ export function Calendar({
           </div>
         )}
 
-        {selectedAppointment && (
-          <AppointmentPreview
-            appointment={selectedAppointment}
-            baseUrl={baseUrl}
-            onClose={() => setSelectedAppointment(null)}
-            onOpenChat={(classId, date) => {
-              onOpenChat(classId, date);
-              setSelectedAppointment(null);
-            }}
-            onDeleteSlot={handleDeleteSlot}
-            deletingSlotId={deletingSlotId}
-            canEdit={canEdit}
-          />
-        )}
 
         {canEdit && calendarApi && (
           <Editor

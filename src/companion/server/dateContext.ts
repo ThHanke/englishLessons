@@ -25,6 +25,8 @@ export interface TeachingDayContext {
   className: string;
   date: string;
   moduleId: string;
+  moduleTitle: string;
+  moduleGoals: string[];
   weekInModule: number;
   phase: Phase;
   gaps: Gap[];
@@ -150,11 +152,15 @@ export function dateContext(params: {
     lessonSpecPath = specRelPath;
   }
 
+  const mod = modulesFile.modules.find((m) => m.id === which.moduleId);
+
   return {
     isTeachingDay: true,
     className,
     date,
     moduleId: which.moduleId,
+    moduleTitle: mod?.title ?? which.moduleId,
+    moduleGoals: mod?.goals ?? [],
     weekInModule: which.weekInModule!,
     phase: which.phase!,
     gaps: moduleGaps,
