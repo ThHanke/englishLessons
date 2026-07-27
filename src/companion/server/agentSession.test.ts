@@ -7,9 +7,13 @@ import type { Options, SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 
 const { queryMock } = vi.hoisted(() => ({ queryMock: vi.fn() }));
 
-vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
-  query: queryMock,
-}));
+vi.mock("@anthropic-ai/claude-agent-sdk", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@anthropic-ai/claude-agent-sdk")>();
+  return {
+    ...actual,
+    query: queryMock,
+  };
+});
 
 const ORIGINAL_ENV = { ...process.env };
 const REPO_CWD = "/repo/root";

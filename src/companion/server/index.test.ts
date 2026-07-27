@@ -7,9 +7,13 @@ import type { SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 
 const { queryMock } = vi.hoisted(() => ({ queryMock: vi.fn() }));
 
-vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
-  query: queryMock,
-}));
+vi.mock("@anthropic-ai/claude-agent-sdk", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@anthropic-ai/claude-agent-sdk")>();
+  return {
+    ...actual,
+    query: queryMock,
+  };
+});
 
 const FIXTURE_REPO_ROOT = new URL("./fixtures/repo/", import.meta.url).pathname;
 const SESSION_TOKEN_HEADER = "x-companion-session-token";
