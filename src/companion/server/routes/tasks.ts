@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { moduleTasks } from '../moduleTasks.ts';
 import type { Appointment, ClassSummary, ModuleTask } from '../moduleTasks.ts';
+import type { LessonSlot } from '../../../schema/types.ts';
 
 export interface TasksRangeResponse {
   from: string;
@@ -8,6 +9,7 @@ export interface TasksRangeResponse {
   classes: ClassSummary[];
   tasks: ModuleTask[];
   appointments: Appointment[];
+  lessonSlots?: Record<string, LessonSlot[]>;
 }
 
 function sendJson(res: ServerResponse, statusCode: number, body: unknown): void {
@@ -31,8 +33,8 @@ export async function handleTasksRequest(req: IncomingMessage, res: ServerRespon
   }
 
   try {
-    const { classes, tasks, appointments } = moduleTasks({ from, to, repoRoot: config.repoRoot });
-    sendJson(res, 200, { from, to, classes, tasks, appointments } satisfies TasksRangeResponse);
+    const { classes, tasks, appointments, lessonSlots } = moduleTasks({ from, to, repoRoot: config.repoRoot });
+    sendJson(res, 200, { from, to, classes, tasks, appointments, lessonSlots } satisfies TasksRangeResponse);
   } catch (err) {
     sendJson(res, 500, { error: (err as Error).message });
   }

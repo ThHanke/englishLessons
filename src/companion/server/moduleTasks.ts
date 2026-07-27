@@ -1,7 +1,7 @@
 import { readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadYaml } from '../../schema/yaml.ts';
-import type { ModulesFile, ClassFile, CalendarFile } from '../../schema/types.ts';
+import type { ModulesFile, ClassFile, CalendarFile, LessonSlot } from '../../schema/types.ts';
 import { enumerateSlots, weightSlots } from '../../projection/slots.ts';
 import { fillModules } from '../../projection/fillModules.ts';
 import { gapReport } from '../../coverage/gapReport.ts';
@@ -81,7 +81,7 @@ function loadCalendarForClass(className: string, repoRoot: string): CalendarFile
  */
 export function moduleTasks(
   params: { from: string; to: string; repoRoot?: string },
-): { classes: ClassSummary[]; tasks: ModuleTask[]; appointments: Appointment[] } {
+): { classes: ClassSummary[]; tasks: ModuleTask[]; appointments: Appointment[]; lessonSlots: Record<string, LessonSlot[]> } {
   const repoRoot = params.repoRoot ?? DEFAULT_REPO_ROOT;
   const classes: ClassSummary[] = [];
   const tasks: ModuleTask[] = [];
@@ -146,5 +146,15 @@ export function moduleTasks(
     }
   }
 
-  return { classes, tasks, appointments };
+  const lessonSlots: Record<string, LessonSlot[]> = {};
+  for (const { classFile } of listAllClasses(repoRoot)) {
+    const calendar = loadCalendarForClass(classFile.name, repoRoot);
+    if (!calendar) continue;
+    const entry = calendar.class_schedule[classFile.name];
+    if (entry?.lesson_slots && entry.lesson_slots.length > 0) {
+      lessonSlots[classFile.name] = entry.lesson_slots;
+    }
+  }
+
+  return { classes, tasks, appointments, lessonSlots };
 }

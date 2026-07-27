@@ -168,8 +168,8 @@ export async function handleCreateSeriesRequest(
 
     await persistSeries({ calendarPath: calResult.path, className, slot });
 
-    const { classes, tasks, appointments } = moduleTasks({ from, to, repoRoot: config.repoRoot });
-    sendJson(res, 200, { from, to, classes, tasks, appointments } satisfies TasksRangeResponse);
+    const { classes, tasks, appointments, lessonSlots } = moduleTasks({ from, to, repoRoot: config.repoRoot });
+    sendJson(res, 200, { from, to, classes, tasks, appointments, lessonSlots } satisfies TasksRangeResponse);
   } catch (err) {
     sendJson(res, 500, { error: (err as Error).message });
   }
@@ -220,8 +220,8 @@ export async function handleDeleteSeriesRequest(
 
     await deleteSeries({ calendarPath: calResult.path, className, slotId });
 
-    const { classes, tasks, appointments } = moduleTasks({ from, to, repoRoot: config.repoRoot });
-    sendJson(res, 200, { from, to, classes, tasks, appointments } satisfies TasksRangeResponse);
+    const { classes, tasks, appointments, lessonSlots } = moduleTasks({ from, to, repoRoot: config.repoRoot });
+    sendJson(res, 200, { from, to, classes, tasks, appointments, lessonSlots } satisfies TasksRangeResponse);
   } catch (err) {
     sendJson(res, 500, { error: (err as Error).message });
   }

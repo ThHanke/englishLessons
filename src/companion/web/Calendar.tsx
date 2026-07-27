@@ -3,8 +3,9 @@ import { Calendar as SvarCalendar, CalendarPanel, Editor, Willow, WillowDark } f
 import type { CalendarGroup, CalendarInstanceApi, EventContext, CalendarEvent, EventContentMode } from '@svar-ui/react-calendar';
 import type { StoreActions } from '@svar-ui/calendar-store';
 import '@svar-ui/react-calendar/all.css';
-import { createLessonSeries, fetchLessonPreview, fetchModuleTasks } from './api.ts';
+import { createLessonSeries, deleteLessonSeries, fetchLessonPreview, fetchModuleTasks } from './api.ts';
 import type { Appointment, ClassSummary, DateContext, ModuleTask, TasksRangeResponse } from './api.ts';
+import type { LessonSlot } from '../../schema/types.ts';
 import { getSeriesEditorItems, defaultHalfYear, WEEKDAY_ABBR, formatTime } from './seriesEditorItems.tsx';
 import type { SeriesFormValues } from './seriesEditorItems.tsx';
 import {
@@ -230,6 +231,9 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
   const [classes, setClasses] = useState<ClassSummary[]>([]);
   const [tasks, setTasks] = useState<ModuleTask[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [lessonSlots, setLessonSlots] = useState<Record<string, LessonSlot[]>>({});
+  const [deletingSlotId, setDeletingSlotId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeClassIds, setActiveClassIds] = useState<(string | number)[] | null>(null);
   const [selectedTask, setSelectedTask] = useState<ModuleTask | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
@@ -276,6 +280,7 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
         setClasses(res.classes);
         setTasks(res.tasks);
         setAppointments(res.appointments);
+        setLessonSlots(res.lessonSlots ?? {});
       }
     });
     return () => {
@@ -416,6 +421,7 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
         setClasses(response.classes);
         setTasks(response.tasks);
         setAppointments(response.appointments);
+        setLessonSlots(response.lessonSlots ?? {});
       } catch {
         // Error handling — form stays open for retry
         return;
@@ -430,6 +436,26 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
       }
     }
   }, [calendarApi, sessionToken, baseUrl, viewRange]);
+
+  async function handleDeleteSlot(classId: string, slotId: string) {
+    if (!sessionToken) return;
+    setDeletingSlotId(slotId);
+    setDeleteError(null);
+    try {
+      const response = await deleteLessonSeries({
+        baseUrl, sessionToken, className: classId, slotId,
+        from: viewRange.from, to: viewRange.to,
+      });
+      setClasses(response.classes);
+      setTasks(response.tasks);
+      setAppointments(response.appointments);
+      setLessonSlots(response.lessonSlots ?? {});
+    } catch (err) {
+      setDeleteError((err as Error).message);
+    } finally {
+      setDeletingSlotId(null);
+    }
+  }
 
   const seriesEditorItems = useMemo(
     () => getSeriesEditorItems({ classes: plannableClassesFirst, formState: seriesFormState, baseUrl }),
@@ -472,6 +498,27 @@ export function Calendar({ baseUrl, month, onOpenChat, dark = false }: CalendarP
             <p>
               Already planned: {selectedTask.plannedDates.length > 0 ? selectedTask.plannedDates.join(', ') : 'none yet'}
             </p>
+
+            <div data-testid="manage-schedule">
+              <p><strong>Schedule</strong></p>
+              {deleteError && <p data-testid="delete-error">{deleteError}</p>}
+              {(lessonSlots[selectedTask.classId] ?? []).length === 0 && (
+                <p>No schedule defined</p>
+              )}
+              {(lessonSlots[selectedTask.classId] ?? []).map(slot => (
+                <div key={slot.id} data-testid={`slot-${slot.id}`}>
+                  <span>{slot.day} {slot.start}–{slot.end} (H{slot.half_year})</span>
+                  <button
+                    type="button"
+                    disabled={deletingSlotId === slot.id}
+                    onClick={() => handleDeleteSlot(selectedTask.classId, slot.id)}
+                  >
+                    {deletingSlotId === slot.id ? 'Removing...' : 'Remove'}
+                  </button>
+                </div>
+              ))}
+            </div>
+
             <button type="button" onClick={() => setSelectedTask(null)}>
               Close
             </button>
