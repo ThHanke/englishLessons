@@ -1,8 +1,8 @@
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { getCompanionStateDir } from './authToken.ts';
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { getCompanionStateDir } from "./authToken.ts";
 
-const INDEX_FILE_NAME = 'session-index.json';
+const INDEX_FILE_NAME = "session-index.json";
 
 export type SessionKey = {
   classId: string;
@@ -28,19 +28,23 @@ function readIndexFile(): IndexFile {
   const path = getSessionIndexPath();
   let raw: string;
   try {
-    raw = readFileSync(path, 'utf8');
+    raw = readFileSync(path, "utf8");
   } catch {
     return {};
   }
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return parsed as IndexFile;
     }
-    console.warn(`[companion] Session index at ${path} was not a JSON object; starting a fresh index.`);
+    console.warn(
+      `[companion] Session index at ${path} was not a JSON object; starting a fresh index.`,
+    );
     return {};
   } catch (err) {
-    console.warn(`[companion] Session index at ${path} is corrupted; starting a fresh index. (${(err as Error).message})`);
+    console.warn(
+      `[companion] Session index at ${path} is corrupted; starting a fresh index. (${(err as Error).message})`,
+    );
     return {};
   }
 }
@@ -71,11 +75,15 @@ function enqueueWrite<T>(task: () => T): Promise<T> {
   return result;
 }
 
-export async function getSessionId(key: SessionKey): Promise<string | undefined> {
+export async function getSessionId(
+  key: SessionKey,
+): Promise<string | undefined> {
   return enqueueWrite(() => readIndexFile()[keyFor(key)]);
 }
 
-export async function setSessionId(params: SessionKey & { sessionId: string }): Promise<void> {
+export async function setSessionId(
+  params: SessionKey & { sessionId: string },
+): Promise<void> {
   const { classId, date, sessionId } = params;
   await enqueueWrite(() => {
     const index = readIndexFile();

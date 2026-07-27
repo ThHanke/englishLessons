@@ -1,16 +1,29 @@
-import { query } from '@anthropic-ai/claude-agent-sdk';
-import type { Options, SDKMessage, SDKResultMessage } from '@anthropic-ai/claude-agent-sdk';
-import { getSessionId, setSessionId } from './sessionIndex.ts';
-import type { SessionKey } from './sessionIndex.ts';
+import { query } from "@anthropic-ai/claude-agent-sdk";
+import type {
+  Options,
+  SDKMessage,
+  SDKResultMessage,
+} from "@anthropic-ai/claude-agent-sdk";
+import { getSessionId, setSessionId } from "./sessionIndex.ts";
+import type { SessionKey } from "./sessionIndex.ts";
 
 /** KTD2/KTD10: `allowedTools` doesn't gate built-in tools at all, so this deny-list is the only
  * enforcement mechanism for R8's read-only guarantee. Every version bump of the Agent SDK
  * dependency must re-check this list against that version's built-in write-capable tools. */
-export const DISALLOWED_TOOLS = ['Edit', 'Write', 'MultiEdit', 'NotebookEdit', 'Bash'];
+export const DISALLOWED_TOOLS = [
+  "Edit",
+  "Write",
+  "MultiEdit",
+  "NotebookEdit",
+  "Bash",
+];
 
 /** KTD4: skills under `.claude/skills/*` don't load without `settingSources`, even with `Skill`
  * in `allowedTools`. Required for R3's "exactly as under Claude Code" guarantee. */
-const SETTING_SOURCES: NonNullable<Options['settingSources']> = ['user', 'project'];
+const SETTING_SOURCES: NonNullable<Options["settingSources"]> = [
+  "user",
+  "project",
+];
 
 export type AgentTurnParams = SessionKey & {
   prompt: string;
@@ -48,9 +61,16 @@ function buildQueryOptions(params: { cwd: string; resume?: string }): Options {
 /** Shared entry point into the Agent SDK's `query()` call -- both the buffered (`runAgentTurn`)
  * and streaming (`runAgentTurnStream`) paths start here so their `cwd`/`settingSources`/
  * `disallowedTools`/`resume` option-building never drifts apart. */
-function startQuery(params: { prompt: string; cwd: string; resume?: string }): AsyncGenerator<SDKMessage> {
+function startQuery(params: {
+  prompt: string;
+  cwd: string;
+  resume?: string;
+}): AsyncGenerator<SDKMessage> {
   const options = buildQueryOptions(params);
-  return query({ prompt: params.prompt, options }) as AsyncGenerator<SDKMessage>;
+  return query({
+    prompt: params.prompt,
+    options,
+  }) as AsyncGenerator<SDKMessage>;
 }
 
 function resumeFailureNotice(err: unknown): string {
@@ -70,7 +90,9 @@ function resumeFailureNotice(err: unknown): string {
  * terminal 'result' message. Use `runAgentTurnStream` when a caller needs incremental output
  * (e.g. to forward over a streamed HTTP response) instead of one buffered reply.
  */
-export async function runAgentTurn(params: AgentTurnParams): Promise<AgentTurnResult> {
+export async function runAgentTurn(
+  params: AgentTurnParams,
+): Promise<AgentTurnResult> {
   const { classId, date, prompt, cwd } = params;
   const storedSessionId = await getSessionId({ classId, date });
 
@@ -80,7 +102,9 @@ export async function runAgentTurn(params: AgentTurnParams): Promise<AgentTurnRe
 
   if (storedSessionId) {
     try {
-      result = await drainToResult(startQuery({ prompt, cwd, resume: storedSessionId }));
+      result = await drainToResult(
+        startQuery({ prompt, cwd, resume: storedSessionId }),
+      );
     } catch (err) {
       startedFresh = true;
       notice = resumeFailureNotice(err);
@@ -95,19 +119,21 @@ export async function runAgentTurn(params: AgentTurnParams): Promise<AgentTurnRe
   return { sessionId: result.session_id, result, startedFresh, notice };
 }
 
-async function drainToResult(stream: AsyncGenerator<SDKMessage>): Promise<SDKResultMessage> {
+async function drainToResult(
+  stream: AsyncGenerator<SDKMessage>,
+): Promise<SDKResultMessage> {
   let resultMessage: SDKResultMessage | undefined;
   // KTD8: a denied write tool-result arrives as an ordinary message in this stream, not a
   // thrown error. Iterate everything and only capture the terminal 'result' message -- a
   // permission denial mid-conversation never stops this loop early.
   for await (const message of stream) {
-    if (message.type === 'result') {
+    if (message.type === "result") {
       resultMessage = message;
     }
   }
 
   if (!resultMessage) {
-    throw new Error('Agent SDK query completed without a result message.');
+    throw new Error("Agent SDK query completed without a result message.");
   }
   return resultMessage;
 }
@@ -139,7 +165,7 @@ export async function* runAgentTurnStream(
 
   async function* forward(resume?: string): AsyncGenerator<SDKMessage> {
     for await (const message of startQuery({ prompt, cwd, resume })) {
-      if (message.type === 'result') {
+      if (message.type === "result") {
         sessionId = message.session_id;
       }
       yield message;
@@ -159,7 +185,7 @@ export async function* runAgentTurnStream(
   }
 
   if (!sessionId) {
-    throw new Error('Agent SDK query completed without a result message.');
+    throw new Error("Agent SDK query completed without a result message.");
   }
   await setSessionId({ classId, date, sessionId });
 

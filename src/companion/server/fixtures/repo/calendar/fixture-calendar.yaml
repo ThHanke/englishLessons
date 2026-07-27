@@ -9,8 +9,39 @@ pace_factors:
   pre_holiday_factor: 1
   post_holiday_days: 0
   post_holiday_factor: 1
+half_year_boundary: 2027-02-01
 class_schedule:
   fixture-class:
-    lesson_days: [Mon, Wed, Fri]
+    lesson_slots:
+      - id: fix-s1
+        day: Mon
+        start: 08:00
+        end: 08:45
+        half_year: 1
+      - id: fix-s2
+        day: Wed
+        start: 08:00
+        end: 08:45
+        half_year: 1
+      - id: fix-s3
+        day: Fri
+        start: 08:00
+        end: 08:45
+        half_year: 1
   fixture-class-no-artifacts:
-    lesson_days: [Mon, Wed, Fri]
+    lesson_slots:
+      - id: fix-s4
+        day: Mon
+        start: 08:00
+        end: 08:45
+        half_year: 1
+      - id: fix-s5
+        day: Wed
+        start: 08:00
+        end: 08:45
+        half_year: 1
+      - id: fix-s6
+        day: Fri
+        start: 08:00
+        end: 08:45
+        half_year: 1

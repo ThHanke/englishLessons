@@ -5,15 +5,19 @@ calendar (C). No AI. Fully unit-testable. This is the heart of "which module are
 on date X, and are we on track".
 
 ## Inputs
+
 - `plans/<class>/modules.yaml` (ideal weeks per module)
 - `calendar/<state>-<year>.yaml` (holidays, events, pace factors, class schedule)
 
 ## Algorithm
 
-1. **Enumerate teaching slots.** Walk `first_school_day..last_school_day`. For each of
-   the class's `lesson_days` that is not inside a holiday range and not blocked by an
-   event with `capacity: 0`, emit a lesson slot. Events with fractional capacity keep
-   the slot but tag it with a reduced `capacity`.
+1. **Enumerate teaching slots.** Walk `first_school_day..last_school_day` by school
+   week. For each week, emit `weekly_lessons` slots (from `modules.yaml`) distributed
+   across available school days (Mon–Fri minus holidays and `capacity: 0` events).
+   Events with fractional capacity keep the slot but tag it with a reduced `capacity`.
+   Projection depends only on `weekly_lessons` — it does not read `lesson_slots` from
+   the calendar. Lesson scheduling (which specific days/times) is a separate concern
+   handled by the companion calendar UI.
 
 2. **Assign a learning weight to each slot.**
    `weight = capacity * pace_factor(slot)` where `pace_factor` degrades slots within
@@ -51,8 +55,8 @@ on date X, and are we on track".
   max depth and per-module `% at required depth`. Derived, deterministic.
 - `gapReport(asOfDate)` → per active module + year: uncovered, under-depth, at-risk
   (needed by a milestone within N slots but below required depth), and year-end gaps.
-- `driftReport(asOfDate)` → **two dimensions**: (1) *calendar* drift — planned module
-  position vs. actual (from dated artifacts), "behind by N slots"; (2) *coverage* drift —
+- `driftReport(asOfDate)` → **two dimensions**: (1) _calendar_ drift — planned module
+  position vs. actual (from dated artifacts), "behind by N slots"; (2) _coverage_ drift —
   from `gapReport`, e.g. "conditionals still `introduced`, `produce` required, test in 2
   slots". Suggests which module to compress / buffer week to spend, and which competences
   the next lessons must prioritize.

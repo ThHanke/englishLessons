@@ -258,7 +258,7 @@ just click a date and start planning.
   CLI. No `CLAUDE.md` exists in this repo yet; one may need to be authored for the
   session to carry repo-level instructions the way Claude Code sessions normally do.
 - Assumes the teacher's machine has (or can complete) a one-time `claude
-  setup-token`-style step so the Agent SDK can draw on their Claude Pro/Max
+setup-token`-style step so the Agent SDK can draw on their Claude Pro/Max
   subscription — documented as a `README.md` install requirement (R9).
 - Depends on shadcn/ui and assistant-ui (both MIT, verified 2026-07-25) and
   their underlying React/Tailwind/Radix stack — new dependencies this repo
@@ -320,7 +320,7 @@ none remain open, so no separate Outstanding Questions section is carried forwar
   load-bearing for R8's read-only guarantee, including R3's carve-out for
   skill-triggered writes.
 - **KTD3. Session resume keyed by an explicit local index, `{classId, date} ->
-  sessionId`, using the SDK's `resume` option (not `continue`).** The SDK's own
+sessionId`, using the SDK's `resume` option (not `continue`).** The SDK's own
   session store is not natively keyed by class+date; the server owns this mapping
   and passes the stored ID to `resume` when one exists, omitting it to start a
   fresh session otherwise.
@@ -344,7 +344,7 @@ none remain open, so no separate Outstanding Questions section is carried forwar
   API usage instead of the subscription — the server detects and warns on this
   at startup (U1).
 - **KTD6. Companion-local state (session index, cached token) lives outside the
-  Agent SDK's readable `cwd` scope entirely** — a *local-only* OS user-config
+  Agent SDK's readable `cwd` scope entirely** — a _local-only_ OS user-config
   directory (e.g. an XDG-style path on Linux, `%LOCALAPPDATA%` rather than a
   roaming/cloud-backed folder on Windows, avoiding `~/Library/Mobile Documents`
   on macOS — see Risks & Dependencies for why "local-only" is load-bearing),
@@ -436,7 +436,7 @@ flowchart TB
   does not add protection here, since `allowedTools` doesn't gate built-in
   tools at all (KTD10).
 - **Write-block guarantee is unproven by the default test suite.** `npm test`
-  mocks the Agent SDK, so it proves the wrapper *configures* the deny-list
+  mocks the Agent SDK, so it proves the wrapper _configures_ the deny-list
   correctly but not that a live session actually honors it — the single most
   safety-critical guarantee in this plan otherwise rests on one manual smoke
   test. **Mitigation:** an opt-in, non-CI live-SDK regression test, documented
@@ -463,7 +463,7 @@ flowchart TB
   platform-equivalent config location can be transparently synced to a
   third-party cloud service — exfiltrating the one-year OAuth token off the
   local machine entirely, a worse outcome than the git-leak scenario R7 guards
-  against. **Mitigation:** the implementation must resolve a *local-only*
+  against. **Mitigation:** the implementation must resolve a _local-only_
   platform path (e.g. `%LOCALAPPDATA%` rather than a roaming or cloud-backed
   folder on Windows; avoid `~/Library/Mobile Documents` on macOS), not assume
   any user-config directory is safe by default.
@@ -722,10 +722,10 @@ Supersedes the Approach text above for U2-U4 and U6. U5's chat-seeding contract
 (R2/F1-F3/R6) is unaffected — only how a date+grade gets selected changes.
 
 - **U2 (`dateContext.ts`/new `moduleTasks.ts`):** add a `moduleTasks(params: {
-  from, to, repoRoot? })` function (no `class` param — scans every
+from, to, repoRoot? })` function (no `class` param — scans every
   `plans/*/class.yaml`) returning one `ModuleTask` per module placement whose
   slot range overlaps `[from, to]`: `{ classId, classLabel, moduleId,
-  moduleTitle, startDate, endDate, gaps, plannedDates: string[] }` —
+moduleTitle, startDate, endDate, gaps, plannedDates: string[] }` —
   `moduleTitle` from `Module.title` (`schema/types.ts`, already on every module,
   previously unused by this component); `plannedDates` from the same
   `artifacts/<class>/**/lesson-spec.json` scan `buildLedger.ts` already does,
@@ -733,7 +733,7 @@ Supersedes the Approach text above for U2-U4 and U6. U5's chat-seeding contract
   (single class + date, used to seed a chat session once a grade+date is
   chosen) is unchanged.
 - **U3 (`routes/`):** add `GET /api/tasks?from=&to=` returning `{ classes:
-  {id, label}[], tasks: ModuleTask[] }` for all classes in range. The existing
+{id, label}[], tasks: ModuleTask[] }` for all classes in range. The existing
   `GET /api/calendar` (per-class, per-day) stays as-is; U4 stops calling it for
   the grid and calls `/api/tasks` instead, but nothing depends on removing it.
 - **U4 (`Calendar.tsx`):** CalendarPanel groups become classes (`classId` as
@@ -746,7 +746,7 @@ Supersedes the Approach text above for U2-U4 and U6. U5's chat-seeding contract
   building a parallel one) opening a small grade-picker form; submitting it
   calls the same `onOpenChat(classId, date)` contract U5/U6 already wire to
   chat-seeding, unchanged. Add the view-switcher (`views={['day','week',
-  'month']}`) the original U4 build was missing.
+'month']}`) the original U4 build was missing.
 - **U6 (`App.tsx`):** the `ClassSwitcher` dropdown planned here is superseded —
   class selection now happens per-click via the U4 grade-picker form, not a
   global switcher. `App.tsx` still owns the R10 handshake and composes
@@ -778,13 +778,13 @@ Supersedes the Approach text above for U2-U4 and U6. U5's chat-seeding contract
 
 ## Verification Contract
 
-| Command | Applies to | What it proves |
-|---|---|---|
-| `npm test` | U1-U6 | New unit/integration tests under `src/companion/**` pass; Agent SDK mocked, no live calls |
-| `npm run build` | All units | New TypeScript typechecks under the existing strict `tsconfig.json` |
-| `npm run validate` | U7 | Existing curriculum/vocab/calendar artifact validation is unaffected by the new dependencies |
-| `npm run test:live-sdk` (opt-in, not in default `npm test` or CI) | U1 | The deny-list actually blocks a live Agent SDK session, not just a mocked one — the durable regression proof behind KTD2/KTD10/the Risks & Dependencies write-block risk. Consumes real subscription usage; run occasionally, not on every change |
-| Manual smoke test | U1-U6 | Launch the companion, click a date, converse, confirm the date-switch dialog, confirm no file writes occur in the working tree even when the agent is asked to edit `modules.yaml` directly, and confirm invoking a skill that normally writes (e.g. `module-derive`) explains its would-be output in conversation instead of silently failing or landing a draft file (proves R8 and KTD8 against the live SDK, which the mocked test suite cannot) |
+| Command                                                           | Applies to | What it proves                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm test`                                                        | U1-U6      | New unit/integration tests under `src/companion/**` pass; Agent SDK mocked, no live calls                                                                                                                                                                                                                                                                                                                                                            |
+| `npm run build`                                                   | All units  | New TypeScript typechecks under the existing strict `tsconfig.json`                                                                                                                                                                                                                                                                                                                                                                                  |
+| `npm run validate`                                                | U7         | Existing curriculum/vocab/calendar artifact validation is unaffected by the new dependencies                                                                                                                                                                                                                                                                                                                                                         |
+| `npm run test:live-sdk` (opt-in, not in default `npm test` or CI) | U1         | The deny-list actually blocks a live Agent SDK session, not just a mocked one — the durable regression proof behind KTD2/KTD10/the Risks & Dependencies write-block risk. Consumes real subscription usage; run occasionally, not on every change                                                                                                                                                                                                    |
+| Manual smoke test                                                 | U1-U6      | Launch the companion, click a date, converse, confirm the date-switch dialog, confirm no file writes occur in the working tree even when the agent is asked to edit `modules.yaml` directly, and confirm invoking a skill that normally writes (e.g. `module-derive`) explains its would-be output in conversation instead of silently failing or landing a draft file (proves R8 and KTD8 against the live SDK, which the mocked test suite cannot) |
 
 ## Definition of Done
 

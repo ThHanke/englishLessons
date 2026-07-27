@@ -1,4 +1,4 @@
-import { createCompanionServer } from './index.ts';
+import { createCompanionServer } from "./index.ts";
 
 const DEV_PORT = 5199;
 

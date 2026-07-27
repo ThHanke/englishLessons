@@ -1,9 +1,15 @@
-import { chmodSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { homedir, platform } from 'node:os';
-import { join } from 'node:path';
+import {
+  chmodSync,
+  mkdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { homedir, platform } from "node:os";
+import { join } from "node:path";
 
-const APP_DIR_NAME = 'english-lessons-companion';
-const TOKEN_FILE_NAME = 'oauth-token';
+const APP_DIR_NAME = "english-lessons-companion";
+const TOKEN_FILE_NAME = "oauth-token";
 const OWNER_ONLY_MODE = 0o600;
 
 /**
@@ -16,14 +22,14 @@ const OWNER_ONLY_MODE = 0o600;
 export function getCompanionStateDir(): string {
   const home = homedir();
   const os = platform();
-  if (os === 'win32') {
-    const base = process.env.LOCALAPPDATA ?? join(home, 'AppData', 'Local');
+  if (os === "win32") {
+    const base = process.env.LOCALAPPDATA ?? join(home, "AppData", "Local");
     return join(base, APP_DIR_NAME);
   }
-  if (os === 'darwin') {
-    return join(home, 'Library', 'Application Support', APP_DIR_NAME);
+  if (os === "darwin") {
+    return join(home, "Library", "Application Support", APP_DIR_NAME);
   }
-  const base = process.env.XDG_CONFIG_HOME ?? join(home, '.config');
+  const base = process.env.XDG_CONFIG_HOME ?? join(home, ".config");
   return join(base, APP_DIR_NAME);
 }
 
@@ -45,7 +51,7 @@ export function loadAuthToken(): void {
   const path = getTokenFilePath();
   let raw: string;
   try {
-    raw = readFileSync(path, 'utf8');
+    raw = readFileSync(path, "utf8");
   } catch (err) {
     throw new Error(
       `Could not read the Claude Code OAuth token at ${path}. Run "claude setup-token" and paste the ` +
@@ -69,15 +75,15 @@ export function loadAuthToken(): void {
 function warnIfApiKeyPresent(): void {
   if (process.env.ANTHROPIC_API_KEY) {
     console.warn(
-      '[companion] ANTHROPIC_API_KEY is set in the environment. It outranks CLAUDE_CODE_OAUTH_TOKEN in the ' +
-        'Agent SDK auth precedence, so chat sessions will bill pay-per-token API usage instead of the ' +
-        'Claude Pro/Max subscription.',
+      "[companion] ANTHROPIC_API_KEY is set in the environment. It outranks CLAUDE_CODE_OAUTH_TOKEN in the " +
+        "Agent SDK auth precedence, so chat sessions will bill pay-per-token API usage instead of the " +
+        "Claude Pro/Max subscription.",
     );
   }
 }
 
 function warnIfModeTooOpen(path: string): void {
-  if (platform() === 'win32') return; // POSIX mode bits don't apply here.
+  if (platform() === "win32") return; // POSIX mode bits don't apply here.
   let mode: number;
   try {
     mode = statSync(path).mode & 0o777;
@@ -87,7 +93,7 @@ function warnIfModeTooOpen(path: string): void {
   if (mode & 0o077) {
     console.warn(
       `[companion] Token file ${path} has permissions broader than owner-only (mode ${mode.toString(8)}). ` +
-        'This is a best-effort check, not a guarantee across every filesystem. Consider restricting it to 0600.',
+        "This is a best-effort check, not a guarantee across every filesystem. Consider restricting it to 0600.",
     );
   }
 }
@@ -102,7 +108,7 @@ export function writeAuthToken(token: string): void {
   mkdirSync(dir, { recursive: true });
   const path = getTokenFilePath();
   writeFileSync(path, token, { mode: OWNER_ONLY_MODE });
-  if (platform() !== 'win32') {
+  if (platform() !== "win32") {
     chmodSync(path, OWNER_ONLY_MODE);
   }
 }

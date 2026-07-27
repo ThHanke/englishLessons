@@ -1,14 +1,22 @@
-import { readdirSync, statSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { loadYaml } from '../../schema/yaml.ts';
-import type { ModulesFile, ClassFile, CalendarFile, LessonSlot } from '../../schema/types.ts';
-import { enumerateSlots, weightSlots } from '../../projection/slots.ts';
-import { fillModules } from '../../projection/fillModules.ts';
-import { gapReport } from '../../coverage/gapReport.ts';
-import type { Gap } from '../../coverage/types.ts';
-import { buildLedger, listLessonSpecs } from './buildLedger.ts';
+import { readdirSync, statSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { loadYaml } from "../../schema/yaml.ts";
+import type {
+  ModulesFile,
+  ClassFile,
+  CalendarFile,
+  LessonSlot,
+} from "../../schema/types.ts";
+import {
+  enumerateProjectionSlots,
+  weightSlots,
+} from "../../projection/slots.ts";
+import { fillModules } from "../../projection/fillModules.ts";
+import { gapReport } from "../../coverage/gapReport.ts";
+import type { Gap } from "../../coverage/types.ts";
+import { buildLedger, listLessonSpecs } from "./buildLedger.ts";
 
-const DEFAULT_REPO_ROOT = new URL('../../../', import.meta.url).pathname;
+const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
 export interface ClassSummary {
   id: string;
@@ -46,26 +54,36 @@ export interface Appointment {
  * inconsistent) year per grade. The display label uses `classFile.grade`/`track` instead, which
  * is unambiguous; `id` keeps the raw `name` since that's the real join key against `plans/`. */
 function classLabel(classFile: ClassFile): string {
-  return `Grade ${classFile.grade}${classFile.track ? ` (${classFile.track})` : ''}`;
+  return `Grade ${classFile.grade}${classFile.track ? ` (${classFile.track})` : ""}`;
 }
 
-function listAllClasses(repoRoot: string): Array<{ modulesFile: ModulesFile; classFile: ClassFile }> {
-  const plansDir = join(repoRoot, 'plans');
+function listAllClasses(
+  repoRoot: string,
+): Array<{ modulesFile: ModulesFile; classFile: ClassFile }> {
+  const plansDir = join(repoRoot, "plans");
   const out: Array<{ modulesFile: ModulesFile; classFile: ClassFile }> = [];
   for (const gradeDir of readdirSync(plansDir)) {
     const dirPath = join(plansDir, gradeDir);
     if (!statSync(dirPath).isDirectory()) continue;
-    const classPath = join(dirPath, 'class.yaml');
-    const modulesPath = join(dirPath, 'modules.yaml');
+    const classPath = join(dirPath, "class.yaml");
+    const modulesPath = join(dirPath, "modules.yaml");
     if (!existsSync(classPath) || !existsSync(modulesPath)) continue;
-    out.push({ classFile: loadYaml<ClassFile>(classPath), modulesFile: loadYaml<ModulesFile>(modulesPath) });
+    out.push({
+      classFile: loadYaml<ClassFile>(classPath),
+      modulesFile: loadYaml<ModulesFile>(modulesPath),
+    });
   }
   return out;
 }
 
-function loadCalendarForClass(className: string, repoRoot: string): CalendarFile | null {
-  const calendarDir = join(repoRoot, 'calendar');
-  for (const file of readdirSync(calendarDir).filter((f) => f.endsWith('.yaml'))) {
+function loadCalendarForClass(
+  className: string,
+  repoRoot: string,
+): CalendarFile | null {
+  const calendarDir = join(repoRoot, "calendar");
+  for (const file of readdirSync(calendarDir).filter((f) =>
+    f.endsWith(".yaml"),
+  )) {
     const calendar = loadYaml<CalendarFile>(join(calendarDir, file));
     if (calendar.class_schedule[className]) return calendar;
   }
@@ -79,9 +97,16 @@ function loadCalendarForClass(className: string, repoRoot: string): CalendarFile
  * placements computed yet; it still appears in `classes[]` (so the panel/legend lists all grades)
  * but contributes zero tasks, rather than failing the whole response for every other class.
  */
-export function moduleTasks(
-  params: { from: string; to: string; repoRoot?: string },
-): { classes: ClassSummary[]; tasks: ModuleTask[]; appointments: Appointment[]; lessonSlots: Record<string, LessonSlot[]> } {
+export function moduleTasks(params: {
+  from: string;
+  to: string;
+  repoRoot?: string;
+}): {
+  classes: ClassSummary[];
+  tasks: ModuleTask[];
+  appointments: Appointment[];
+  lessonSlots: Record<string, LessonSlot[]>;
+} {
   const repoRoot = params.repoRoot ?? DEFAULT_REPO_ROOT;
   const classes: ClassSummary[] = [];
   const tasks: ModuleTask[] = [];
@@ -94,7 +119,12 @@ export function moduleTasks(
     try {
       const calendar = loadCalendarForClass(classFile.name, repoRoot);
       if (!calendar) continue;
-      const weighted = weightSlots(enumerateSlots(calendar, classFile.name), calendar);
+      const weeklyLessons = modulesFile.weekly_lessons;
+      if (weeklyLessons === "DRAFT") continue;
+      const weighted = weightSlots(
+        enumerateProjectionSlots(calendar, weeklyLessons),
+        calendar,
+      );
       placements = fillModules(weighted, modulesFile);
     } catch {
       // DRAFT time fields (KTD7) or no matching calendar - this class has no computable
@@ -104,9 +134,16 @@ export function moduleTasks(
 
     const ledger = buildLedger(classFile.name, modulesFile, repoRoot);
     const today = new Date().toISOString().slice(0, 10);
-    const report = gapReport({ asOfDate: today, ledger, modulesFile, placements });
+    const report = gapReport({
+      asOfDate: today,
+      ledger,
+      modulesFile,
+      placements,
+    });
     const specs = listLessonSpecs(classFile.name, repoRoot);
-    const moduleTitleById = new Map(modulesFile.modules.map((m) => [m.id, m.title]));
+    const moduleTitleById = new Map(
+      modulesFile.modules.map((m) => [m.id, m.title]),
+    );
 
     const plannedDateSet = new Set(specs.map((s) => s.date));
 
@@ -115,7 +152,8 @@ export function moduleTasks(
       const dates = placement.slots.map((s) => s.date);
       const startDate = dates.reduce((a, b) => (a < b ? a : b));
       const endDate = dates.reduce((a, b) => (a > b ? a : b));
-      const moduleTitle = moduleTitleById.get(placement.moduleId) ?? placement.moduleId;
+      const moduleTitle =
+        moduleTitleById.get(placement.moduleId) ?? placement.moduleId;
 
       // Appointments are filtered per-slot below (not by the task's overall [startDate, endDate]
       // window), so a module that starts before `from` but has slots inside it still surfaces
@@ -141,7 +179,14 @@ export function moduleTasks(
         startDate,
         endDate,
         gaps: report.gaps.filter((g) => g.moduleId === placement.moduleId),
-        plannedDates: specs.filter((s) => s.moduleId === placement.moduleId && s.date >= startDate && s.date <= endDate).map((s) => s.date),
+        plannedDates: specs
+          .filter(
+            (s) =>
+              s.moduleId === placement.moduleId &&
+              s.date >= startDate &&
+              s.date <= endDate,
+          )
+          .map((s) => s.date),
       });
     }
   }

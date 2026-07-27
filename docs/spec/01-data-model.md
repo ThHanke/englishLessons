@@ -6,7 +6,7 @@ JSON for machine-generated exports, Markdown for prose curriculum sources.
 ## 3.1 Curriculum model (Component A) — one purpose-built extraction, not an ontology
 
 Parsed **once** from `docs/lecture_plans/<state>-<schooltype>-<subject>-<version>.md`
-into a flat, typed schema built for *our* needs — no upper ontology. Every piece of
+into a flat, typed schema built for _our_ needs — no upper ontology. Every piece of
 information in the source is captured as a typed entry, tagged by where it is consumed,
 with provenance. This decouples downstream artifacts from the prose so everything cites
 stable IDs.
@@ -14,22 +14,22 @@ stable IDs.
 **Why not the BFO-based ontology as source:** [FWU-DE/lehrplan-ontologie] is BFO-grounded
 (upper-ontology classes, OWL/SPARQL toolchain) — heavy interoperability machinery we do
 not need to build modules, plan lessons, and generate material. We keep our own flat
-schema and use the ontology only as an optional *comparison/validation* check (roadmap
+schema and use the ontology only as an optional _comparison/validation_ check (roadmap
 §5.7 task), not as a runtime dependency.
 
 **Entry types** (each carries `id`, `source` = doc + location, and `used_in` tags from
 `{module_construction, lesson_planning, base_material, test_generation}`):
 
-| Type | Fields | Origin | Primary `used_in` |
-|------|--------|--------|-------------------|
-| `competence` | skill_area, statement, mode (understand/produce) | extracted | module, lesson, test, coverage |
-| `grammar_item` | topic, mode | extracted | module, lesson, exercise, test |
-| `content_field` | field, text (topic) | extracted | module, lesson |
-| `text_type` | name, receptive/productive | extracted | lesson, exercise, test |
-| `vocabulary` | words[] per module/topic | **derived** (agent, §3.6a) | base_material, lesson |
-| `task_pattern` | format, afb, skill_area, *pointer only* (no NbA text — copyright) | referenced | exercise design, lesson |
-| `hint_method` | text (gute-Aufgaben criteria, Texterschließung, methodical comp.) | extracted/referenced | lesson, exercise design |
-| `reference` | citation (curriculum §, Erlass §, textbook) | extracted / teacher-supplied | provenance everywhere |
+| Type            | Fields                                                            | Origin                       | Primary `used_in`              |
+| --------------- | ----------------------------------------------------------------- | ---------------------------- | ------------------------------ |
+| `competence`    | skill_area, statement, mode (understand/produce)                  | extracted                    | module, lesson, test, coverage |
+| `grammar_item`  | topic, mode                                                       | extracted                    | module, lesson, exercise, test |
+| `content_field` | field, text (topic)                                               | extracted                    | module, lesson                 |
+| `text_type`     | name, receptive/productive                                        | extracted                    | lesson, exercise, test         |
+| `vocabulary`    | words[] per module/topic                                          | **derived** (agent, §3.6a)   | base_material, lesson          |
+| `task_pattern`  | format, afb, skill_area, _pointer only_ (no NbA text — copyright) | referenced                   | exercise design, lesson        |
+| `hint_method`   | text (gute-Aufgaben criteria, Texterschließung, methodical comp.) | extracted/referenced         | lesson, exercise design        |
+| `reference`     | citation (curriculum §, Erlass §, textbook)                       | extracted / teacher-supplied | provenance everywhere          |
 
 `competence`, `grammar_item`, `content_field`, `text_type` are the structured form of
 "teaching goals + topics" — kept typed (not prose) because coverage/depth (§3.7) tracks
@@ -71,7 +71,7 @@ Each grade-band file:
 id: sa-sek-en-2019.7-8.rs
 grades: [7, 8]
 track: realschulabschluss
-cefr_target: B1            # end of grade 10
+cefr_target: B1 # end of grade 10
 competence_areas:
   funktional_kommunikativ:
     kommunikativ:
@@ -99,28 +99,39 @@ competence_areas:
         - id: fk.g.gerund
         - id: fk.g.modals
         - id: fk.g.adverbs
-      wortschatz: [ ... ]
-      aussprache: [ ... ]
-      orthografie: [ ... ]
-  interkulturell: [ ... ]
-  methodisch: [ ... ]
-content_fields:            # kommunikative Inhalte
+      wortschatz: [...]
+      aussprache: [...]
+      orthografie: [...]
+  interkulturell: [...]
+  methodisch: [...]
+content_fields: # kommunikative Inhalte
   - id: c.social.freizeit
     field: soziales_umfeld
     text: "Freizeit, Schulsysteme, Kultur, Medienfunktionen"
   - id: c.alltag.institutionen
 text_types:
   receptive: [sketch, erzaehlung, prospekt, gebrauchsanweisung, film_clip]
-  productive: [online_formular, blog_post, blog_comment, interview, storyboard,
-               dialog, bericht, beschreibung, erzaehlender_text]
+  productive:
+    [
+      online_formular,
+      blog_post,
+      blog_comment,
+      interview,
+      storyboard,
+      dialog,
+      bericht,
+      beschreibung,
+      erzaehlender_text,
+    ]
 ```
 
 Extraction is **two-stage, not a pure deterministic parse**:
-1. *Deterministic table mapping* — read the Markdown table structure into raw rows.
-2. *AI-assisted semantic decomposition* — split bundled prose into per-item, per-mode
+
+1. _Deterministic table mapping_ — read the Markdown table structure into raw rows.
+2. _AI-assisted semantic decomposition_ — split bundled prose into per-item, per-mode
    entries. This is required because the Lehrplan packs several items with different modes
-   into one bullet (e.g. "…verstehen (*conditional I und II, relative clauses*) und
-   formulieren (*conditional I, relative clauses*)" → three grammar_items, two modes), and
+   into one bullet (e.g. "…verstehen (_conditional I und II, relative clauses_) und
+   formulieren (_conditional I, relative clauses_)" → three grammar_items, two modes), and
    the phrasing is inconsistent across bands. A regex/table-reader cannot do this reliably.
 
 Because stage 2 is AI-assisted, **IDs are frozen only after human review** of the emitted
@@ -138,6 +149,7 @@ known contact of the maintainer of this project, so coverage/granularity questio
 directly to them rather than reverse-engineering OWL.
 
 Open confirmations before committing (ask the author):
+
 1. Does ST cover **Englisch, Sekundarschule, grades 5–10** (Real + Haupt tracks)?
 2. Do individual can-do competences carry **stable IRIs** we can cite, or only
    subject/grade-band granularity?
@@ -153,13 +165,13 @@ Markdown parser above. See roadmap §5.7.
 ## 3.2 Year-plan template (Component B) — modules = curriculum-derived clusters
 
 A module is a **cluster of topics + goals + a target set of competences** with required
-*depth*. Modules are **derived from the curriculum** (an extraction step groups content
+_depth_. Modules are **derived from the curriculum** (an extraction step groups content
 fields, grammar and skills into coherent topic clusters — draft), then teacher-edited
 and sequenced. Same derive-then-refine pattern as the auto-generated vocab (§3.6a). The
 target competences with their required depth are what the coverage ledger (§3.7) tracks
 lessons against.
 
-Expressed in *ideal teaching weeks* (not calendar dates); the projection maps to time.
+Expressed in _ideal teaching weeks_ (not calendar dates); the projection maps to time.
 
 ```
 plans/
@@ -172,7 +184,7 @@ plans/
 # modules.yaml
 class: 7a-2025-realschule
 curriculum: sa-sek-en-2019.7-8.rs
-total_weeks: 38                 # nominal teachable weeks; projection may compress
+total_weeks: 38 # nominal teachable weeks; projection may compress
 weekly_lessons: 3
 modules:
   - id: m1
@@ -181,34 +193,37 @@ modules:
     content_fields: [c.social.freizeit]
     goals:
       - "Talk about free-time activities using present perfect"
-    covers:                     # target competences + the DEPTH required by end of module
-      - { id: fk.g.present_perfect, required_depth: produce }   # produce | understand
-      - { id: fk.k.sprechen.1,      required_depth: produce }
+    covers: # target competences + the DEPTH required by end of module
+      - { id: fk.g.present_perfect, required_depth: produce } # produce | understand
+      - { id: fk.k.sprechen.1, required_depth: produce }
     milestone:
-      type: test                # test | project | presentation | none
+      type: test # test | project | presentation | none
       grade_weight: 1.0
       assesses: [fk.g.present_perfect, fk.k.schreiben.1]
     pedagogy:
-      repetition_ratio: 0.3     # share of time on review vs new input
+      repetition_ratio: 0.3 # share of time on review vs new input
       new_grammar: [fk.g.present_perfect]
   - id: m2
     title: "The UK — regions and life"
     weeks: 6
     content_fields: [c.social.freizeit]
     covers: [fk.i.orientierung.uk, fk.g.relative_clauses]
-    milestone: { type: test, grade_weight: 1.0, assesses: [fk.g.relative_clauses] }
+    milestone:
+      { type: test, grade_weight: 1.0, assesses: [fk.g.relative_clauses] }
 # ... modules must sum ~ total_weeks, leaving slack buffer
-buffer_weeks: 3                 # absorbed by holidays/events/pace loss
+buffer_weeks: 3 # absorbed by holidays/events/pace loss
 ```
 
 Constraint checks (deterministic, run on save):
+
 - Every `covers`/`assesses` ID exists in the referenced curriculum band.
 - Every productive grammar competence marked `produce` in curriculum is covered by
   at least one module before its assessing milestone (coverage lint).
 - `sum(module.weeks) + buffer_weeks == total_weeks` (± tolerance).
-- `weekly_lessons` in modules.yaml is canonical for the weekly count;
-  `len(calendar.class_schedule[class].lesson_days) == weekly_lessons` (keeps the calendar,
-  the plan, and the projection budget math in sync).
+- `weekly_lessons` in modules.yaml is the canonical weekly lesson count for projection.
+  The projection uses this value directly — it does not depend on `lesson_slots` in the
+  calendar. `lesson_slots` define the concrete day/time schedule for the companion
+  calendar UI and are managed independently.
 
 ## 3.3 School-year calendar (Component C)
 
@@ -229,26 +244,29 @@ calendar/
 ```yaml
 state: sachsen-anhalt
 school_year: 2025/2026
-first_school_day: 2025-08-11      # after summer break
+first_school_day: 2025-08-11 # after summer break
 last_school_day: 2026-07-17
-holidays:                         # no lessons
+holidays: # no lessons
   - { name: Herbstferien, from: 2025-10-13, to: 2025-10-25 }
   - { name: Weihnachtsferien, from: 2025-12-22, to: 2026-01-03 }
   - { name: Winterferien, from: 2026-02-02, to: 2026-02-07 }
   - { name: Osterferien, from: 2026-03-30, to: 2026-04-06 }
   - { name: Pfingstferien, from: 2026-05-15, to: 2026-05-26 }
-events:                           # reduce or block teaching capacity
+events: # reduce or block teaching capacity
   - { name: Projektwoche, from: 2026-06-08, to: 2026-06-12, capacity: 0.0 }
   - { name: Sportfest, date: 2026-05-28, capacity: 0.0 }
   - { name: "Wandertag", date: 2025-09-25, capacity: 0.0 }
-pace_factors:                     # pedagogical throughput modifiers
-  pre_holiday_days: 2             # last N school days before a holiday
-  pre_holiday_factor: 0.6         # ~40% less new material absorbed
+pace_factors: # pedagogical throughput modifiers
+  pre_holiday_days: 2 # last N school days before a holiday
+  pre_holiday_factor: 0.6 # ~40% less new material absorbed
   post_holiday_days: 2
   post_holiday_factor: 0.8
 class_schedule:
   7a-2025-realschule:
-    lesson_days: [Mon, Wed, Fri]  # which weekdays this class has English
+    lesson_slots: # created via companion calendar UI
+      - { id: uuid, day: Mon, start: "08:00", end: "08:45", half_year: 1 }
+      - { id: uuid, day: Wed, start: "10:00", end: "10:45", half_year: 1 }
+      - { id: uuid, day: Fri, start: "08:00", end: "08:45", half_year: 1 }
 ```
 
 ## 3.4 Lesson spec export (Component E output)
@@ -262,16 +280,32 @@ planning site (§4.1) pre-computes and embeds every day's spec at build time for
   "class": "7a-2025-realschule",
   "date": "2026-01-14",
   "school_week": 21,
-  "module": { "id": "m5", "title": "Media and me", "week_in_module": 2, "of": 4 },
+  "module": {
+    "id": "m5",
+    "title": "Media and me",
+    "week_in_module": 2,
+    "of": 4
+  },
   "phase": "new_input",
   "pace_factor": 0.8,
   "pace_reason": "second lesson after Weihnachtsferien",
   "focus_competences": [
-    { "id": "fk.g.conditional_1", "topic": "conditional clauses I", "mode": ["understand","produce"] }
+    {
+      "id": "fk.g.conditional_1",
+      "topic": "conditional clauses I",
+      "mode": ["understand", "produce"]
+    }
   ],
-  "content_field": { "id": "c.social.freizeit", "text": "Media functions: information, entertainment" },
+  "content_field": {
+    "id": "c.social.freizeit",
+    "text": "Media functions: information, entertainment"
+  },
   "text_types": ["blog_comment", "dialog"],
-  "milestone_context": { "next": "test", "in_slots": 2, "assesses": ["fk.g.conditional_1"] },
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 2,
+    "assesses": ["fk.g.conditional_1"]
+  },
   "prior_covered": ["fk.g.present_perfect", "fk.g.relative_clauses"],
   "cefr_target": "B1",
   "known_vocab_ref": "7a-2025-realschule@m5",
@@ -316,18 +350,18 @@ vocabulary/
 
 ```yaml
 class: 7a-2025-realschule
-inherits_from: grade-6              # predecessor plan whose full cumulative vocab is pre-known
-cumulative: true                   # this file lists only lexis NEW at this grade (never re-lists inherited words)
+inherits_from: grade-6 # predecessor plan whose full cumulative vocab is pre-known
+cumulative: true # this file lists only lexis NEW at this grade (never re-lists inherited words)
 generated_from:
-  curriculum: sa-sek-en-2019.7-8.rs   # content fields + grammar + text types per module
-  method: agent-role-assignment       # committed file is source of truth; regen = draft to diff, no seed
+  curriculum: sa-sek-en-2019.7-8.rs # content fields + grammar + text types per module
+  method: agent-role-assignment # committed file is source of truth; regen = draft to diff, no seed
 required_leveling:
-  frequency_list: ngsl-1.2            # REQUIRED validation pass — flags words above expected CEFR band
-modules:                              # agent output; words become "known" as modules advance
+  frequency_list: ngsl-1.2 # REQUIRED validation pass — flags words above expected CEFR band
+modules: # agent output; words become "known" as modules advance
   m1: [free time, hobby, once a week, ...]
   m2: [region, countryside, ...]
-taught_through: m4                    # teacher-set marker of actual progress (drives known_vocab)
-overrides: { add: [ ... ], remove: [ ... ] }   # teacher corrections, optional
+taught_through: m4 # teacher-set marker of actual progress (drives known_vocab)
+overrides: { add: [...], remove: [...] } # teacher corrections, optional
 ```
 
 **Cross-grade progression (chained).** Vocabulary is not independent per grade — it chains
@@ -360,7 +394,7 @@ cumulative set, so no grade can suddenly use lexis a pupil has not met.
 
 No `textbook_map` of guessed units is maintained. During the `prepare-lesson` conversation
 (§4.6), after the plan is drafted, the orchestrator asks the teacher which references to
-include; the teacher gives a plain citation and it is stored *in that lesson's artifact*:
+include; the teacher gives a plain citation and it is stored _in that lesson's artifact_:
 
 ```json
 "textbook_refs": [ { "book": "Green Line 3", "citation": "S. 45, Aufgabe 1.4", "slot": "practice" } ]
@@ -397,12 +431,12 @@ artifacts exist and link to them.
 ## 3.7 Coverage model — forward clusters, reverse ledger, gaps
 
 Bidirectional. Forward: modules (§3.2) declare target competences with required depth.
-Reverse: every generated lesson records what it *actually* covered; aggregating those
+Reverse: every generated lesson records what it _actually_ covered; aggregating those
 records gives real, bottom-up coverage. Gaps = target − actual, depth-aware. All
-deterministic and file-based; the ledger is *derived*, never hand-maintained.
+deterministic and file-based; the ledger is _derived_, never hand-maintained.
 
 **Coverage depth = EXPOSURE, not mastery.** This is a load-bearing caveat. The ledger
-records that a competence was *taught/practised at a given level*, NOT that pupils mastered
+records that a competence was _taught/practised at a given level_, NOT that pupils mastered
 it — the tool collects no pupil answers (no backend, no student data, §5.4). Widgets
 self-check in the browser; nothing reports back. So depth is a taught-exposure signal, and
 the gap report states this limitation on its face. The teacher can **manually mark a
@@ -411,7 +445,7 @@ ledger never infers mastery.
 
 **Coverage depth** (per competence, monotonic exposure state):
 
-`planned → introduced → practiced → assessed`   (+ teacher-set `mastered` override)
+`planned → introduced → practiced → assessed` (+ teacher-set `mastered` override)
 
 `introduced` = first taught; `practiced` = exercised ≥ once more; `assessed` = appeared
 in a milestone test. Required depth comes from the module's `covers[].required_depth`
@@ -444,6 +478,7 @@ Derived by folding every lesson's `covered` over the plan:
 ```
 coverage/7a-2025-realschule.json    # generated; do not hand-edit
 ```
+
 Per competence: max depth reached, list of dates/lessons touching it, exercise types
 used. Per module: its target set × achieved depth = a coverage matrix and a
 `% at required depth`.

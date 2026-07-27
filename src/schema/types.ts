@@ -1,16 +1,16 @@
-export type Mode = 'understand' | 'produce';
-export const MODE_VALUES: readonly Mode[] = ['understand', 'produce'];
+export type Mode = "understand" | "produce";
+export const MODE_VALUES: readonly Mode[] = ["understand", "produce"];
 
 export type UsedIn =
-  | 'module_construction'
-  | 'lesson_planning'
-  | 'base_material'
-  | 'test_generation';
+  | "module_construction"
+  | "lesson_planning"
+  | "base_material"
+  | "test_generation";
 export const USED_IN_VALUES: readonly UsedIn[] = [
-  'module_construction',
-  'lesson_planning',
-  'base_material',
-  'test_generation',
+  "module_construction",
+  "lesson_planning",
+  "base_material",
+  "test_generation",
 ];
 
 export interface Source {
@@ -29,7 +29,13 @@ export interface CurriculumMeta {
 
 export interface CompetenceEntry {
   id: string;
-  skill_area: 'listening' | 'reading' | 'speaking' | 'writing' | 'mediation' | 'intercultural';
+  skill_area:
+    | "listening"
+    | "reading"
+    | "speaking"
+    | "writing"
+    | "mediation"
+    | "intercultural";
   statement: string;
   mode: Mode[];
   source: Source;
@@ -107,11 +113,11 @@ export interface GradeBand {
 
 export interface Covers {
   id: string;
-  required_depth: 'understand' | 'produce';
+  required_depth: "understand" | "produce";
 }
 
 export interface Milestone {
-  type: 'test' | 'project' | 'presentation' | 'none';
+  type: "test" | "project" | "presentation" | "none";
   grade_weight?: number;
   assesses: string[];
 }
@@ -128,7 +134,7 @@ export interface Pedagogy {
 export interface Module {
   id: string;
   title: string;
-  weeks: number | 'DRAFT';
+  weeks: number | "DRAFT";
   content_fields: string[];
   goals: string[];
   covers: Covers[];
@@ -140,10 +146,10 @@ export interface Module {
 export interface ModulesFile {
   class: string;
   curriculum: string;
-  total_weeks: number | 'DRAFT';
-  weekly_lessons: number | 'DRAFT';
+  total_weeks: number | "DRAFT";
+  weekly_lessons: number | "DRAFT";
   modules: Module[];
-  buffer_weeks: number | 'DRAFT';
+  buffer_weeks: number | "DRAFT";
   draft?: boolean;
 }
 
@@ -184,7 +190,6 @@ export interface LessonSlot {
 }
 
 export interface ClassScheduleEntry {
-  lesson_days?: string[];
   lesson_slots?: LessonSlot[];
 }
 
@@ -227,7 +232,7 @@ export interface VocabularyFile {
   cumulative: true;
   generated_from: {
     curriculum: string;
-    method: 'agent-role-assignment';
+    method: "agent-role-assignment";
   };
   required_leveling: {
     frequency_list: string;

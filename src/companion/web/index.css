@@ -1,42 +1,142 @@
 @import "tailwindcss";
 
-/* Class/grade color palette (companion-module-0..7), a fixed set of visually distinct hues so any
- * number of classes gets a consistent, distinguishable color without per-classId CSS. All
- * pastel-range backgrounds, paired with a single dark text color for readable contrast — the
- * library's own default event text color is white, which was unreadable against these light
- * backgrounds (the reported "white text on yellow" bug). Combined with SVAR's own
- * `.wx-bar-event`/`.wx-box-event` classes (its month/week event chip classes, per
- * @svar-ui/react-calendar's own demo CSS convention) for enough specificity to override the
- * library's defaults. */
 :root {
   --companion-event-text: #1e293b;
+  --companion-color-0: #93c5fd;
+  --companion-color-1: #86efac;
+  --companion-color-2: #fde68a;
+  --companion-color-3: #fca5a5;
+  --companion-color-4: #c4b5fd;
+  --companion-color-5: #67e8f9;
+  --companion-color-6: #fdba74;
+  --companion-color-7: #f9a8d4;
 }
-.companion-module-0.wx-bar-event, .companion-module-0.wx-box-event { background: #93c5fd; color: var(--companion-event-text); }
-.companion-module-1.wx-bar-event, .companion-module-1.wx-box-event { background: #86efac; color: var(--companion-event-text); }
-.companion-module-2.wx-bar-event, .companion-module-2.wx-box-event { background: #fde68a; color: var(--companion-event-text); }
-.companion-module-3.wx-bar-event, .companion-module-3.wx-box-event { background: #fca5a5; color: var(--companion-event-text); }
-.companion-module-4.wx-bar-event, .companion-module-4.wx-box-event { background: #c4b5fd; color: var(--companion-event-text); }
-.companion-module-5.wx-bar-event, .companion-module-5.wx-box-event { background: #67e8f9; color: var(--companion-event-text); }
-.companion-module-6.wx-bar-event, .companion-module-6.wx-box-event { background: #fdba74; color: var(--companion-event-text); }
-.companion-module-7.wx-bar-event, .companion-module-7.wx-box-event { background: #f9a8d4; color: var(--companion-event-text); }
 
-.companion-non-teaching.wx-bar-event, .companion-non-teaching.wx-box-event {
-  background: transparent;
+/* Event chips — use !important to beat SVAR's scoped two-class selectors
+   (.wx-bar-event.wx-aacgzzUM etc.) which have equal specificity and load later. */
+[class*="companion-module-0"][class*="wx-bar-event"],
+[class*="companion-module-0"][class*="wx-box-event"] {
+  background: var(--companion-color-0) !important;
+  color: var(--companion-event-text) !important;
+}
+[class*="companion-module-1"][class*="wx-bar-event"],
+[class*="companion-module-1"][class*="wx-box-event"] {
+  background: var(--companion-color-1) !important;
+  color: var(--companion-event-text) !important;
+}
+[class*="companion-module-2"][class*="wx-bar-event"],
+[class*="companion-module-2"][class*="wx-box-event"] {
+  background: var(--companion-color-2) !important;
+  color: var(--companion-event-text) !important;
+}
+[class*="companion-module-3"][class*="wx-bar-event"],
+[class*="companion-module-3"][class*="wx-box-event"] {
+  background: var(--companion-color-3) !important;
+  color: var(--companion-event-text) !important;
+}
+[class*="companion-module-4"][class*="wx-bar-event"],
+[class*="companion-module-4"][class*="wx-box-event"] {
+  background: var(--companion-color-4) !important;
+  color: var(--companion-event-text) !important;
+}
+[class*="companion-module-5"][class*="wx-bar-event"],
+[class*="companion-module-5"][class*="wx-box-event"] {
+  background: var(--companion-color-5) !important;
+  color: var(--companion-event-text) !important;
+}
+[class*="companion-module-6"][class*="wx-bar-event"],
+[class*="companion-module-6"][class*="wx-box-event"] {
+  background: var(--companion-color-6) !important;
+  color: var(--companion-event-text) !important;
+}
+[class*="companion-module-7"][class*="wx-bar-event"],
+[class*="companion-module-7"][class*="wx-box-event"] {
+  background: var(--companion-color-7) !important;
+  color: var(--companion-event-text) !important;
+}
+
+/* CalendarPanel sidebar — override SVAR's --wx-color-primary per grade so the
+   custom checkbox (.wx-before:before) inherits the grade color automatically. */
+[class*="companion-module-0"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-0);
+}
+[class*="companion-module-1"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-1);
+}
+[class*="companion-module-2"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-2);
+}
+[class*="companion-module-3"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-3);
+}
+[class*="companion-module-4"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-4);
+}
+[class*="companion-module-5"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-5);
+}
+[class*="companion-module-6"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-6);
+}
+[class*="companion-module-7"][class*="wx-calendar-name"] {
+  --wx-color-primary: var(--companion-color-7);
+}
+
+/* Single-day appointment dots in month view — SVAR renders these as bar-single-day with a
+   wx-bar-marker dot. Color the dot to match the grade. */
+[class*="companion-module-0"] .wx-bar-marker {
+  background: var(--companion-color-0) !important;
+}
+[class*="companion-module-1"] .wx-bar-marker {
+  background: var(--companion-color-1) !important;
+}
+[class*="companion-module-2"] .wx-bar-marker {
+  background: var(--companion-color-2) !important;
+}
+[class*="companion-module-3"] .wx-bar-marker {
+  background: var(--companion-color-3) !important;
+}
+[class*="companion-module-4"] .wx-bar-marker {
+  background: var(--companion-color-4) !important;
+}
+[class*="companion-module-5"] .wx-bar-marker {
+  background: var(--companion-color-5) !important;
+}
+[class*="companion-module-6"] .wx-bar-marker {
+  background: var(--companion-color-6) !important;
+}
+[class*="companion-module-7"] .wx-bar-marker {
+  background: var(--companion-color-7) !important;
+}
+
+.companion-non-teaching[class*="wx-bar-event"],
+.companion-non-teaching[class*="wx-box-event"] {
+  background: transparent !important;
   opacity: 0.55;
   border-style: dashed;
-  color: var(--companion-event-text);
+  color: var(--companion-event-text) !important;
 }
 
-/* Gap severity accents, ranked uncovered < under-depth < at-risk (routes/calendar.ts). */
-.companion-gap-uncovered.wx-bar-event, .companion-gap-uncovered.wx-box-event { border: 2px solid #64748b; }
-.companion-gap-under-depth.wx-bar-event, .companion-gap-under-depth.wx-box-event { border: 2px solid #d97706; }
-.companion-gap-at-risk.wx-bar-event, .companion-gap-at-risk.wx-box-event { border: 2px solid #dc2626; }
+/* Gap severity accents */
+.companion-gap-uncovered[class*="wx-bar-event"],
+.companion-gap-uncovered[class*="wx-box-event"] {
+  border: 2px solid #64748b !important;
+}
+.companion-gap-under-depth[class*="wx-bar-event"],
+.companion-gap-under-depth[class*="wx-box-event"] {
+  border: 2px solid #d97706 !important;
+}
+.companion-gap-at-risk[class*="wx-bar-event"],
+.companion-gap-at-risk[class*="wx-box-event"] {
+  border: 2px solid #dc2626 !important;
+}
 
-/* A real teaching-day appointment whose date already has a lesson-spec.json (R11). */
-.companion-planned.wx-box-event, .companion-planned.wx-bar-event { border-left: 4px solid #16a34a; }
+/* Appointment with existing lesson-spec */
+.companion-planned[class*="wx-box-event"],
+.companion-planned[class*="wx-bar-event"] {
+  border-left: 4px solid #16a34a !important;
+}
 
-/* Richer per-event chip content (TaskEventContent in Calendar.tsx) — title + grade + gap in one
- * line, ellipsized: the ~22px chip height (month view) only fits a single line. */
 .companion-event-content {
   display: block;
   overflow: hidden;

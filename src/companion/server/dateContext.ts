@@ -1,16 +1,24 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
-import { loadYaml } from '../../schema/yaml.ts';
-import type { ModulesFile, ClassFile, CalendarFile, LessonSpec } from '../../schema/types.ts';
-import type { Phase } from '../../projection/types.ts';
-import { enumerateSlots, weightSlots } from '../../projection/slots.ts';
-import { fillModules } from '../../projection/fillModules.ts';
-import { whichModule } from '../../projection/query.ts';
-import { gapReport } from '../../coverage/gapReport.ts';
-import type { Gap } from '../../coverage/types.ts';
-import { buildLedger } from './buildLedger.ts';
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { loadYaml } from "../../schema/yaml.ts";
+import type {
+  ModulesFile,
+  ClassFile,
+  CalendarFile,
+  LessonSpec,
+} from "../../schema/types.ts";
+import type { Phase } from "../../projection/types.ts";
+import {
+  enumerateProjectionSlots,
+  weightSlots,
+} from "../../projection/slots.ts";
+import { fillModules } from "../../projection/fillModules.ts";
+import { whichModule } from "../../projection/query.ts";
+import { gapReport } from "../../coverage/gapReport.ts";
+import type { Gap } from "../../coverage/types.ts";
+import { buildLedger } from "./buildLedger.ts";
 
-const DEFAULT_REPO_ROOT = new URL('../../../', import.meta.url).pathname;
+const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
 export interface TeachingDayContext {
   isTeachingDay: true;
@@ -43,15 +51,15 @@ interface ClassData {
 
 /** Mirrors `src/cli/validateAll.ts`'s `plans/<grade-dir>/{modules.yaml,class.yaml}` lookup, scoped to one class by name. */
 function loadClassData(className: string, repoRoot: string): ClassData | null {
-  const plansDir = join(repoRoot, 'plans');
+  const plansDir = join(repoRoot, "plans");
   for (const gradeDir of readdirSync(plansDir)) {
     const dirPath = join(plansDir, gradeDir);
     if (!statSync(dirPath).isDirectory()) continue;
-    const classPath = join(dirPath, 'class.yaml');
+    const classPath = join(dirPath, "class.yaml");
     if (!existsSync(classPath)) continue;
     const classFile = loadYaml<ClassFile>(classPath);
     if (classFile.name === className) {
-      const modulesFile = loadYaml<ModulesFile>(join(dirPath, 'modules.yaml'));
+      const modulesFile = loadYaml<ModulesFile>(join(dirPath, "modules.yaml"));
       return { modulesFile, classFile };
     }
   }
@@ -64,9 +72,12 @@ function loadClassData(className: string, repoRoot: string): ClassData | null {
  * first match wins, in `readdirSync` order - no further ambiguity resolution is implemented,
  * since today's repo only ever has one calendar file per school year and this hasn't come up.
  */
-function loadCalendarForClass(className: string, repoRoot: string): CalendarFile | null {
-  const calendarDir = join(repoRoot, 'calendar');
-  const files = readdirSync(calendarDir).filter((f) => f.endsWith('.yaml'));
+function loadCalendarForClass(
+  className: string,
+  repoRoot: string,
+): CalendarFile | null {
+  const calendarDir = join(repoRoot, "calendar");
+  const files = readdirSync(calendarDir).filter((f) => f.endsWith(".yaml"));
   for (const file of files) {
     const calendar = loadYaml<CalendarFile>(join(calendarDir, file));
     if (calendar.class_schedule[className]) {
@@ -85,22 +96,39 @@ function loadCalendarForClass(className: string, repoRoot: string): CalendarFile
  * null module id buried in it, so a caller can skip opening a chat session without inspecting a
  * magic null.
  */
-export function dateContext(params: { className: string; date: string; repoRoot?: string }): DateContext {
+export function dateContext(params: {
+  className: string;
+  date: string;
+  repoRoot?: string;
+}): DateContext {
   const { className, date } = params;
   const repoRoot = params.repoRoot ?? DEFAULT_REPO_ROOT;
 
   const classData = loadClassData(className, repoRoot);
   if (!classData) {
-    throw new Error(`No class found named "${className}" under plans/*/class.yaml`);
+    throw new Error(
+      `No class found named "${className}" under plans/*/class.yaml`,
+    );
   }
   const { modulesFile } = classData;
 
   const calendar = loadCalendarForClass(className, repoRoot);
   if (!calendar) {
-    throw new Error(`No calendar file under calendar/*.yaml has a class_schedule entry for "${className}"`);
+    throw new Error(
+      `No calendar file under calendar/*.yaml has a class_schedule entry for "${className}"`,
+    );
   }
 
-  const rawSlots = enumerateSlots(calendar, className);
+  const weeklyLessons = modulesFile.weekly_lessons;
+  if (weeklyLessons === "DRAFT") {
+    return {
+      isTeachingDay: false,
+      className,
+      date,
+      reason: "Curriculum not finalized (DRAFT weekly_lessons)",
+    };
+  }
+  const rawSlots = enumerateProjectionSlots(calendar, weeklyLessons);
   const weighted = weightSlots(rawSlots, calendar);
   const placements = fillModules(weighted, modulesFile);
   const which = whichModule(placements, date);
@@ -113,12 +141,12 @@ export function dateContext(params: { className: string; date: string; repoRoot?
   const report = gapReport({ asOfDate: date, ledger, modulesFile, placements });
   const moduleGaps = report.gaps.filter((g) => g.moduleId === which.moduleId);
 
-  const specRelPath = join('artifacts', className, date, 'lesson-spec.json');
+  const specRelPath = join("artifacts", className, date, "lesson-spec.json");
   const specAbsPath = join(repoRoot, specRelPath);
   let lessonSpec: LessonSpec | null = null;
   let lessonSpecPath: string | null = null;
   if (existsSync(specAbsPath)) {
-    lessonSpec = JSON.parse(readFileSync(specAbsPath, 'utf-8')) as LessonSpec;
+    lessonSpec = JSON.parse(readFileSync(specAbsPath, "utf-8")) as LessonSpec;
     lessonSpecPath = specRelPath;
   }
 

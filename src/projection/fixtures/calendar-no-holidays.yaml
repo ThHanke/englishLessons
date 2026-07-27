@@ -11,4 +11,19 @@ pace_factors:
   post_holiday_factor: 0.8
 class_schedule:
   test-class:
-    lesson_days: [Mon, Wed, Fri]
+    lesson_slots:
+      - id: s1
+        day: Mon
+        start: 08:00
+        end: 08:45
+        half_year: 1
+      - id: s2
+        day: Wed
+        start: 08:00
+        end: 08:45
+        half_year: 1
+      - id: s3
+        day: Fri
+        start: 08:00
+        end: 08:45
+        half_year: 1

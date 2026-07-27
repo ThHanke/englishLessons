@@ -1,7 +1,7 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import { addDaysIso } from '../../../schema/dates.ts';
-import { dateContext } from '../dateContext.ts';
-import type { GapKind } from '../../../coverage/types.ts';
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { addDaysIso } from "../../../schema/dates.ts";
+import { dateContext } from "../dateContext.ts";
+import type { GapKind } from "../../../coverage/types.ts";
 
 export interface CalendarDayResponse {
   date: string;
@@ -27,14 +27,17 @@ export interface CalendarRangeResponse {
 
 const GAP_SEVERITY_RANK: Record<GapKind, number> = {
   uncovered: 0,
-  'under-depth': 1,
-  'at-risk': 2,
+  "under-depth": 1,
+  "at-risk": 2,
 };
 
 function worstGapSeverity(gaps: { kind: GapKind }[]): GapKind | null {
   let worst: GapKind | null = null;
   for (const gap of gaps) {
-    if (worst === null || GAP_SEVERITY_RANK[gap.kind] > GAP_SEVERITY_RANK[worst]) {
+    if (
+      worst === null ||
+      GAP_SEVERITY_RANK[gap.kind] > GAP_SEVERITY_RANK[worst]
+    ) {
       worst = gap.kind;
     }
   }
@@ -87,8 +90,12 @@ export function buildCalendarRange(params: {
   return days;
 }
 
-function sendJson(res: ServerResponse, statusCode: number, body: unknown): void {
-  res.writeHead(statusCode, { 'content-type': 'application/json' });
+function sendJson(
+  res: ServerResponse,
+  statusCode: number,
+  body: unknown,
+): void {
+  res.writeHead(statusCode, { "content-type": "application/json" });
   res.end(JSON.stringify(body));
 }
 
@@ -102,19 +109,32 @@ export async function handleCalendarRequest(
   res: ServerResponse,
   config: { repoRoot?: string },
 ): Promise<void> {
-  const url = new URL(req.url ?? '/', 'http://127.0.0.1');
-  const className = url.searchParams.get('class');
-  const from = url.searchParams.get('from');
-  const to = url.searchParams.get('to');
+  const url = new URL(req.url ?? "/", "http://127.0.0.1");
+  const className = url.searchParams.get("class");
+  const from = url.searchParams.get("from");
+  const to = url.searchParams.get("to");
 
   if (!className || !from || !to) {
-    sendJson(res, 400, { error: 'missing_query_params', required: ['class', 'from', 'to'] });
+    sendJson(res, 400, {
+      error: "missing_query_params",
+      required: ["class", "from", "to"],
+    });
     return;
   }
 
   try {
-    const days = buildCalendarRange({ className, from, to, repoRoot: config.repoRoot });
-    sendJson(res, 200, { className, from, to, days } satisfies CalendarRangeResponse);
+    const days = buildCalendarRange({
+      className,
+      from,
+      to,
+      repoRoot: config.repoRoot,
+    });
+    sendJson(res, 200, {
+      className,
+      from,
+      to,
+      days,
+    } satisfies CalendarRangeResponse);
   } catch (err) {
     sendJson(res, 500, { error: (err as Error).message });
   }

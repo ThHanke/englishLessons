@@ -11,7 +11,11 @@
   ],
   "content_field": { "id": "c.fixture", "text": "fixture content field" },
   "text_types": ["dialog"],
-  "milestone_context": { "next": "test", "in_slots": 4, "assesses": ["c.uncovered", "c.underdepth"] },
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 4,
+    "assesses": ["c.uncovered", "c.underdepth"]
+  },
   "prior_covered": [],
   "cefr_target": "B1",
   "known_vocab_ref": "fixture-class@m1",
