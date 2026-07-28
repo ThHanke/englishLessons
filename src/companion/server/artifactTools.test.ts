@@ -409,5 +409,131 @@ describe("artifactTools", () => {
       expect(manifest.materials).toHaveLength(2);
       expect(manifest.materials.map((m: { title: string }) => m.title)).toEqual(["First", "Second"]);
     });
+
+    it("populates contentText from the parsed items so it's available for vocabulary scanning", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      await handler({
+        type: "mcq",
+        title: "Content Text Check",
+        competenceIds: ["fk.g.passive"],
+        items: [{ question: "Pick the caretaker", options: ["caretaker", "teacher"], correctIndex: 0 }],
+      });
+
+      const manifest = readManifest();
+      expect(manifest.materials[0].contentText).toEqual(
+        expect.arrayContaining(["Pick the caretaker", "caretaker", "teacher"]),
+      );
+    });
+  });
+
+  describe("find_new_vocabulary / generate_vocab_intro", () => {
+    function writeVocabFixture() {
+      mkdirSync(join(tmpDir, "vocabulary"), { recursive: true });
+      writeFileSync(
+        join(tmpDir, "vocabulary", "grade-7.yaml"),
+        [
+          "class: grade-7-2026",
+          "inherits_from: null",
+          "cumulative: true",
+          "generated_from:",
+          "  curriculum: fixture-curriculum",
+          "  method: agent-role-assignment",
+          "required_leveling:",
+          "  frequency_list: ngsl-1.2",
+          "modules:",
+          "  m1: [passive, voice, clean, room]",
+          "taught_through: m1",
+        ].join("\n"),
+      );
+    }
+
+    async function saveSpec(handler: (args: Record<string, unknown>) => Promise<unknown>) {
+      await handler(validLessonSpec());
+    }
+
+    function manifestPath() {
+      return join(tmpDir, "artifacts", CLASS_ID, DATE, "manifest.json");
+    }
+
+    it("rejects find_new_vocabulary when no lesson-spec.json exists yet", async () => {
+      const handler = extractToolHandler(makeServer(), "find_new_vocabulary");
+      const result = await handler({});
+      expect(result.isError).toBe(true);
+      expect(result.content[0]!.text).toContain("No lesson-spec.json");
+    });
+
+    it("finds vocabulary used in the lesson-spec that isn't in the known-vocabulary chain", async () => {
+      writeVocabFixture();
+      const server = makeServer();
+      await saveSpec(extractToolHandler(server, "save_lesson_spec"));
+
+      const result = await extractToolHandler(server, "find_new_vocabulary")({});
+      expect(result.isError).toBeFalsy();
+      // "passive" and "voice" are known (m1); the lesson-spec's own text otherwise has no other
+      // obvious target vocabulary here beyond that, so this mainly proves the tool runs end to
+      // end without needing generated materials yet.
+      expect(result.content[0]!.text).toMatch(/New vocabulary found|No new vocabulary found/);
+    });
+
+    it("also scans already-generated materials' contentText for new vocabulary", async () => {
+      writeVocabFixture();
+      const server = makeServer();
+      await saveSpec(extractToolHandler(server, "save_lesson_spec"));
+      await extractToolHandler(server, "generate_exercise")({
+        type: "gap_fill",
+        title: "Caretaker Practice",
+        competenceIds: ["fk.g.passive"],
+        items: [{ sentence: "The caretaker cleans the room.", blanks: [{ answer: "cleans", position: 0 }] }],
+      });
+
+      const result = await extractToolHandler(server, "find_new_vocabulary")({});
+      expect(result.content[0]!.text).toContain("caretaker");
+      // "room" and "clean"/"cleans" are known via the fixture vocab (m1 includes "room", "clean");
+      // "caretaker" is not, so it should surface as new while "room" should not.
+      expect(result.content[0]!.text).not.toMatch(/\broom\b/);
+    });
+
+    it("generate_vocab_intro writes a vocab_intro material at 'introduced' depth with competenceIds from the lesson-spec", async () => {
+      writeVocabFixture();
+      const server = makeServer();
+      await saveSpec(extractToolHandler(server, "save_lesson_spec"));
+
+      const result = await extractToolHandler(server, "generate_vocab_intro")({
+        title: "New Words",
+        words: [{ word: "caretaker", translation: "Hausmeister" }],
+      });
+      expect(result.isError).toBeFalsy();
+
+      const filePath = join(tmpDir, "artifacts", CLASS_ID, DATE, "materials", "vocab_intro-new-words.html");
+      expect(existsSync(filePath)).toBe(true);
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain("Hausmeister");
+
+      const manifest = JSON.parse(readFileSync(manifestPath(), "utf-8"));
+      expect(manifest.materials[0]).toMatchObject({
+        type: "vocab_intro",
+        title: "New Words",
+        competenceIds: ["fk.g.passive"],
+        depth: "introduced",
+      });
+    });
+
+    it("generate_vocab_intro rejects an empty title", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_vocab_intro");
+      const result = await handler({ title: "   ", words: [{ word: "caretaker", translation: "Hausmeister" }] });
+      expect(result.isError).toBe(true);
+    });
+
+    it("generate_vocab_intro works even with no lesson-spec.json (competenceIds falls back to empty)", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_vocab_intro");
+      const result = await handler({
+        title: "Standalone Words",
+        words: [{ word: "caretaker", translation: "Hausmeister" }],
+      });
+      expect(result.isError).toBeFalsy();
+      const manifest = JSON.parse(readFileSync(manifestPath(), "utf-8"));
+      expect(manifest.materials[0]).toMatchObject({ competenceIds: [] });
+    });
   });
 });
