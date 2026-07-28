@@ -1,0 +1,22 @@
+{
+  "class": "class-manifest-stronger",
+  "date": "2026-09-01",
+  "materials": [
+    {
+      "file": "materials/gap_fill-passive-practice.html",
+      "type": "gap_fill",
+      "title": "Passive Practice",
+      "competenceIds": ["c.x"],
+      "depth": "practiced",
+      "createdAt": "2026-09-01T10:00:00.000Z"
+    },
+    {
+      "file": "materials/mcq-extra-check.html",
+      "type": "mcq",
+      "title": "Extra Check",
+      "competenceIds": ["c.z"],
+      "depth": "practiced",
+      "createdAt": "2026-09-01T10:05:00.000Z"
+    }
+  ]
+}

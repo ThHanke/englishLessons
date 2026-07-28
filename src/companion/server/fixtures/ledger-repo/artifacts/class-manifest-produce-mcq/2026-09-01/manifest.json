@@ -1,0 +1,14 @@
+{
+  "class": "class-manifest-produce-mcq",
+  "date": "2026-09-01",
+  "materials": [
+    {
+      "file": "materials/mcq-produce-check.html",
+      "type": "mcq",
+      "title": "Produce Check",
+      "competenceIds": ["c.p"],
+      "depth": "practiced",
+      "createdAt": "2026-09-01T10:00:00.000Z"
+    }
+  ]
+}

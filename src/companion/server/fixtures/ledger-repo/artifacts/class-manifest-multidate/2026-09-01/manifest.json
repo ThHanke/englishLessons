@@ -1,0 +1,14 @@
+{
+  "class": "class-manifest-multidate",
+  "date": "2026-09-01",
+  "materials": [
+    {
+      "file": "materials/gap_fill-first.html",
+      "type": "gap_fill",
+      "title": "First",
+      "competenceIds": ["c.w"],
+      "depth": "practiced",
+      "createdAt": "2026-09-01T10:00:00.000Z"
+    }
+  ]
+}

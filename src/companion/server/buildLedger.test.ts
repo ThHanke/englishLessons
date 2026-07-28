@@ -68,4 +68,65 @@ describe("buildLedger", () => {
       ],
     });
   });
+
+  describe("manifest.json integration (U3)", () => {
+    it("a date with both lesson-spec.json and manifest.json: the manifest's stronger depth wins for the shared competence, and a manifest-only competence still folds in", () => {
+      const ledger = buildLedger(
+        "class-manifest-stronger",
+        modulesFile({ class: "class-manifest-stronger" }),
+        FIXTURE_REPO_ROOT,
+      );
+      // c.x: lesson-spec says 'introduced', manifest says 'practiced' -> practiced wins.
+      expect(ledger.competences["c.x"]!.maxDepth).toBe("practiced");
+      expect(ledger.competences["c.x"]!.exerciseTypesUsed).toContain("gap_fill");
+      // c.z: named only in the manifest, absent from the lesson-spec's focus_competences.
+      expect(ledger.competences["c.z"]!.maxDepth).toBe("practiced");
+      expect(ledger.competences["c.z"]!.exerciseTypesUsed).toEqual(["mcq"]);
+    });
+
+    it("a manifest.json with empty materials: [] contributes no coverage and does not crash", () => {
+      const ledger = buildLedger(
+        "class-manifest-empty",
+        modulesFile({ class: "class-manifest-empty" }),
+        FIXTURE_REPO_ROOT,
+      );
+      // Only the lesson-spec's 'introduced' record for c.x is present; the empty manifest added nothing.
+      expect(ledger.competences["c.x"]!.maxDepth).toBe("introduced");
+    });
+
+    it("folds manifest entries for the same competence at different depths across different dates via the existing max-depth-across-dates logic", () => {
+      const ledger = buildLedger(
+        "class-manifest-multidate",
+        modulesFile({ class: "class-manifest-multidate" }),
+        FIXTURE_REPO_ROOT,
+      );
+      expect(ledger.competences["c.w"]!.maxDepth).toBe("assessed");
+      expect(ledger.competences["c.w"]!.datesTouched.sort()).toEqual([
+        "2026-09-01",
+        "2026-09-08",
+      ]);
+    });
+
+    it("a produce-required competence covered only by an mcq manifest entry still reports as under-depth (mcq isn't a PRODUCTIVE_EXERCISE_TYPE) -- expected boundary, not a bug", () => {
+      const modules = modulesFile({
+        class: "class-manifest-produce-mcq",
+        modules: [
+          {
+            id: "m1",
+            title: "Module One",
+            weeks: 2,
+            content_fields: [],
+            goals: [],
+            covers: [{ id: "c.p", required_depth: "produce" }],
+            milestone: { type: "test", assesses: ["c.p"] },
+            pedagogy: { new_grammar: [] },
+          },
+        ],
+      });
+      const ledger = buildLedger("class-manifest-produce-mcq", modules, FIXTURE_REPO_ROOT);
+      expect(ledger.competences["c.p"]!.maxDepth).toBe("practiced");
+      const m1 = ledger.modules.find((m) => m.moduleId === "m1")!;
+      expect(m1.metCount).toBe(0);
+    });
+  });
 });

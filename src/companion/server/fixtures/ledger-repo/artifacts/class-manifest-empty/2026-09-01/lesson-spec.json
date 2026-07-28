@@ -1,0 +1,21 @@
+{
+  "class": "class-manifest-empty",
+  "date": "2026-09-01",
+  "school_week": 1,
+  "module": { "id": "m1", "title": "Module One", "week_in_module": 1, "of": 2 },
+  "phase": "new_input",
+  "pace_factor": 1,
+  "pace_reason": "no pre/post-holiday degradation on this slot",
+  "focus_competences": [
+    { "id": "c.x", "topic": "fixture topic x", "mode": ["understand"] }
+  ],
+  "content_field": { "id": "c.fixture", "text": "fixture content field" },
+  "text_types": ["dialog"],
+  "milestone_context": { "next": "test", "in_slots": 6, "assesses": ["c.x"] },
+  "prior_covered": [],
+  "cefr_target": "B1",
+  "known_vocab_ref": "class-manifest-empty@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": ["gap_fill"],
+  "curriculum_ref": "fixture-curriculum"
+}
