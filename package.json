@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc --noEmit",
     "test": "vitest run",
+    "test:live-sdk": "RUN_LIVE_SDK_TEST=1 vitest run src/companion/server/agentSession.live-sdk.test.ts",
     "validate": "node --experimental-strip-types src/cli/validateAll.ts",
     "dev": "node --experimental-strip-types src/companion/server/dev.ts"
   },
