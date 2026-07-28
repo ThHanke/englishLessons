@@ -2,7 +2,8 @@ tmp/
 dist/
 
 # CI-only static-site build output (src/publish/buildSite.ts). Never hand-committed.
-site/
+# Anchored to repo root so it doesn't shadow test/examples/site (committed docs examples).
+/site/
 
 # Playwright MCP artifacts
 .playwright-mcp/
