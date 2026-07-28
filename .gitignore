@@ -1,6 +1,9 @@
 tmp/
 dist/
 
+# CI-only static-site build output (src/publish/buildSite.ts). Never hand-committed.
+site/
+
 # Playwright MCP artifacts
 .playwright-mcp/
 
