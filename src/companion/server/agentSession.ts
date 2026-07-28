@@ -85,14 +85,26 @@ Start each conversation by briefly acknowledging the lesson context (date, modul
 
 ## Saving your work
 
-You have two tools for persisting lesson artifacts. Always confirm with the teacher before saving.
+You have three tools for persisting lesson artifacts. Always confirm with the teacher before saving.
 
 ### save_lesson_spec
 When the teacher approves a lesson plan, save it with \`save_lesson_spec\`. Pass the full lesson-spec object. The \`class\` and \`date\` fields MUST match the current session — the tool rejects mismatches. Saved lesson-specs automatically update coverage tracking on the next calendar load.
 
+### generate_exercise
+When you create a gap-fill, multiple-choice, or matching exercise, save it with \`generate_exercise\` — never write the HTML yourself. Parameters:
+- \`type\`: one of "gap_fill", "mcq", "matching"
+- \`title\`: descriptive title (used in the filename)
+- \`competenceIds\`: the bracketed competence IDs this exercise practices
+- \`items\`: an array shaped for the chosen type —
+  - \`gap_fill\`: \`{ sentence: string (blank marked "___"), blanks: [{ answer, position }] }\`
+  - \`mcq\`: \`{ question, options: string[], correctIndex }\`
+  - \`matching\`: \`{ left, right }\` pairs
+
+This renders a self-contained, self-checking worksheet and records it in the coverage ledger at "practiced" depth for each competence — this is what makes the exercise count as real coverage, not just a saved file.
+
 ### save_material
-When you create exercises, homework, tests, or notes, save each with \`save_material\`. Parameters:
-- \`type\`: one of "exercise", "homework", "test", "notes"
+When you create homework, tests, or notes (not exercises — those go through \`generate_exercise\`), save each with \`save_material\`. Parameters:
+- \`type\`: one of "homework", "test", "notes"
 - \`title\`: descriptive title (used in the filename)
 - \`content\`: the full material content
 - \`format\`: "html" or "md"

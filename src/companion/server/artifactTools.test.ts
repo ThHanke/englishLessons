@@ -9,7 +9,8 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createLessonArtifactServer } from "./artifactTools.ts";
+import { z } from "zod/v4";
+import { createLessonArtifactServer, MaterialSchema } from "./artifactTools.ts";
 
 function validLessonSpec(overrides: Record<string, unknown> = {}) {
   return {
@@ -132,23 +133,18 @@ describe("artifactTools", () => {
   });
 
   describe("save_material", () => {
-    it("saves exercise as HTML", async () => {
-      const handler = extractToolHandler(makeServer(), "save_material");
-
-      const result = await handler({
+    it("rejects type 'exercise' -- exercises must go through generate_exercise (KTD1)", async () => {
+      // MaterialSchema's type enum no longer includes 'exercise'; this proves the Zod schema
+      // itself is the enforcement point (the SDK validates args against it before the handler
+      // ever runs, so calling the handler directly with an invalid `type` wouldn't exercise this
+      // guarantee -- the schema is what the SDK layer actually checks).
+      const result = z.object(MaterialSchema).safeParse({
         type: "exercise",
         title: "Gap Fill Passive Voice",
         content: "<h1>Fill the gaps</h1>",
         format: "html",
       });
-
-      expect(result.isError).toBeFalsy();
-      const filePath = join(
-        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
-        "exercise-gap-fill-passive-voice.html",
-      );
-      expect(existsSync(filePath)).toBe(true);
-      expect(readFileSync(filePath, "utf-8")).toBe("<h1>Fill the gaps</h1>");
+      expect(result.success).toBe(false);
     });
 
     it("saves homework as markdown", async () => {
@@ -202,12 +198,154 @@ describe("artifactTools", () => {
     it("saves multiple materials without overwriting", async () => {
       const handler = extractToolHandler(makeServer(), "save_material");
 
-      await handler({ type: "exercise", title: "Ex One", content: "a", format: "html" });
+      await handler({ type: "test", title: "Test One", content: "a", format: "html" });
       await handler({ type: "homework", title: "HW One", content: "b", format: "md" });
 
       const materialsDir = join(tmpDir, "artifacts", CLASS_ID, DATE, "materials");
-      expect(existsSync(join(materialsDir, "exercise-ex-one.html"))).toBe(true);
+      expect(existsSync(join(materialsDir, "test-test-one.html"))).toBe(true);
       expect(existsSync(join(materialsDir, "homework-hw-one.md"))).toBe(true);
+    });
+  });
+
+  describe("generate_exercise", () => {
+    function manifestPath() {
+      return join(tmpDir, "artifacts", CLASS_ID, DATE, "manifest.json");
+    }
+
+    function readManifest() {
+      return JSON.parse(readFileSync(manifestPath(), "utf-8"));
+    }
+
+    it("writes a gap_fill file under materials/ and creates manifest.json at 'practiced' depth", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "gap_fill",
+        title: "Passive Voice Gap Fill",
+        competenceIds: ["fk.g.passive"],
+        items: [{ sentence: "The room ___ every day.", blanks: [{ answer: "is cleaned", position: 0 }] }],
+      });
+
+      expect(result.isError).toBeFalsy();
+      const filePath = join(
+        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
+        "gap_fill-passive-voice-gap-fill.html",
+      );
+      expect(existsSync(filePath)).toBe(true);
+      expect(existsSync(manifestPath())).toBe(true);
+      const manifest = readManifest();
+      expect(manifest.materials).toHaveLength(1);
+      expect(manifest.materials[0]).toMatchObject({
+        file: "materials/gap_fill-passive-voice-gap-fill.html",
+        type: "gap_fill",
+        title: "Passive Voice Gap Fill",
+        competenceIds: ["fk.g.passive"],
+        depth: "practiced",
+      });
+    });
+
+    it("appends a second call for a different type to the existing manifest.json rather than overwriting it", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      await handler({
+        type: "gap_fill",
+        title: "Gap Fill One",
+        competenceIds: ["fk.g.passive"],
+        items: [{ sentence: "It ___ done.", blanks: [{ answer: "is", position: 0 }] }],
+      });
+      await handler({
+        type: "mcq",
+        title: "MCQ One",
+        competenceIds: ["fk.g.passive"],
+        items: [{ question: "Pick one", options: ["a", "b"], correctIndex: 0 }],
+      });
+
+      const manifest = readManifest();
+      expect(manifest.materials).toHaveLength(2);
+      expect(manifest.materials.map((m: { type: string }) => m.type)).toEqual(["gap_fill", "mcq"]);
+    });
+
+    it("dispatches mcq requests to the mcq renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      await handler({
+        type: "mcq",
+        title: "MCQ Dispatch Check",
+        competenceIds: ["fk.g.passive"],
+        items: [{ question: "Pick one", options: ["a", "b"], correctIndex: 0 }],
+      });
+
+      const filePath = join(tmpDir, "artifacts", CLASS_ID, DATE, "materials", "mcq-mcq-dispatch-check.html");
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('type="radio"');
+    });
+
+    it("dispatches matching requests to the matching renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      await handler({
+        type: "matching",
+        title: "Matching Dispatch Check",
+        competenceIds: ["fk.g.passive"],
+        items: [{ left: "cat", right: "gato" }, { left: "dog", right: "perro" }],
+      });
+
+      const filePath = join(tmpDir, "artifacts", CLASS_ID, DATE, "materials", "matching-matching-dispatch-check.html");
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('data-left="0"');
+      expect(html).toContain('data-right="0"');
+    });
+
+    it("rejects mcq-typed items shaped like gap_fill items, without writing a file or touching manifest.json", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "mcq",
+        title: "Malformed MCQ",
+        competenceIds: ["fk.g.passive"],
+        items: [{ sentence: "The room ___ every day.", blanks: [{ answer: "is cleaned", position: 0 }] }],
+      });
+
+      expect(result.isError).toBe(true);
+      const materialsDir = join(tmpDir, "artifacts", CLASS_ID, DATE, "materials");
+      expect(existsSync(materialsDir)).toBe(false);
+      expect(existsSync(manifestPath())).toBe(false);
+    });
+
+    it("rejects an empty title", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "gap_fill",
+        title: "   ",
+        competenceIds: ["fk.g.passive"],
+        items: [{ sentence: "It ___ done.", blanks: [{ answer: "is", position: 0 }] }],
+      });
+
+      expect(result.isError).toBe(true);
+    });
+
+    it("lands both entries in manifest.json when two calls happen for the same date, neither overwriting the other", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      await Promise.resolve(
+        await handler({
+          type: "gap_fill",
+          title: "First",
+          competenceIds: ["fk.g.passive"],
+          items: [{ sentence: "It ___ done.", blanks: [{ answer: "is", position: 0 }] }],
+        }),
+      );
+      await handler({
+        type: "gap_fill",
+        title: "Second",
+        competenceIds: ["fk.g.passive"],
+        items: [{ sentence: "It ___ made.", blanks: [{ answer: "is", position: 0 }] }],
+      });
+
+      const manifest = readManifest();
+      expect(manifest.materials).toHaveLength(2);
+      expect(manifest.materials.map((m: { title: string }) => m.title)).toEqual(["First", "Second"]);
     });
   });
 });

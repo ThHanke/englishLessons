@@ -1,4 +1,4 @@
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod/v4";
 import {
@@ -6,6 +6,9 @@ import {
   tool,
 } from "@anthropic-ai/claude-agent-sdk";
 import type { McpSdkServerConfigWithInstance } from "@anthropic-ai/claude-agent-sdk";
+import { renderGapFillHtml, type GapFillItem } from "../../widgets/gapFill.ts";
+import { renderMcqHtml, type McqItem } from "../../widgets/mcq.ts";
+import { renderMatchingHtml, type MatchingPair } from "../../widgets/matching.ts";
 
 const LessonSpecSchema = {
   class: z.string(),
@@ -48,12 +51,65 @@ const LessonSpecSchema = {
   curriculum_ref: z.string(),
 };
 
-const MaterialSchema = {
-  type: z.enum(["exercise", "homework", "test", "notes"]),
+export const MaterialSchema = {
+  type: z.enum(["homework", "test", "notes"]),
   title: z.string(),
   content: z.string(),
   format: z.enum(["md", "html"]),
 };
+
+const GapFillItemSchema = z.object({
+  sentence: z.string(),
+  blanks: z.array(z.object({ answer: z.string(), position: z.number().int() })),
+});
+
+const McqItemSchema = z.object({
+  question: z.string(),
+  options: z.array(z.string()),
+  correctIndex: z.number().int(),
+});
+
+const MatchingPairSchema = z.object({
+  left: z.string(),
+  right: z.string(),
+});
+
+/** Per-type `items` shapes, keyed by `GenerateExerciseSchema.type` -- validated a level down from
+ * the outer schema so a `gap_fill` request can't smuggle `mcq`-shaped items (KTD1). */
+const ITEMS_SCHEMA_BY_TYPE = {
+  gap_fill: z.array(GapFillItemSchema),
+  mcq: z.array(McqItemSchema),
+  matching: z.array(MatchingPairSchema),
+} as const;
+
+const GenerateExerciseSchema = {
+  type: z.enum(["gap_fill", "mcq", "matching"]),
+  title: z.string(),
+  competenceIds: z.array(z.string()),
+  items: z.array(z.unknown()),
+};
+
+interface ManifestEntry {
+  file: string;
+  type: string;
+  title: string;
+  competenceIds: string[];
+  depth: string;
+  createdAt: string;
+}
+
+interface Manifest {
+  class: string;
+  date: string;
+  materials: ManifestEntry[];
+}
+
+function readManifest(manifestPath: string, classId: string, date: string): Manifest {
+  if (!existsSync(manifestPath)) {
+    return { class: classId, date, materials: [] };
+  }
+  return JSON.parse(readFileSync(manifestPath, "utf-8")) as Manifest;
+}
 
 function slugify(text: string): string {
   return text
@@ -147,6 +203,71 @@ export function createLessonArtifactServer(params: {
           const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
           return {
             content: [{ type: "text", text: `Saved material to ${relPath}` }],
+          };
+        },
+      ),
+      tool(
+        "generate_exercise",
+        "Generate a typed exercise widget (gap_fill, mcq, or matching) for specific competences and save it as a self-contained, self-checking worksheet.",
+        GenerateExerciseSchema,
+        async (args) => {
+          const slug = slugify(args.title);
+          if (!slug) {
+            return {
+              content: [
+                { type: "text", text: "Rejected: title produces an empty slug." },
+              ],
+              isError: true,
+            };
+          }
+
+          const itemsSchema = ITEMS_SCHEMA_BY_TYPE[args.type];
+          const parsedItems = itemsSchema.safeParse(args.items);
+          if (!parsedItems.success) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Rejected: 'items' doesn't match the shape expected for type "${args.type}": ${parsedItems.error.message}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+
+          let html: string;
+          if (args.type === "gap_fill") {
+            html = renderGapFillHtml(args.title, parsedItems.data as GapFillItem[]);
+          } else if (args.type === "mcq") {
+            html = renderMcqHtml(args.title, parsedItems.data as McqItem[]);
+          } else {
+            html = renderMatchingHtml(args.title, parsedItems.data as MatchingPair[]);
+          }
+
+          const materialsDir = join(baseDir, "materials");
+          mkdirSync(materialsDir, { recursive: true });
+          const fileName = `${args.type}-${slug}.html`;
+          const filePath = join(materialsDir, fileName);
+          atomicWriteFileSync(filePath, html);
+
+          mkdirSync(baseDir, { recursive: true });
+          const manifestPath = join(baseDir, "manifest.json");
+          const manifest = readManifest(manifestPath, classId, date);
+          manifest.materials.push({
+            file: `materials/${fileName}`,
+            type: args.type,
+            title: args.title,
+            competenceIds: args.competenceIds,
+            // KTD3: exercise generation always records 'practiced' for now -- the escalation to
+            // 'assessed' depends on the not-yet-built klassenarbeit skill/test context.
+            depth: "practiced",
+            createdAt: new Date().toISOString(),
+          });
+          atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+          const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
+          return {
+            content: [{ type: "text", text: `Saved ${args.type} exercise to ${relPath}` }],
           };
         },
       ),

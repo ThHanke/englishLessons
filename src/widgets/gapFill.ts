@@ -34,13 +34,28 @@ function escapeHtml(s: string): string {
  * inline) with a browser-side self-check. The check logic here mirrors checkBlank/checkItem
  * above; it's duplicated as plain JS (not imported) because the page runs standalone via
  * `file://` with no build/bundle step (KTD7 - vanilla TS, no framework, no new dependency).
+ *
+ * Accepts multiple items (one worksheet, many sentences) so its shape matches mcq.ts/
+ * matching.ts's array-of-items renderers -- generate_exercise dispatches to all three the same
+ * way. Blanks are scoped by item index (`data-item`) + blank index (`data-blank`) so multiple
+ * sentences' inputs never collide.
  */
-export function renderGapFillHtml(title: string, item: GapFillItem): string {
-  const parts = item.sentence.split('___');
-  const sentenceHtml = parts
-    .map((part, i) => escapeHtml(part) + (i < item.blanks.length ? `<input type="text" data-blank="${i}" autocomplete="off">` : ''))
-    .join('');
-  const answersJson = JSON.stringify(item.blanks.map((b) => b.answer));
+export function renderGapFillHtml(title: string, items: GapFillItem[]): string {
+  const itemsHtml = items
+    .map((item, ii) => {
+      const parts = item.sentence.split('___');
+      const sentenceHtml = parts
+        .map(
+          (part, bi) =>
+            escapeHtml(part) +
+            (bi < item.blanks.length ? `<input type="text" data-item="${ii}" data-blank="${bi}" autocomplete="off">` : '')
+        )
+        .join('');
+      return `<p class="sentence" data-item="${ii}">${sentenceHtml}</p>`;
+    })
+    .join('\n');
+
+  const answersJson = JSON.stringify(items.map((item) => item.blanks.map((b) => b.answer)));
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -57,20 +72,21 @@ export function renderGapFillHtml(title: string, item: GapFillItem): string {
 </head>
 <body>
 <h1>${escapeHtml(title)}</h1>
-<p id="sentence">${sentenceHtml}</p>
+${itemsHtml}
 <button id="check">Check</button>
 <script>
 (function () {
   var answers = ${answersJson};
   function normalize(s) { return s.trim().toLowerCase(); }
   document.getElementById('check').addEventListener('click', function () {
-    var inputs = document.querySelectorAll('input[data-blank]');
+    var inputs = document.querySelectorAll('input[data-item]');
     inputs.forEach(function (input) {
-      var idx = Number(input.getAttribute('data-blank'));
+      var ii = Number(input.getAttribute('data-item'));
+      var bi = Number(input.getAttribute('data-blank'));
       var value = input.value.trim();
       input.classList.remove('correct', 'incorrect');
       if (value.length === 0) return;
-      if (normalize(value) === normalize(answers[idx])) {
+      if (normalize(value) === normalize(answers[ii][bi])) {
         input.classList.add('correct');
       } else {
         input.classList.add('incorrect');
