@@ -52,6 +52,71 @@
 
 ## 5.1 Phasing
 
+### Implementation status (as of 2026-07-28)
+
+`docs/plans/*` (six implementation plans, Phase 0 through the companion's lesson-series
+feature) have been executed and removed — git history is the record of *how*; this is
+the record of *what* landed, checked against the actual repo state, not the plans'
+own checkboxes (several were stale).
+
+- **Phase 0 (curriculum + clusters + vocabulary) — DONE.**
+  `curriculum/sachsen-anhalt-sekundarschule-englisch-2019/*.yaml` (frozen extraction),
+  `plans/grade-{5,6,7-realschule}/modules.yaml` (module clusters, goals, non-DRAFT
+  `weekly_lessons` for all three grades per the official Stundentafel),
+  `vocabulary/grade-{5,6,7}.yaml` (NGSL-leveled, chained 5→6→7).
+- **Phase 1 (projection + coverage engine) — DONE.**
+  `calendar/sachsen-anhalt-2026-2027.yaml` (real fetched 2026/2027 calendar),
+  `src/projection/` (`slots.ts`, `fillModules.ts`, `query.ts`/`whichModule`,
+  `halfYear.ts`), `src/coverage/` (`ledger.ts`, `gapReport.ts`, `driftReport.ts`), the
+  insurance-spike widget (`src/widgets/gapFill.ts`).
+- **Phase 2 (companion app + spec export, components E/F) — DONE.**
+  `src/companion/server/` (Agent SDK session engine with the `DISALLOWED_TOOLS`
+  deny-list, HTTP server + Origin/token security, routes for calendar/chat/tasks/
+  lesson-preview/lesson-series), `src/companion/web/` (multi-grade overlay calendar
+  with drag-create lesson series per half-year, chat tab with seeded date context and
+  streaming), artifact tools (`save_lesson_spec`/`save_material` via an MCP server),
+  8 pedagogical skills wired into the chat system prompt. README documents the
+  `claude setup-token` step. A live-SDK regression test
+  (`agentSession.live-sdk.test.ts`, opt-in via `npm run test:live-sdk`) now proves the
+  deny-list holds against a real Agent SDK call even under a plausible in-scope
+  pretext to bypass `save_lesson_spec` with a direct `Write`.
+- **Component I (artifact registry / static delivery, §00 component map, §4.7) —
+  NOT DONE, and not actually assigned a phase number below.** This is a spec gap,
+  not just an implementation gap: §5.1's phase descriptions never schedule component I
+  by name. Concretely missing: no `.github/workflows/` at all (no GitHub Pages deploy
+  workflow exists despite the README and this roadmap both asserting `git push` →
+  Pages); no static-site generator producing the `/`, `/classes/<class>/`,
+  `/classes/<class>/<date>/` URL scheme §4.7 promises (today's `artifacts/<class>/<date>/`
+  folder structure doesn't match that scheme and has no index/nav page); no
+  `lesson-plan.html` human-facing wrapper for a `lesson-spec.json`, only raw
+  `materials/*.html` files. Separately, the companion calendar doesn't surface a link to
+  an existing lesson-spec/materials on the appointment/context panel either — `dateContext.ts`
+  exposes `lessonSpecPath` only as plain text folded into the chat's seed prompt
+  (`src/companion/web/Chat.tsx`'s `buildSeedContent`), never as a clickable link in the
+  calendar UI itself, even though §4.5 step 4 asks for exactly that.
+- **Phase 3 (generation pipeline G + first 3 exercise skills H) — NOT DONE.**
+  No `04.2`-style lesson-generator pipeline exists (plan → typed exercise requests →
+  bundled `materials/` + `manifest.json` carrying a `covered` record). The chat
+  produces materials ad hoc via the free-form `save_material` tool (raw `html`/`md`
+  content the model writes directly), not routed through typed, self-contained
+  exercise-type skills. Only `gap_fill` exists as code (`src/widgets/gapFill.ts`,
+  the Phase-1 insurance spike) and it isn't wired into the chat/save flow. `mcq`,
+  `matching`, `error_correction`, `crossword` (the decided first-build set, §06) are
+  unbuilt.
+- **Phase 3.5 (coverage loop closes) — PARTIALLY DONE, ahead of schedule.**
+  `buildLedger.ts` folds every `lesson-spec.json` into the coverage ledger (capped at
+  `introduced` depth — a spec is a pre-lesson plan, not a confirmed delivery record);
+  `gapReport` is wired into both the chat's seeded context (`dateContext.ts`) and the
+  calendar's gap-severity display. What's missing: the spec's own `covered` record
+  (§3.7a) distinct from the plan — today's ledger infers coverage from the *plan*,
+  not from a confirmed post-lesson delivery artifact, so a lesson that was planned
+  but taught differently (or not taught) still counts as covered.
+- **Phase 4 (breadth) — NOT STARTED.**
+- **`klassenarbeit` skill (§5.6) — NOT BUILT.** `assessment-design` (the
+  blueprint-before-items skill) exists but the full Erlass-grounded artifact set
+  (`klassenarbeit.html` + `erwartungshorizont.html` with AFB tagging and the §6.3
+  `notenschluessel`) is not implemented.
+
 **Phase 0 — Curriculum + clusters + vocabulary (A + §3.2 derivation + §3.6).** Scope =
 grades 5, 6, 7. Parse the Saxony-Anhalt **5/6 band** and the **grade-7 portion of the
 7/8 Realschule band** (HS out of scope) into `curriculum/**.yaml`; **derive the topic/
