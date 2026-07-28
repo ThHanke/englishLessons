@@ -1,4 +1,4 @@
-import { readdirSync, statSync, existsSync } from "node:fs";
+import { readdirSync, statSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadYaml } from "../../schema/yaml.ts";
 import type {
@@ -66,9 +66,26 @@ export interface Appointment {
   moduleTitle: string;
   date: string;
   hasLessonSpec: boolean;
+  /** From that date's `manifest.json` (R8) — empty when no manifest exists yet for this date. */
+  materials: Array<{ file: string; type: string; title: string }>;
   start?: string;
   end?: string;
   slotId?: string;
+}
+
+/** Reads `artifacts/<className>/<date>/manifest.json` for the appointment-link summary (R8) --
+ * just the fields the calendar link needs, not the full manifest entry shape. */
+function readAppointmentMaterials(
+  className: string,
+  date: string,
+  repoRoot: string,
+): Array<{ file: string; type: string; title: string }> {
+  const manifestPath = join(repoRoot, "artifacts", className, date, "manifest.json");
+  if (!existsSync(manifestPath)) return [];
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as {
+    materials: Array<{ file: string; type: string; title: string }>;
+  };
+  return manifest.materials.map((m) => ({ file: m.file, type: m.type, title: m.title }));
 }
 
 /** `classFile.name` embeds a school-year-ish suffix (`grade-5-2026`, `grade-7-realschule-2026`)
@@ -235,6 +252,7 @@ export function moduleTasks(params: {
             moduleTitleById.get(mod.moduleId) ?? mod.moduleId,
           date: sd.date,
           hasLessonSpec: plannedDateSet.has(sd.date),
+          materials: readAppointmentMaterials(classFile.name, sd.date, repoRoot),
           start: matchingSlot?.start,
           end: matchingSlot?.end,
           slotId: matchingSlot?.id,

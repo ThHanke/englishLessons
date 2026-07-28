@@ -1,3 +1,4 @@
+import { basename } from "node:path";
 import type { LessonSpec } from "../schema/types.ts";
 
 /** §4.7 static-site manifest entry — one per generated/cited material for a lesson date. */
@@ -49,7 +50,11 @@ export function renderLessonPage(params: {
       ? `<p class="no-materials">No materials yet.</p>`
       : `<ul class="materials">\n${materialFiles
           .map((file) => {
-            const entry = manifest?.materials.find((m) => m.file === file);
+            // manifest entries store `file` as "materials/<name>" (artifactTools.ts's
+            // generate_exercise), while `materialFiles` here are bare filenames from a
+            // directory read -- match on basename so the two conventions don't silently
+            // fail to line up.
+            const entry = manifest?.materials.find((m) => basename(m.file) === file);
             const linkText = entry ? `${entry.title} (${entry.type})` : file;
             return `<li><a href="materials/${escapeHtml(file)}">${escapeHtml(linkText)}</a></li>`;
           })

@@ -108,6 +108,26 @@ describe("moduleTasks", () => {
     expect(unplanned?.hasLessonSpec).toBe(false);
   });
 
+  it("reflects a fixture manifest.json's materials on an appointment, and an empty array when no manifest exists for that date", () => {
+    const { appointments } = moduleTasks({
+      from: "2026-08-05",
+      to: "2026-08-05",
+      repoRoot: FIXTURE_REPO_ROOT,
+    });
+    const planned = appointments.find(
+      (a) => a.classId === "fixture-class" && a.date === "2026-08-05",
+    );
+    const unplanned = appointments.find(
+      (a) =>
+        a.classId === "fixture-class-no-artifacts" && a.date === "2026-08-05",
+    );
+
+    expect(planned?.materials).toEqual([
+      { file: "materials/gap_fill-fixture.html", type: "gap_fill", title: "Fixture Gap Fill" },
+    ]);
+    expect(unplanned?.materials).toEqual([]);
+  });
+
   it("only returns appointments for slots within [from, to], even for a module spanning outside it", () => {
     const { appointments } = moduleTasks({
       from: "2030-01-01",

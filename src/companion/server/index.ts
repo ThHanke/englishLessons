@@ -10,6 +10,7 @@ import { handleCalendarRequest } from "./routes/calendar.ts";
 import { handleChatRequest } from "./routes/chat.ts";
 import { handleTasksRequest } from "./routes/tasks.ts";
 import { handleLessonPreviewRequest } from "./routes/lessonPreview.ts";
+import { handleArtifactsRequest } from "./routes/artifacts.ts";
 import {
   handleSeriesPreviewRequest,
   handleCreateSeriesRequest,
@@ -92,6 +93,10 @@ export async function createCompanionServer(params?: {
     }
     if (req.method === "GET" && url.pathname === "/api/lesson-preview") {
       void handleLessonPreviewRequest(req, res, { repoRoot });
+      return;
+    }
+    if (req.method === "GET" && url.pathname.startsWith("/api/artifacts/")) {
+      void handleArtifactsRequest(req, res, { repoRoot, expectedOrigin: origin });
       return;
     }
     if (req.method === "GET" && url.pathname === "/api/lesson-series/preview") {

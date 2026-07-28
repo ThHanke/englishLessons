@@ -49,7 +49,15 @@ export interface CalendarProps {
   dark?: boolean;
 }
 
-function EventContent({
+/** `href`s point at the companion's own local artifact-preview route (KTD6) — same origin as the
+ * calendar UI, so a plain root-relative path resolves correctly without needing `baseUrl` (which
+ * this module-scope component can't close over anyway). `stopPropagation` keeps a link click from
+ * also firing the calendar's own event-select handler (which would open a chat session). */
+function artifactHref(classId: string, date: string, path: string): string {
+  return `/api/artifacts/${classId}/${date}/${path}`;
+}
+
+export function EventContent({
   event,
 }: {
   event: CalendarEvent;
@@ -72,7 +80,32 @@ function EventContent({
     return (
       <span className="companion-event-content">
         {appointment.moduleTitle}
-        {appointment.hasLessonSpec && <> · planned</>}
+        {appointment.hasLessonSpec && (
+          <>
+            {" · "}
+            <a
+              href={artifactHref(appointment.classId, appointment.date, "lesson-spec.json")}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              plan
+            </a>
+          </>
+        )}
+        {appointment.materials.map((material) => (
+          <span key={material.file}>
+            {" · "}
+            <a
+              href={artifactHref(appointment.classId, appointment.date, material.file)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {material.title}
+            </a>
+          </span>
+        ))}
       </span>
     );
   }

@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
-import { Calendar } from "./Calendar.tsx";
-import type { ModuleTask, TasksRangeResponse } from "./api.ts";
+import { Calendar, EventContent } from "./Calendar.tsx";
+import type { Appointment, ModuleTask, TasksRangeResponse } from "./api.ts";
+import type { CalendarEvent } from "@svar-ui/react-calendar";
 import * as api from "./api.ts";
 
 /** @svar-ui/react-calendar virtualizes its grid off real pixel measurements (ResizeObserver +
@@ -28,6 +29,23 @@ function task(
     plannedDates: [],
     ...overrides,
   };
+}
+
+function appointment(overrides: Partial<Appointment> = {}): Appointment {
+  return {
+    classId: "grade-7-realschule-2026",
+    classLabel: "grade-7-realschule-2026",
+    moduleId: "m1",
+    moduleTitle: "Back in school",
+    date: "2026-08-05",
+    hasLessonSpec: false,
+    materials: [],
+    ...overrides,
+  };
+}
+
+function eventWithAppointment(appt: Appointment): CalendarEvent {
+  return { id: "1", appointment: appt } as unknown as CalendarEvent;
 }
 
 function mockFetch(
@@ -115,5 +133,73 @@ describe("Calendar", () => {
     expect(
       screen.queryByText("grade-7-realschule-2026"),
     ).not.toBeInTheDocument();
+  });
+});
+
+// EventContent is tested directly (not through the mounted Calendar) since @svar-ui/react-calendar
+// virtualizes its grid off real pixel measurements that jsdom only approximates (see the module
+// doc comment above) -- event-cell content isn't reliably queryable through a full Calendar mount.
+// EventContent is a plain function component, so rendering it standalone sidesteps that entirely.
+describe("EventContent", () => {
+  it("renders a link to the lesson-spec preview when hasLessonSpec is true", () => {
+    render(
+      <EventContent
+        event={eventWithAppointment(appointment({ hasLessonSpec: true }))}
+        mode="month"
+      />,
+    );
+    const link = screen.getByRole("link", { name: "plan" });
+    expect(link).toHaveAttribute(
+      "href",
+      "/api/artifacts/grade-7-realschule-2026/2026-08-05/lesson-spec.json",
+    );
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(link).toHaveAttribute("target", "_blank");
+  });
+
+  it("does not render a lesson-spec link when hasLessonSpec is false", () => {
+    render(
+      <EventContent
+        event={eventWithAppointment(appointment({ hasLessonSpec: false }))}
+        mode="month"
+      />,
+    );
+    expect(screen.queryByRole("link", { name: "plan" })).not.toBeInTheDocument();
+  });
+
+  it("renders one link per material, with rel=noopener noreferrer", () => {
+    render(
+      <EventContent
+        event={eventWithAppointment(
+          appointment({
+            materials: [
+              { file: "materials/gap_fill-x.html", type: "gap_fill", title: "Gap Fill X" },
+              { file: "materials/mcq-y.html", type: "mcq", title: "MCQ Y" },
+            ],
+          }),
+        )}
+        mode="month"
+      />,
+    );
+    const gapFillLink = screen.getByRole("link", { name: "Gap Fill X" });
+    expect(gapFillLink).toHaveAttribute(
+      "href",
+      "/api/artifacts/grade-7-realschule-2026/2026-08-05/materials/gap_fill-x.html",
+    );
+    expect(gapFillLink).toHaveAttribute("rel", "noopener noreferrer");
+    expect(screen.getByRole("link", { name: "MCQ Y" })).toBeInTheDocument();
+  });
+
+  it("still shows the lesson-spec link when hasLessonSpec is true but there are zero materials", () => {
+    render(
+      <EventContent
+        event={eventWithAppointment(
+          appointment({ hasLessonSpec: true, materials: [] }),
+        )}
+        mode="month"
+      />,
+    );
+    expect(screen.getByRole("link", { name: "plan" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
   });
 });

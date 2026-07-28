@@ -29,14 +29,17 @@ function lessonSpec(overrides: Partial<LessonSpec> = {}): LessonSpec {
 
 describe("renderLessonPage", () => {
   it("includes the module title, focus competences, and a link per manifest entry with its title as link text", () => {
+    // artifactTools.ts's generate_exercise always stores `file` as "materials/<name>" (a
+    // repo-relative path), not a bare filename -- the manifest fixture mirrors that real shape
+    // so this test actually exercises the matching logic instead of matching by coincidence.
     const manifest: Manifest = {
       materials: [
         {
-          file: "01-gap-fill-passive-voice.html",
-          type: "exercise",
+          file: "materials/01-gap-fill-passive-voice.html",
+          type: "gap_fill",
           title: "Passive Voice Gap Fill",
           competenceIds: ["fk.g.passive"],
-          depth: "introduced",
+          depth: "practiced",
           createdAt: "2026-08-21T00:00:00Z",
         },
       ],

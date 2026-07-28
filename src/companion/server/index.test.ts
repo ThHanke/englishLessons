@@ -144,6 +144,24 @@ describe("companion server (integration)", () => {
     }
   });
 
+  it("GET /api/artifacts/<class>/<date>/<file> serves a fixture material through the full server (with Origin set)", async () => {
+    const { createCompanionServer } = await import("./index.ts");
+    const handle = await createCompanionServer({
+      port: 0,
+      repoRoot: FIXTURE_REPO_ROOT,
+    });
+    try {
+      const res = await fetch(
+        `${handle.url}/api/artifacts/fixture-class/2026-08-05/materials/gap_fill-fixture.html`,
+        { headers: { origin: handle.url } },
+      );
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toContain("text/html");
+    } finally {
+      await handle.close();
+    }
+  });
+
   it("rejects a POST /api/chat request with a missing Origin header (403), before the Agent SDK is invoked", async () => {
     const { createCompanionServer } = await import("./index.ts");
     const handle = await createCompanionServer({

@@ -34,6 +34,7 @@ function appointment(
     classLabel: overrides.classId,
     moduleTitle: overrides.moduleId,
     hasLessonSpec: false,
+    materials: [],
     ...overrides,
   };
 }
