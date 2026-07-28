@@ -92,13 +92,15 @@ own checkboxes (several were stale).
   "· planned" label. Remaining manual step: the repo's Settings → Pages → Source switch
   to "GitHub Actions" (documented in README, can't be automated by a workflow file).
 - **Phase 3 (generation pipeline G + first 3 exercise skills H) — DONE** (2026-07-28
-  plan) for the `gap_fill`/`mcq`/`matching` slice of the decided first-build set.
-  A typed `generate_exercise` MCP tool (`src/companion/server/artifactTools.ts`)
-  dispatches to `src/widgets/{gapFill,mcq,matching}.ts`, writes self-contained HTML
-  under `materials/`, and appends a `manifest.json` entry (the `covered` record,
-  §3.7a) at `practiced` depth. `save_material`'s schema dropped `'exercise'` so the
-  old free-form bypass is closed. `error_correction` and `crossword` remain unbuilt
-  (deferred to a follow-up plan per the roadmap's original ordering).
+  plan) for the full decided first-build set. A typed `generate_exercise` MCP tool
+  (`src/companion/server/artifactTools.ts`) dispatches to all five widget renderers
+  (`src/widgets/{gapFill,mcq,matching,errorCorrection,crossword}.ts`), writes
+  self-contained HTML under `materials/`, and appends a `manifest.json` entry (the
+  `covered` record, §3.7a) at `practiced` depth. `save_material`'s schema dropped
+  `'exercise'` so the old free-form bypass is closed. `crossword` is hand-rolled
+  (no verified-MIT layout lib was found); `error_correction` follows the
+  `error-correction-design` skill's find→explain→correct scaffold, auto-checking
+  only the final corrected-sentence step.
 - **Phase 3.5 (coverage loop closes) — DONE** for exercise-generation coverage.
   `buildLedger.ts` now folds both `lesson-spec.json` (capped at `introduced` — a plan,
   not confirmed delivery) and `manifest.json` (real generated materials, `practiced`)
