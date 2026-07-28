@@ -58,7 +58,7 @@ describe('validateCalendar: real committed calendar', () => {
   it('passes with zero errors against the real class registry', () => {
     const realCalendarPath = new URL('../../calendar/sachsen-anhalt-2026-2027.yaml', import.meta.url).pathname;
     const realCalendar = loadYaml<CalendarFile>(realCalendarPath);
-    const issues = validateCalendar(realCalendar, 'calendar/sachsen-anhalt-2026-2027.yaml', new Set(['grade-7-realschule-2026']));
+    const issues = validateCalendar(realCalendar, 'calendar/sachsen-anhalt-2026-2027.yaml', new Set(['grade-5-2026', 'grade-6-2027', 'grade-7-realschule-2026']));
     expect(issues).toEqual([]);
   });
 });
