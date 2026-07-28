@@ -56,4 +56,29 @@ describe('renderGapFillHtml', () => {
     expect(html).toContain('data-item="1" data-blank="0"');
     expect(html).toContain('data-item="1" data-blank="1"');
   });
+
+  it('shows a hint next to a blank when the blank provides one', () => {
+    const item: GapFillItem = {
+      sentence: 'The room ___ every day.',
+      blanks: [{ answer: 'is cleaned', position: 0, hint: 'clean' }],
+    };
+    const html = renderGapFillHtml('Passive Voice Practice', [item]);
+    expect(html).toContain('<span class="hint">(clean)</span>');
+  });
+
+  it('renders no hint markup when a blank has no hint', () => {
+    const item: GapFillItem = { sentence: 'The room ___ every day.', blanks: [{ answer: 'is cleaned', position: 0 }] };
+    const html = renderGapFillHtml('Passive Voice Practice', [item]);
+    expect(html).not.toContain('class="hint"');
+  });
+
+  it('escapes HTML in a hint', () => {
+    const item: GapFillItem = {
+      sentence: 'The room ___ every day.',
+      blanks: [{ answer: 'is cleaned', position: 0, hint: '<b>clean</b>' }],
+    };
+    const html = renderGapFillHtml('XSS check', [item]);
+    expect(html).not.toContain('<b>clean</b>');
+    expect(html).toContain('&lt;b&gt;clean&lt;/b&gt;');
+  });
 });

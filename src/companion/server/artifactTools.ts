@@ -60,7 +60,9 @@ export const MaterialSchema = {
 
 const GapFillItemSchema = z.object({
   sentence: z.string(),
-  blanks: z.array(z.object({ answer: z.string(), position: z.number().int() })),
+  blanks: z.array(
+    z.object({ answer: z.string(), position: z.number().int(), hint: z.string().optional() }),
+  ),
 });
 
 const McqItemSchema = z.object({

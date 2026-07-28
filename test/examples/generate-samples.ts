@@ -23,9 +23,9 @@ mkdirSync(materialsDir, { recursive: true });
 mkdirSync(plansDir, { recursive: true });
 
 const gapFillItems = [
-  { sentence: "The classroom ___ every morning by the caretaker.", blanks: [{ answer: "is cleaned", position: 0 }] },
-  { sentence: "Our books ___ from the library last week.", blanks: [{ answer: "were borrowed", position: 0 }] },
-  { sentence: "This exercise ___ by all students tomorrow.", blanks: [{ answer: "will be finished", position: 0 }] },
+  { sentence: "The classroom ___ every morning by the caretaker.", blanks: [{ answer: "is cleaned", position: 0, hint: "clean" }] },
+  { sentence: "Our books ___ from the library last week.", blanks: [{ answer: "were borrowed", position: 0, hint: "borrow" }] },
+  { sentence: "This exercise ___ by all students tomorrow.", blanks: [{ answer: "will be finished", position: 0, hint: "finish" }] },
 ];
 const mcqItems = [
   { question: "Which sentence is in the passive voice?", options: [

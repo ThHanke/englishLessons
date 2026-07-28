@@ -1,6 +1,11 @@
 export interface Blank {
   answer: string;
   position: number;
+  /** Base/prompt form shown next to the blank (e.g. "clean" for answer "is cleaned") -- without
+   * this a pupil has no way to know which verb/word is even being asked for, and the exact-match
+   * checker below has no tolerance for a different-but-plausible word choice. Optional so existing
+   * callers/tests that don't need a hint (e.g. a fill-in-the-noun blank) aren't forced to add one. */
+  hint?: string;
 }
 
 export interface GapFillItem {
@@ -45,11 +50,12 @@ export function renderGapFillHtml(title: string, items: GapFillItem[]): string {
     .map((item, ii) => {
       const parts = item.sentence.split('___');
       const sentenceHtml = parts
-        .map(
-          (part, bi) =>
-            escapeHtml(part) +
-            (bi < item.blanks.length ? `<input type="text" data-item="${ii}" data-blank="${bi}" autocomplete="off">` : '')
-        )
+        .map((part, bi) => {
+          if (bi >= item.blanks.length) return escapeHtml(part);
+          const blank = item.blanks[bi]!;
+          const hintHtml = blank.hint ? ` <span class="hint">(${escapeHtml(blank.hint)})</span>` : '';
+          return `${escapeHtml(part)}<input type="text" data-item="${ii}" data-blank="${bi}" autocomplete="off">${hintHtml}`;
+        })
         .join('');
       return `<p class="sentence" data-item="${ii}">${sentenceHtml}</p>`;
     })
@@ -67,6 +73,7 @@ export function renderGapFillHtml(title: string, items: GapFillItem[]): string {
   input { border: 1px solid #888; padding: 0.2rem 0.4rem; }
   input.correct { background: #d4f7d4; border-color: #2a2; }
   input.incorrect { background: #f7d4d4; border-color: #a22; }
+  .hint { color: #666; font-style: italic; }
   button { margin-top: 1rem; }
 </style>
 </head>

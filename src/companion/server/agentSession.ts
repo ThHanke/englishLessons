@@ -96,7 +96,10 @@ When you create a gap-fill, multiple-choice, or matching exercise, save it with 
 - \`title\`: descriptive title (used in the filename)
 - \`competenceIds\`: the bracketed competence IDs this exercise practices
 - \`items\`: an array shaped for the chosen type —
-  - \`gap_fill\`: \`{ sentence: string (blank marked "___"), blanks: [{ answer, position }] }\`
+  - \`gap_fill\`: \`{ sentence: string (blank marked "___"), blanks: [{ answer, position, hint }] }\` — always
+    give a \`hint\` (the base/prompt word, e.g. "clean" for answer "is cleaned"). Without a hint the pupil
+    doesn't know which word is even being asked for, and the checker only accepts that one exact answer
+    string — a hint disambiguates intent so a plausible-but-different word choice doesn't just fail silently.
   - \`mcq\`: \`{ question, options: string[], correctIndex }\`
   - \`matching\`: \`{ left, right }\` pairs
 

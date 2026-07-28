@@ -223,7 +223,7 @@ describe("artifactTools", () => {
         type: "gap_fill",
         title: "Passive Voice Gap Fill",
         competenceIds: ["fk.g.passive"],
-        items: [{ sentence: "The room ___ every day.", blanks: [{ answer: "is cleaned", position: 0 }] }],
+        items: [{ sentence: "The room ___ every day.", blanks: [{ answer: "is cleaned", position: 0, hint: "clean" }] }],
       });
 
       expect(result.isError).toBeFalsy();
@@ -242,6 +242,8 @@ describe("artifactTools", () => {
         competenceIds: ["fk.g.passive"],
         depth: "practiced",
       });
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('<span class="hint">(clean)</span>');
     });
 
     it("appends a second call for a different type to the existing manifest.json rather than overwriting it", async () => {
