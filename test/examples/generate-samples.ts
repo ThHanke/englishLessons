@@ -9,6 +9,7 @@ import { renderMcqHtml } from "../../src/widgets/mcq.ts";
 import { renderMatchingHtml } from "../../src/widgets/matching.ts";
 import { renderErrorCorrectionHtml } from "../../src/widgets/errorCorrection.ts";
 import { renderCrosswordHtml } from "../../src/widgets/crossword.ts";
+import { renderVocabIntroHtml } from "../../src/widgets/vocabIntro.ts";
 import { buildSite } from "../../src/publish/buildSite.ts";
 
 const repoRoot = new URL("../../", import.meta.url).pathname;
@@ -60,6 +61,11 @@ const crosswordItems = [
   { word: "BREAK", clue: "A short pause between lessons" },
   { word: "EXAM", clue: "A formal test" },
 ];
+const vocabWords = [
+  { word: "caretaker", translation: "Hausmeister" },
+  { word: "borrow", translation: "ausleihen" },
+  { word: "finish", translation: "beenden" },
+];
 
 // --- Standalone widget samples (open directly, no build step) ---
 writeFileSync(join(outDir, "gap_fill-passive-voice.html"), renderGapFillHtml("Passive Voice: Everyday Routines", gapFillItems));
@@ -67,6 +73,7 @@ writeFileSync(join(outDir, "mcq-passive-voice.html"), renderMcqHtml("Passive Voi
 writeFileSync(join(outDir, "matching-vocab.html"), renderMatchingHtml("Match the Vocabulary: School Life", matchingPairs, 3));
 writeFileSync(join(outDir, "error_correction-passive-voice.html"), renderErrorCorrectionHtml("Find the Mistake: Tense & Word Order", errorCorrectionItems));
 writeFileSync(join(outDir, "crossword-school-vocab.html"), renderCrosswordHtml("School Life Crossword", crosswordItems));
+writeFileSync(join(outDir, "vocab_intro-new-words.html"), renderVocabIntroHtml("New Vocabulary: Back in School", vocabWords));
 
 // --- Same materials in a real artifacts/ layout + manifest.json, then a full built site/ ---
 writeFileSync(join(materialsDir, "gap_fill-passive-voice.html"), renderGapFillHtml("Passive Voice: Everyday Routines", gapFillItems));
@@ -74,6 +81,7 @@ writeFileSync(join(materialsDir, "mcq-passive-voice.html"), renderMcqHtml("Passi
 writeFileSync(join(materialsDir, "matching-vocab.html"), renderMatchingHtml("Match the Vocabulary: School Life", matchingPairs, 3));
 writeFileSync(join(materialsDir, "error_correction-passive-voice.html"), renderErrorCorrectionHtml("Find the Mistake: Tense & Word Order", errorCorrectionItems));
 writeFileSync(join(materialsDir, "crossword-school-vocab.html"), renderCrosswordHtml("School Life Crossword", crosswordItems));
+writeFileSync(join(materialsDir, "vocab_intro-new-words.html"), renderVocabIntroHtml("New Vocabulary: Back in School", vocabWords));
 
 writeFileSync(join(artifactsDir, "lesson-spec.json"), JSON.stringify({
   class: classId,
@@ -106,6 +114,7 @@ writeFileSync(join(artifactsDir, "manifest.json"), JSON.stringify({
     { file: "materials/matching-vocab.html", type: "matching", title: "Match the Vocabulary: School Life", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:10:00.000Z" },
     { file: "materials/error_correction-passive-voice.html", type: "error_correction", title: "Find the Mistake: Tense & Word Order", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:15:00.000Z" },
     { file: "materials/crossword-school-vocab.html", type: "crossword", title: "School Life Crossword", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:20:00.000Z" },
+    { file: "materials/vocab_intro-new-words.html", type: "vocab_intro", title: "New Vocabulary: Back in School", competenceIds: ["fk.g.passive"], depth: "introduced", createdAt: "2026-08-21T09:55:00.000Z" },
   ],
 }, null, 2));
 
