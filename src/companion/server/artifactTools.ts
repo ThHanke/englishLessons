@@ -9,6 +9,8 @@ import type { McpSdkServerConfigWithInstance } from "@anthropic-ai/claude-agent-
 import { renderGapFillHtml, type GapFillItem } from "../../widgets/gapFill.ts";
 import { renderMcqHtml, type McqItem } from "../../widgets/mcq.ts";
 import { renderMatchingHtml, type MatchingPair } from "../../widgets/matching.ts";
+import { renderErrorCorrectionHtml, type ErrorCorrectionItem } from "../../widgets/errorCorrection.ts";
+import { renderCrosswordHtml, type CrosswordItem } from "../../widgets/crossword.ts";
 
 const LessonSpecSchema = {
   class: z.string(),
@@ -76,16 +78,29 @@ const MatchingPairSchema = z.object({
   right: z.string(),
 });
 
+const ErrorCorrectionItemSchema = z.object({
+  sentence: z.string(),
+  correction: z.string(),
+  errorType: z.string().optional(),
+});
+
+const CrosswordItemSchema = z.object({
+  word: z.string(),
+  clue: z.string(),
+});
+
 /** Per-type `items` shapes, keyed by `GenerateExerciseSchema.type` -- validated a level down from
  * the outer schema so a `gap_fill` request can't smuggle `mcq`-shaped items (KTD1). */
 const ITEMS_SCHEMA_BY_TYPE = {
   gap_fill: z.array(GapFillItemSchema),
   mcq: z.array(McqItemSchema),
   matching: z.array(MatchingPairSchema),
+  error_correction: z.array(ErrorCorrectionItemSchema),
+  crossword: z.array(CrosswordItemSchema),
 } as const;
 
 const GenerateExerciseSchema = {
-  type: z.enum(["gap_fill", "mcq", "matching"]),
+  type: z.enum(["gap_fill", "mcq", "matching", "error_correction", "crossword"]),
   title: z.string(),
   competenceIds: z.array(z.string()),
   items: z.array(z.unknown()),
@@ -210,7 +225,7 @@ export function createLessonArtifactServer(params: {
       ),
       tool(
         "generate_exercise",
-        "Generate a typed exercise widget (gap_fill, mcq, or matching) for specific competences and save it as a self-contained, self-checking worksheet.",
+        "Generate a typed exercise widget (gap_fill, mcq, matching, error_correction, or crossword) for specific competences and save it as a self-contained, self-checking worksheet.",
         GenerateExerciseSchema,
         async (args) => {
           const slug = slugify(args.title);
@@ -242,8 +257,12 @@ export function createLessonArtifactServer(params: {
             html = renderGapFillHtml(args.title, parsedItems.data as GapFillItem[]);
           } else if (args.type === "mcq") {
             html = renderMcqHtml(args.title, parsedItems.data as McqItem[]);
-          } else {
+          } else if (args.type === "matching") {
             html = renderMatchingHtml(args.title, parsedItems.data as MatchingPair[]);
+          } else if (args.type === "error_correction") {
+            html = renderErrorCorrectionHtml(args.title, parsedItems.data as ErrorCorrectionItem[]);
+          } else {
+            html = renderCrosswordHtml(args.title, parsedItems.data as CrosswordItem[]);
           }
 
           const materialsDir = join(baseDir, "materials");

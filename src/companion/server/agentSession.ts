@@ -91,8 +91,8 @@ You have three tools for persisting lesson artifacts. Always confirm with the te
 When the teacher approves a lesson plan, save it with \`save_lesson_spec\`. Pass the full lesson-spec object. The \`class\` and \`date\` fields MUST match the current session — the tool rejects mismatches. Saved lesson-specs automatically update coverage tracking on the next calendar load.
 
 ### generate_exercise
-When you create a gap-fill, multiple-choice, or matching exercise, save it with \`generate_exercise\` — never write the HTML yourself. Parameters:
-- \`type\`: one of "gap_fill", "mcq", "matching"
+When you create a gap-fill, multiple-choice, matching, error-correction, or crossword exercise, save it with \`generate_exercise\` — never write the HTML yourself. Parameters:
+- \`type\`: one of "gap_fill", "mcq", "matching", "error_correction", "crossword"
 - \`title\`: descriptive title (used in the filename)
 - \`competenceIds\`: the bracketed competence IDs this exercise practices
 - \`items\`: an array shaped for the chosen type —
@@ -102,6 +102,13 @@ When you create a gap-fill, multiple-choice, or matching exercise, save it with 
     string — a hint disambiguates intent so a plausible-but-different word choice doesn't just fail silently.
   - \`mcq\`: \`{ question, options: string[], correctIndex }\`
   - \`matching\`: \`{ left, right }\` pairs
+  - \`error_correction\`: \`{ sentence, correction, errorType? }\` — invoke the \`error-correction-design\`
+    skill first for realistic German→English transfer errors (one error per sentence). \`errorType\` is an
+    optional A1 hint (e.g. "word order") — omit it for A2+ so students identify the error type themselves.
+    Only the corrected-sentence step is auto-checked; the pupil-facing "find the mistake"/"explain why"
+    steps are open-ended and never auto-graded.
+  - \`crossword\`: \`{ word, clue }\` pairs — words are placed automatically (crossing where letters share);
+    keep the word list short (5-8) since the layout is a simple greedy placement, not an optimizer.
 
 This renders a self-contained, self-checking worksheet and records it in the coverage ledger at "practiced" depth for each competence — this is what makes the exercise count as real coverage, not just a saved file.
 

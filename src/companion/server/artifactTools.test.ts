@@ -298,6 +298,66 @@ describe("artifactTools", () => {
       expect(html).toContain('data-right="0"');
     });
 
+    it("dispatches error_correction requests to the error-correction renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "error_correction",
+        title: "Word Order Dispatch Check",
+        competenceIds: ["fk.g.word_order"],
+        items: [
+          { sentence: "Yesterday went I to school.", correction: "Yesterday I went to school.", errorType: "word order" },
+        ],
+      });
+
+      expect(result.isError).toBeFalsy();
+      const filePath = join(
+        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
+        "error_correction-word-order-dispatch-check.html",
+      );
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('data-correct="0"');
+      const manifest = readManifest();
+      expect(manifest.materials[0]).toMatchObject({ type: "error_correction", depth: "practiced" });
+    });
+
+    it("dispatches crossword requests to the crossword renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "crossword",
+        title: "Vocab Dispatch Check",
+        competenceIds: ["fk.v.school"],
+        items: [
+          { word: "CAT", clue: "A pet that meows" },
+          { word: "CAR", clue: "A vehicle" },
+        ],
+      });
+
+      expect(result.isError).toBeFalsy();
+      const filePath = join(
+        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
+        "crossword-vocab-dispatch-check.html",
+      );
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('data-row="0" data-col="0"');
+      const manifest = readManifest();
+      expect(manifest.materials[0]).toMatchObject({ type: "crossword", depth: "practiced" });
+    });
+
+    it("rejects crossword-typed items shaped like matching items", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "crossword",
+        title: "Malformed Crossword",
+        competenceIds: ["fk.v.school"],
+        items: [{ left: "cat", right: "gato" }],
+      });
+
+      expect(result.isError).toBe(true);
+    });
+
     it("rejects mcq-typed items shaped like gap_fill items, without writing a file or touching manifest.json", async () => {
       const handler = extractToolHandler(makeServer(), "generate_exercise");
 

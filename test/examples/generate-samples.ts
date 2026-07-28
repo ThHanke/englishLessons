@@ -7,6 +7,8 @@ import { join } from "node:path";
 import { renderGapFillHtml } from "../../src/widgets/gapFill.ts";
 import { renderMcqHtml } from "../../src/widgets/mcq.ts";
 import { renderMatchingHtml } from "../../src/widgets/matching.ts";
+import { renderErrorCorrectionHtml } from "../../src/widgets/errorCorrection.ts";
+import { renderCrosswordHtml } from "../../src/widgets/crossword.ts";
 import { buildSite } from "../../src/publish/buildSite.ts";
 
 const repoRoot = new URL("../../", import.meta.url).pathname;
@@ -47,16 +49,31 @@ const matchingPairs = [
   { left: "caretaker", right: "Hausmeister" },
   { left: "exam", right: "Prüfung" },
 ];
+const errorCorrectionItems = [
+  { sentence: "Yesterday went I to school.", correction: "Yesterday I went to school.", errorType: "word order" },
+  { sentence: "Look! It rains.", correction: "Look! It is raining.", errorType: "no progressive aspect" },
+  { sentence: "I live here since 2020.", correction: "I have lived here since 2020.", errorType: "tense" },
+];
+const crosswordItems = [
+  { word: "TIMETABLE", clue: "Shows when each lesson happens (Stundenplan)" },
+  { word: "HOMEWORK", clue: "Work done at home for school" },
+  { word: "BREAK", clue: "A short pause between lessons" },
+  { word: "EXAM", clue: "A formal test" },
+];
 
 // --- Standalone widget samples (open directly, no build step) ---
 writeFileSync(join(outDir, "gap_fill-passive-voice.html"), renderGapFillHtml("Passive Voice: Everyday Routines", gapFillItems));
 writeFileSync(join(outDir, "mcq-passive-voice.html"), renderMcqHtml("Passive Voice: Multiple Choice", mcqItems));
 writeFileSync(join(outDir, "matching-vocab.html"), renderMatchingHtml("Match the Vocabulary: School Life", matchingPairs, 3));
+writeFileSync(join(outDir, "error_correction-passive-voice.html"), renderErrorCorrectionHtml("Find the Mistake: Tense & Word Order", errorCorrectionItems));
+writeFileSync(join(outDir, "crossword-school-vocab.html"), renderCrosswordHtml("School Life Crossword", crosswordItems));
 
 // --- Same materials in a real artifacts/ layout + manifest.json, then a full built site/ ---
 writeFileSync(join(materialsDir, "gap_fill-passive-voice.html"), renderGapFillHtml("Passive Voice: Everyday Routines", gapFillItems));
 writeFileSync(join(materialsDir, "mcq-passive-voice.html"), renderMcqHtml("Passive Voice: Multiple Choice", mcqItems));
 writeFileSync(join(materialsDir, "matching-vocab.html"), renderMatchingHtml("Match the Vocabulary: School Life", matchingPairs, 3));
+writeFileSync(join(materialsDir, "error_correction-passive-voice.html"), renderErrorCorrectionHtml("Find the Mistake: Tense & Word Order", errorCorrectionItems));
+writeFileSync(join(materialsDir, "crossword-school-vocab.html"), renderCrosswordHtml("School Life Crossword", crosswordItems));
 
 writeFileSync(join(artifactsDir, "lesson-spec.json"), JSON.stringify({
   class: classId,
@@ -76,7 +93,7 @@ writeFileSync(join(artifactsDir, "lesson-spec.json"), JSON.stringify({
   cefr_target: "B1",
   known_vocab_ref: `${classId}@m1`,
   textbook_refs: [],
-  suggested_exercise_types: ["gap_fill", "mcq", "matching"],
+  suggested_exercise_types: ["gap_fill", "mcq", "matching", "error_correction", "crossword"],
   curriculum_ref: "sa-sek-en-2019",
 }, null, 2));
 
@@ -87,6 +104,8 @@ writeFileSync(join(artifactsDir, "manifest.json"), JSON.stringify({
     { file: "materials/gap_fill-passive-voice.html", type: "gap_fill", title: "Passive Voice: Everyday Routines", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:00:00.000Z" },
     { file: "materials/mcq-passive-voice.html", type: "mcq", title: "Passive Voice: Multiple Choice", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:05:00.000Z" },
     { file: "materials/matching-vocab.html", type: "matching", title: "Match the Vocabulary: School Life", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:10:00.000Z" },
+    { file: "materials/error_correction-passive-voice.html", type: "error_correction", title: "Find the Mistake: Tense & Word Order", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:15:00.000Z" },
+    { file: "materials/crossword-school-vocab.html", type: "crossword", title: "School Life Crossword", competenceIds: ["fk.g.passive"], depth: "practiced", createdAt: "2026-08-21T10:20:00.000Z" },
   ],
 }, null, 2));
 
