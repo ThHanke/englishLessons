@@ -81,36 +81,33 @@ own checkboxes (several were stale).
   deny-list holds against a real Agent SDK call even under a plausible in-scope
   pretext to bypass `save_lesson_spec` with a direct `Write`.
 - **Component I (artifact registry / static delivery, §00 component map, §4.7) —
-  NOT DONE, and not actually assigned a phase number below.** This is a spec gap,
-  not just an implementation gap: §5.1's phase descriptions never schedule component I
-  by name. Concretely missing: no `.github/workflows/` at all (no GitHub Pages deploy
-  workflow exists despite the README and this roadmap both asserting `git push` →
-  Pages); no static-site generator producing the `/`, `/classes/<class>/`,
-  `/classes/<class>/<date>/` URL scheme §4.7 promises (today's `artifacts/<class>/<date>/`
-  folder structure doesn't match that scheme and has no index/nav page); no
-  `lesson-plan.html` human-facing wrapper for a `lesson-spec.json`, only raw
-  `materials/*.html` files. Separately, the companion calendar doesn't surface a link to
-  an existing lesson-spec/materials on the appointment/context panel either — `dateContext.ts`
-  exposes `lessonSpecPath` only as plain text folded into the chat's seed prompt
-  (`src/companion/web/Chat.tsx`'s `buildSeedContent`), never as a clickable link in the
-  calendar UI itself, even though §4.5 step 4 asks for exactly that.
-- **Phase 3 (generation pipeline G + first 3 exercise skills H) — NOT DONE.**
-  No `04.2`-style lesson-generator pipeline exists (plan → typed exercise requests →
-  bundled `materials/` + `manifest.json` carrying a `covered` record). The chat
-  produces materials ad hoc via the free-form `save_material` tool (raw `html`/`md`
-  content the model writes directly), not routed through typed, self-contained
-  exercise-type skills. Only `gap_fill` exists as code (`src/widgets/gapFill.ts`,
-  the Phase-1 insurance spike) and it isn't wired into the chat/save flow. `mcq`,
-  `matching`, `error_correction`, `crossword` (the decided first-build set, §06) are
-  unbuilt.
-- **Phase 3.5 (coverage loop closes) — PARTIALLY DONE, ahead of schedule.**
-  `buildLedger.ts` folds every `lesson-spec.json` into the coverage ledger (capped at
-  `introduced` depth — a spec is a pre-lesson plan, not a confirmed delivery record);
-  `gapReport` is wired into both the chat's seeded context (`dateContext.ts`) and the
-  calendar's gap-severity display. What's missing: the spec's own `covered` record
-  (§3.7a) distinct from the plan — today's ledger infers coverage from the *plan*,
-  not from a confirmed post-lesson delivery artifact, so a lesson that was planned
-  but taught differently (or not taught) still counts as covered.
+  DONE** (2026-07-28 plan). `.github/workflows/pages.yml` builds `src/publish/buildSite.ts`'s
+  output and deploys it on push (least-privilege permissions, `workflow_dispatch` for a
+  manual re-deploy); the site follows the `/`, `/classes/<class>/`,
+  `/classes/<class>/<date>/` URL scheme, with `renderLessonPage.ts` rendering each
+  `lesson-spec.json` as a human-facing `lesson-plan.html`-equivalent page linking to its
+  materials. The companion's `GET /api/artifacts/<class>/<date>/<...path>` route (KTD6)
+  serves the same tree locally before a push; the calendar's appointment popup links to
+  each generated material plus the rendered lesson-spec preview instead of a static
+  "· planned" label. Remaining manual step: the repo's Settings → Pages → Source switch
+  to "GitHub Actions" (documented in README, can't be automated by a workflow file).
+- **Phase 3 (generation pipeline G + first 3 exercise skills H) — DONE** (2026-07-28
+  plan) for the `gap_fill`/`mcq`/`matching` slice of the decided first-build set.
+  A typed `generate_exercise` MCP tool (`src/companion/server/artifactTools.ts`)
+  dispatches to `src/widgets/{gapFill,mcq,matching}.ts`, writes self-contained HTML
+  under `materials/`, and appends a `manifest.json` entry (the `covered` record,
+  §3.7a) at `practiced` depth. `save_material`'s schema dropped `'exercise'` so the
+  old free-form bypass is closed. `error_correction` and `crossword` remain unbuilt
+  (deferred to a follow-up plan per the roadmap's original ordering).
+- **Phase 3.5 (coverage loop closes) — DONE** for exercise-generation coverage.
+  `buildLedger.ts` now folds both `lesson-spec.json` (capped at `introduced` — a plan,
+  not confirmed delivery) and `manifest.json` (real generated materials, `practiced`)
+  into the ledger, with the stronger depth winning per competence+date via the
+  existing max-depth-wins fold. Named limitation carried forward: a manifest entry
+  proves a worksheet was authored, not that a pupil completed it — the same
+  exposure-not-mastery caveat as lesson-spec-derived coverage. A `produce`-required
+  competence covered only via `mcq`/`matching` still shows as under-depth, since
+  neither is in `PRODUCTIVE_EXERCISE_TYPES` — expected, not a regression.
 - **Phase 4 (breadth) — NOT STARTED.**
 - **`klassenarbeit` skill (§5.6) — NOT BUILT.** `assessment-design` (the
   blueprint-before-items skill) exists but the full Erlass-grounded artifact set
