@@ -17,8 +17,9 @@ import { deriveHalfYearBoundary, dateHalfYear } from "../../projection/halfYear.
 import { fillModules } from "../../projection/fillModules.ts";
 import { whichModule } from "../../projection/query.ts";
 import { gapReport } from "../../coverage/gapReport.ts";
-import type { Gap } from "../../coverage/types.ts";
-import { buildLedger } from "./buildLedger.ts";
+import { driftReport } from "../../coverage/driftReport.ts";
+import type { CalendarDrift, Gap } from "../../coverage/types.ts";
+import { buildLedger, lastTaughtDate } from "./buildLedger.ts";
 import { artifactDir } from "./artifactPath.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
@@ -40,6 +41,10 @@ export interface TeachingDayContext {
   /** The `LessonSlot.id` this context resolved to, when the class has `lesson_slots` configured
    * -- undefined for classes that can't have more than one lesson per day. */
   slotId?: string;
+  /** How far this class's actual delivered pace (`lastTaughtDate`) trails its planned position
+   * as of `date` -- lets the agent compensate (skip a practice slot, fold in remedial coverage)
+   * instead of planning to the nominal calendar position when the class has fallen behind. */
+  calendarDrift: CalendarDrift;
 }
 
 export interface NonTeachingDayContext {
@@ -178,6 +183,13 @@ export function dateContext(params: {
   const ledger = buildLedger(className, modulesFile, repoRoot);
   const report = gapReport({ asOfDate: date, ledger, modulesFile, placements });
   const moduleGaps = report.gaps.filter((g) => g.moduleId === which.moduleId);
+  const drift = driftReport({
+    asOfDate: date,
+    placements,
+    ledger,
+    modulesFile,
+    actualLastTaughtDate: lastTaughtDate(className, repoRoot),
+  });
 
   const specAbsPath = join(artifactDir(repoRoot, className, date, slotId), "lesson-spec.json");
   const specRelPath = join(
@@ -208,6 +220,7 @@ export function dateContext(params: {
     gaps: moduleGaps,
     lessonSpecPath,
     lessonSpec,
+    calendarDrift: drift.calendarDrift,
     ...(slotId ? { slotId } : {}),
   };
 }

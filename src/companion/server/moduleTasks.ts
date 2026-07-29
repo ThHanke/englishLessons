@@ -14,8 +14,9 @@ import {
 } from "../../projection/slots.ts";
 import { fillModules } from "../../projection/fillModules.ts";
 import { gapReport } from "../../coverage/gapReport.ts";
-import type { Gap } from "../../coverage/types.ts";
-import { buildLedger, listLessonSpecs } from "./buildLedger.ts";
+import { driftReport } from "../../coverage/driftReport.ts";
+import type { DriftReport, Gap } from "../../coverage/types.ts";
+import { buildLedger, lastTaughtDate, listLessonSpecs } from "./buildLedger.ts";
 import { artifactDir } from "./artifactPath.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
@@ -129,11 +130,15 @@ export function moduleTasks(params: {
   tasks: ModuleTask[];
   appointments: Appointment[];
   lessonSlots: Record<string, LessonSlot[]>;
+  /** Calendar/coverage drift as of today, per class -- absent for a class whose placements
+   * couldn't be computed (DRAFT `weekly_lessons`, no matching calendar). */
+  drift: Record<string, DriftReport>;
 } {
   const repoRoot = params.repoRoot ?? DEFAULT_REPO_ROOT;
   const classes: ClassSummary[] = [];
   const tasks: ModuleTask[] = [];
   const appointments: Appointment[] = [];
+  const drift: Record<string, DriftReport> = {};
 
   for (const { modulesFile, classFile } of listAllClasses(repoRoot)) {
     classes.push({ id: classFile.name, label: classLabel(classFile) });
@@ -162,6 +167,13 @@ export function moduleTasks(params: {
       ledger,
       modulesFile,
       placements,
+    });
+    drift[classFile.name] = driftReport({
+      asOfDate: today,
+      placements,
+      ledger,
+      modulesFile,
+      actualLastTaughtDate: lastTaughtDate(classFile.name, repoRoot),
     });
     const specs = listLessonSpecs(classFile.name, repoRoot);
     const moduleTitleById = new Map(
@@ -251,5 +263,5 @@ export function moduleTasks(params: {
     }
   }
 
-  return { classes, tasks, appointments, lessonSlots };
+  return { classes, tasks, appointments, lessonSlots, drift };
 }

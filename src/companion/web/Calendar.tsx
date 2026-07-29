@@ -23,6 +23,7 @@ import {
 import type {
   Appointment,
   ClassSummary,
+  DriftReport,
   ModuleTask,
 } from "./api.ts";
 import type { LessonSlot } from "../../schema/types.ts";
@@ -35,6 +36,7 @@ import {
 import type { SeriesFormValues } from "./seriesEditorItems.tsx";
 import {
   appointmentEventClass,
+  appointmentEventId,
   appointmentToEvent,
   groupColorClass,
   taskEventClass,
@@ -152,6 +154,7 @@ export function Calendar({
   const [lessonSlots, setLessonSlots] = useState<Record<string, LessonSlot[]>>(
     {},
   );
+  const [drift, setDrift] = useState<Record<string, DriftReport>>({});
   const [deletingSlotId, setDeletingSlotId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeClassIds, setActiveClassIds] = useState<
@@ -211,6 +214,7 @@ export function Calendar({
         setTasks(res.tasks);
         setAppointments(res.appointments);
         setLessonSlots(res.lessonSlots ?? {});
+        setDrift(res.drift ?? {});
       }
     });
     return () => {
@@ -223,22 +227,22 @@ export function Calendar({
     [tasks],
   );
   const appointmentById = useMemo(
-    () =>
-      new Map(
-        appointments.map((a) => [`${a.classId}::${a.moduleId}::${a.date}`, a]),
-      ),
+    () => new Map(appointments.map((a) => [appointmentEventId(a), a])),
     [appointments],
   );
   const groupOrder = useMemo(() => new Map<string, number>(), []);
   const groups: CalendarGroup[] = useMemo(
     () =>
-      classes.map((c) => ({
-        id: c.id,
-        label: c.label,
-        css: groupColorClass(c.id, groupOrder),
-        active: true,
-      })),
-    [classes, groupOrder],
+      classes.map((c) => {
+        const behindBySlots = drift[c.id]?.calendarDrift.behindBySlots ?? 0;
+        return {
+          id: c.id,
+          label: behindBySlots > 0 ? `${c.label} (${behindBySlots} behind)` : c.label,
+          css: groupColorClass(c.id, groupOrder),
+          active: true,
+        };
+      }),
+    [classes, drift, groupOrder],
   );
 
   const plannableClassesFirst = useMemo(() => {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { ModulesFile } from "../../schema/types.ts";
-import { buildLedger } from "./buildLedger.ts";
+import { buildLedger, lastTaughtDate } from "./buildLedger.ts";
 
 const FIXTURE_REPO_ROOT = new URL("./fixtures/ledger-repo/", import.meta.url)
   .pathname;
@@ -128,5 +128,21 @@ describe("buildLedger", () => {
       const m1 = ledger.modules.find((m) => m.moduleId === "m1")!;
       expect(m1.metCount).toBe(0);
     });
+  });
+});
+
+describe("lastTaughtDate", () => {
+  it("prefers the max manifest date over lesson-spec dates", () => {
+    expect(lastTaughtDate("class-manifest-multidate", FIXTURE_REPO_ROOT)).toBe(
+      "2026-09-08",
+    );
+  });
+
+  it("falls back to the max lesson-spec date (recursively, across nested dirs) when no manifest exists yet", () => {
+    expect(lastTaughtDate("class-a", FIXTURE_REPO_ROOT)).toBe("2026-08-10");
+  });
+
+  it("returns null for a class with no artifacts directory on disk", () => {
+    expect(lastTaughtDate("class-with-no-artifacts", FIXTURE_REPO_ROOT)).toBeNull();
   });
 });

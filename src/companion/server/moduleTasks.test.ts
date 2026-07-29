@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { writeYaml } from "../../schema/yaml.ts";
@@ -68,6 +68,85 @@ function setupDoublePeriodRepo(): { repoRoot: string; cleanup: () => void } {
     },
   };
   writeYaml(join(repoRoot, "calendar", "double-period-calendar.yaml"), calendar);
+
+  return {
+    repoRoot,
+    cleanup: () => rmSync(repoRoot, { recursive: true, force: true }),
+  };
+}
+
+/** A school year entirely in the past (2020) so "today" (real wall-clock, whenever this test
+ * runs) is always past `last_school_day` -- `plannedSlotIndex` is deterministically the full
+ * projection, regardless of what day the test actually runs on. One `lesson-spec.json` saved at
+ * the very first slot's date makes `actualSlotIndex` deterministically 1, so `behindBySlots` is a
+ * fixed, non-flaky number instead of depending on real wall-clock time. */
+function setupDriftRepo(): { repoRoot: string; cleanup: () => void } {
+  const repoRoot = mkdtempSync(join(tmpdir(), "module-tasks-drift-"));
+
+  const classDir = join(repoRoot, "plans", "drift-grade");
+  mkdirSync(classDir, { recursive: true });
+  const classFile: ClassFile = {
+    name: "drift-class",
+    grade: 7,
+    curriculum: "fixture-curriculum",
+  };
+  writeYaml(join(classDir, "class.yaml"), classFile);
+  const modulesFile: ModulesFile = {
+    class: "drift-class",
+    curriculum: "fixture-curriculum",
+    total_weeks: 4,
+    weekly_lessons: 1,
+    buffer_weeks: 0,
+    modules: [
+      {
+        id: "m1",
+        title: "Module One",
+        weeks: 4,
+        content_fields: [],
+        goals: [],
+        covers: [],
+        milestone: { type: "none", assesses: [] },
+        pedagogy: { new_grammar: [] },
+      },
+    ],
+  };
+  writeYaml(join(classDir, "modules.yaml"), modulesFile);
+
+  mkdirSync(join(repoRoot, "calendar"), { recursive: true });
+  const calendar: CalendarFile = {
+    state: "fixture-state",
+    school_year: "2019/2020",
+    first_school_day: "2020-01-06",
+    last_school_day: "2020-02-02",
+    holidays: [],
+    events: [],
+    pace_factors: {
+      pre_holiday_days: 0,
+      pre_holiday_factor: 1,
+      post_holiday_days: 0,
+      post_holiday_factor: 1,
+    },
+    half_year_boundary: "2020-02-01",
+    class_schedule: { "drift-class": {} },
+  };
+  writeYaml(join(repoRoot, "calendar", "drift-calendar.yaml"), calendar);
+
+  const firstSlotDir = join(repoRoot, "artifacts", "drift-class", "2020-01-06");
+  mkdirSync(firstSlotDir, { recursive: true });
+  writeFileSync(
+    join(firstSlotDir, "lesson-spec.json"),
+    JSON.stringify({
+      class: "drift-class",
+      date: "2020-01-06",
+      module: { id: "m1" },
+      focus_competences: [],
+      suggested_exercise_types: [],
+    }),
+  );
+  writeFileSync(
+    join(firstSlotDir, "manifest.json"),
+    JSON.stringify({ class: "drift-class", date: "2020-01-06", materials: [] }),
+  );
 
   return {
     repoRoot,
@@ -230,6 +309,28 @@ describe("moduleTasks", () => {
         start: "13:00",
         end: "13:45",
       });
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("reports calendar drift per class, using the last-taught date as the actual position", () => {
+    const { repoRoot, cleanup } = setupDriftRepo();
+    try {
+      const { drift } = moduleTasks({
+        from: "2020-01-01",
+        to: "2020-02-29",
+        repoRoot,
+      });
+
+      const classDrift = drift["drift-class"];
+      expect(classDrift).toBeDefined();
+      expect(classDrift!.calendarDrift.actualSlotIndex).toBe(1);
+      expect(classDrift!.calendarDrift.plannedSlotIndex).toBeGreaterThan(1);
+      expect(classDrift!.calendarDrift.behindBySlots).toBe(
+        classDrift!.calendarDrift.plannedSlotIndex - 1,
+      );
+      expect(classDrift!.onTrack).toBe(false);
     } finally {
       cleanup();
     }

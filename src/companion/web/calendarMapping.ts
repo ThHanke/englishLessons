@@ -92,6 +92,15 @@ function parseTime(time: string): [number, number] {
   return [h, m];
 }
 
+/** Single source of truth for an appointment's `CalendarEvent.id` shape -- also used by
+ * `Calendar.tsx`'s `appointmentById` lookup map, so a click handler resolving `ev.id` back to its
+ * `Appointment` can never drift out of sync with what `appointmentToEvent` actually assigned. */
+export function appointmentEventId(appointment: Appointment): string {
+  return `${appointment.classId}::${appointment.moduleId}::${appointment.date}${
+    appointment.slotId ? `::${appointment.slotId}` : ""
+  }`;
+}
+
 export function appointmentToEvent(appointment: Appointment): CalendarEvent {
   const start = isoDateToLocalDate(appointment.date);
   if (appointment.start) {
@@ -111,9 +120,7 @@ export function appointmentToEvent(appointment: Appointment): CalendarEvent {
   }
 
   return {
-    id: `${appointment.classId}::${appointment.moduleId}::${appointment.date}${
-      appointment.slotId ? `::${appointment.slotId}` : ""
-    }`,
+    id: appointmentEventId(appointment),
     start,
     end,
     allDay: false,

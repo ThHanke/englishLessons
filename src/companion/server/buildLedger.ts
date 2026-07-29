@@ -113,6 +113,31 @@ export function buildLedger(
   return coverageLedger([...specLessons, ...manifestLessons], modulesFile);
 }
 
+/** Max date among a class's `manifest.json` files -- materials actually generated is stronger
+ * "delivered" evidence than a plan (`manifestToCoverage`'s own doc comment), so this prefers
+ * manifest dates and only falls back to `lesson-spec.json` dates when no manifest exists yet
+ * (planned but not yet generated). Null when the class has no artifacts at all. Feeds
+ * `driftReport`'s `actualLastTaughtDate` (`coverage/driftReport.ts`). */
+export function lastTaughtDate(
+  className: string,
+  repoRoot: string = DEFAULT_REPO_ROOT,
+): string | null {
+  const classDir = join(repoRoot, "artifacts", className);
+  if (!existsSync(classDir)) return null;
+
+  const manifestDates = walkManifestFiles(classDir).map(
+    (f) => (JSON.parse(readFileSync(f, "utf-8")) as ManifestFile).date,
+  );
+  if (manifestDates.length > 0) {
+    return manifestDates.reduce((a, b) => (a > b ? a : b));
+  }
+
+  const specDates = walkLessonSpecFiles(classDir).map(
+    (f) => (JSON.parse(readFileSync(f, "utf-8")) as LessonSpec).date,
+  );
+  return specDates.length > 0 ? specDates.reduce((a, b) => (a > b ? a : b)) : null;
+}
+
 /** `{ date, moduleId, slotId }` for every `lesson-spec.json` already landed for a class — the
  * "already planned lessons" markers a module's spanning task shows on hover (R11). `slotId` is
  * derived from the artifact path (the immediate parent directory name, when it isn't the date

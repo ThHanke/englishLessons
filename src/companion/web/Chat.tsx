@@ -42,6 +42,11 @@ function buildSeedContent(target: PreviewTarget, ctx: DateContext): string {
   if (ctx.isTeachingDay) {
     const t = ctx as TeachingDayContext;
     parts.push(`Module: ${t.moduleTitle ?? t.moduleId}, Week ${t.weekInModule}, Phase: ${PHASE_LABELS[t.phase] ?? t.phase}`);
+    if (t.calendarDrift?.behindBySlots > 0) {
+      parts.push(
+        `Behind schedule: ${t.calendarDrift.behindBySlots} lesson${t.calendarDrift.behindBySlots > 1 ? "s" : ""} behind the planned calendar position as of this date -- consider compensating (skip a practice slot, fold in remedial coverage) rather than planning to the nominal position.`,
+      );
+    }
     if (t.moduleGoals?.length > 0) {
       parts.push(`Module goals:\n${t.moduleGoals.map((g) => `- ${g}`).join("\n")}`);
     }
@@ -401,6 +406,13 @@ function ContextPreview({
         {target.classId} · {target.date} · Week {t.weekInModule}
         {spec ? ` of ${spec.module.of}` : ""} · {PHASE_LABELS[t.phase] ?? t.phase}
       </p>
+
+      {t.calendarDrift?.behindBySlots > 0 && (
+        <p className="companion-preview-note companion-badge-warn">
+          Behind schedule: {t.calendarDrift.behindBySlots} lesson
+          {t.calendarDrift.behindBySlots > 1 ? "s" : ""} behind the planned position.
+        </p>
+      )}
 
       {t.moduleGoals?.length > 0 && (
         <section className="companion-preview-section">

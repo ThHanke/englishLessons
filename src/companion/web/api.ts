@@ -12,6 +12,7 @@ export type {
   TeachingDayContext,
   NonTeachingDayContext,
 } from "../server/dateContext.ts";
+export type { DriftReport } from "../../coverage/types.ts";
 
 /** `GET /api/tasks?from=<from>&to=<to>` — the multi-grade overlay's data source (R11). Response
  * shape is imported directly from the server route module so the two ends can never drift apart. */
