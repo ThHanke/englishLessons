@@ -156,6 +156,16 @@ function buildQueryOptions(params: {
     cwd: params.cwd,
     settingSources: SETTING_SOURCES,
     disallowedTools: DISALLOWED_TOOLS,
+    // This is a headless server with no channel to answer an interactive permission prompt --
+    // under the SDK's default permissionMode a tool call either hangs or silently gets skipped,
+    // which is exactly what happened before this was added: a real session drafted a full lesson
+    // in prose instead of ever calling save_lesson_spec/generate_exercise, because it had no way
+    // to get a permission grant. Bypassing the prompt layer here doesn't weaken the security
+    // boundary: Write/Edit/MultiEdit/NotebookEdit/Bash are already hard-blocked via
+    // disallowedTools (KTD2/KTD10, the only enforcement mechanism that matters), so the only
+    // tools left able to run are the sanctioned MCP ones this file registers.
+    permissionMode: "bypassPermissions" as const,
+    allowDangerouslySkipPermissions: true,
     systemPrompt: {
       type: "preset" as const,
       preset: "claude_code" as const,

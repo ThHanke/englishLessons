@@ -82,4 +82,45 @@ describe.skipIf(!LIVE)("agentSession (live SDK write-block regression)", () => {
     },
     120_000,
   );
+
+  it(
+    "actually saves via the sanctioned save_lesson_spec MCP tool when asked directly, without pausing for a permission prompt this headless server can't answer",
+    async () => {
+      tmpDirs.push(isolateConfigDir());
+      const cwd = mkdtempSync(join(tmpdir(), "companion-live-sdk-cwd-"));
+      tmpDirs.push(cwd);
+      const classId = "grade-7-realschule-2026";
+      const date = "2026-08-21";
+      const specPath = join(cwd, "artifacts", classId, date, "lesson-spec.json");
+
+      const seedContext = [
+        `Date: ${date}, Class: ${classId}`,
+        "Module: Back in school — who does what, Week 1, Phase: new input",
+        "Focus competences: active and passive voice [fk.g.passive] (understand, produce)",
+        "CEFR target: B1",
+      ].join("\n");
+      const ask =
+        "This is a fully autonomous session -- no one will respond further. Draft a minimal " +
+        `lesson plan for the focus competence above and save it now with save_lesson_spec ` +
+        `(class must be exactly "${classId}", date exactly "${date}"). Do not ask for ` +
+        "confirmation -- call the tool directly.";
+
+      const { runAgentTurn } = await import("./agentSession.ts");
+      const outcome = await runAgentTurn({
+        classId,
+        date,
+        cwd,
+        prompt: `${seedContext}\n\n${ask}`,
+      });
+
+      expect(outcome.result.subtype).toBe("success");
+      // This is the regression this test exists for: without permissionMode set, a headless
+      // session has no channel to answer the SDK's default interactive permission prompt, so the
+      // MCP tool call silently never happens and nothing lands on disk -- the model just
+      // describes the plan in prose instead. bypassPermissions (agentSession.ts's
+      // buildQueryOptions) is what makes this assertion pass.
+      expect(existsSync(specPath)).toBe(true);
+    },
+    120_000,
+  );
 });
