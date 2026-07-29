@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { LessonSpec } from "../schema/types.ts";
 import { renderInlineLessonPage } from "./renderInlineLessonPage.ts";
-import type { Manifest } from "./renderLessonPage.ts";
+import type { LessonPlan, Manifest } from "./renderLessonPage.ts";
 
 function lessonSpec(overrides: Partial<LessonSpec> = {}): LessonSpec {
   return {
@@ -105,5 +105,26 @@ describe("renderInlineLessonPage", () => {
     });
     expect(html.indexOf("AAA")).toBeLessThan(html.indexOf("BBB"));
     expect((html.match(/<iframe/g) ?? []).length).toBe(2);
+  });
+
+  it('renders a "no detailed lesson plan saved" note when plan is absent', () => {
+    const html = renderInlineLessonPage({ spec: lessonSpec(), manifest: null, plan: null, materials: [] });
+    expect(html).toContain("No detailed lesson plan saved for this date yet.");
+  });
+
+  it("renders objectives, stages, differentiation notes, and the exercise plan when present", () => {
+    const plan: LessonPlan = {
+      objectives: ["Identify active vs passive voice"],
+      stages: [{ name: "Warm-up", durationMinutes: 9, description: "Retrieval practice" }],
+      differentiationNotes: "Band 1 gets a full word bank.",
+      exercisePlan: ["gap_fill: 6 sentences, supported"],
+    };
+    const html = renderInlineLessonPage({ spec: lessonSpec(), manifest: null, plan, materials: [] });
+
+    expect(html).toContain("Identify active vs passive voice");
+    expect(html).toContain("Warm-up");
+    expect(html).toContain("9 min");
+    expect(html).toContain("Band 1 gets a full word bank.");
+    expect(html).toContain("gap_fill: 6 sentences, supported");
   });
 });

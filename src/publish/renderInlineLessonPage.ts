@@ -1,6 +1,6 @@
 import { basename } from "node:path";
 import type { LessonSpec } from "../schema/types.ts";
-import type { Manifest } from "./renderLessonPage.ts";
+import { renderPlanBody, type LessonPlan, type Manifest } from "./renderLessonPage.ts";
 
 function escapeHtml(s: string): string {
   return s
@@ -28,13 +28,18 @@ function escapeAttr(s: string): string {
 export function renderInlineLessonPage(params: {
   spec: LessonSpec;
   manifest?: Manifest | null;
+  plan?: LessonPlan | null;
   materials: Array<{ file: string; html: string }>;
 }): string {
-  const { spec, manifest, materials } = params;
+  const { spec, manifest, plan, materials } = params;
 
   const competencesHtml = spec.focus_competences
     .map((fc) => `<li>${escapeHtml(fc.id)} — ${escapeHtml(fc.topic)}</li>`)
     .join("\n");
+
+  const planHtml = plan
+    ? renderPlanBody(plan)
+    : `<p class="no-plan">No detailed lesson plan saved for this date yet.</p>`;
 
   const materialsHtml =
     materials.length === 0
@@ -59,9 +64,11 @@ export function renderInlineLessonPage(params: {
 <style>
   body { font-family: sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }
   ul { padding-left: 1.2rem; }
-  .no-materials { color: #666; font-style: italic; }
+  .no-materials, .no-plan { color: #666; font-style: italic; }
   section.material { margin: 2rem 0; }
   iframe.material-frame { width: 100%; min-height: 200px; border: 1px solid #ccc; border-radius: 0.4rem; }
+  table.stages { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; }
+  table.stages th, table.stages td { border: 1px solid #ccc; padding: 0.3rem 0.5rem; text-align: left; }
 </style>
 </head>
 <body>
@@ -71,6 +78,8 @@ export function renderInlineLessonPage(params: {
 <ul>
 ${competencesHtml}
 </ul>
+<h2>Lesson plan</h2>
+${planHtml}
 <h2>Materials</h2>
 ${materialsHtml}
 </body>
