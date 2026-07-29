@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Passive Voice: School and Media (Band 1 — Supported)</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
+  input { border: 1px solid #888; padding: 0.2rem 0.4rem; }
+  input.correct { background: #d4f7d4; border-color: #2a2; }
+  input.incorrect { background: #f7d4d4; border-color: #a22; }
+  .hint { color: #666; font-style: italic; }
+  button { margin-top: 1rem; }
+</style>
+</head>
+<body>
+<h1>Passive Voice: School and Media (Band 1 — Supported)</h1>
+<p class="sentence" data-item="0">The school timetable <input type="text" data-item="0" data-blank="0" autocomplete="off"> <span class="hint">(make)</span> by the headteacher every year.</p>
+<p class="sentence" data-item="1">English <input type="text" data-item="1" data-blank="0" autocomplete="off"> <span class="hint">(teach)</span> in all German schools from Grade 5.</p>
+<p class="sentence" data-item="2">The school newspaper <input type="text" data-item="2" data-blank="0" autocomplete="off"> <span class="hint">(write)</span> every week by the students.</p>
+<p class="sentence" data-item="3">Videos <input type="text" data-item="3" data-blank="0" autocomplete="off"> <span class="hint">(show)</span> in our media class every Friday.</p>
+<p class="sentence" data-item="4">Advertisements <input type="text" data-item="4" data-blank="0" autocomplete="off"> <span class="hint">(use)</span> to sell products on TV.</p>
+<p class="sentence" data-item="5">This documentary <input type="text" data-item="5" data-blank="0" autocomplete="off"> <span class="hint">(produce)</span> by a famous film company in 2020.</p>
+<button id="check">Check</button>
+<script>
+(function () {
+  var answers = [["is made"],["is taught"],["is written"],["are shown"],["are used"],["was produced"]];
+  function normalize(s) { return s.trim().toLowerCase(); }
+  document.getElementById('check').addEventListener('click', function () {
+    var inputs = document.querySelectorAll('input[data-item]');
+    inputs.forEach(function (input) {
+      var ii = Number(input.getAttribute('data-item'));
+      var bi = Number(input.getAttribute('data-blank'));
+      var value = input.value.trim();
+      input.classList.remove('correct', 'incorrect');
+      if (value.length === 0) return;
+      if (normalize(value) === normalize(answers[ii][bi])) {
+        input.classList.add('correct');
+      } else {
+        input.classList.add('incorrect');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

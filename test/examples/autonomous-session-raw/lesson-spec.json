@@ -1,0 +1,58 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2099-01-01",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Back in school — who does what",
+    "week_in_module": 1,
+    "of": 4
+  },
+  "phase": "new_input",
+  "pace_factor": 1,
+  "pace_reason": "Week 1 new_input; first passive voice exposure at B1; standard pace",
+  "focus_competences": [
+    {
+      "id": "fk.g.passive",
+      "topic": "Active and Passive Voice",
+      "mode": [
+        "understand",
+        "produce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "freizeit_schulsysteme_medien",
+    "text": "Freizeit; Schulsysteme; Kultur; Grundfunktionen von Medien: Information, Unterhaltung, Bildung und Werbung"
+  },
+  "text_types": [
+    "dialog"
+  ],
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 20,
+    "assesses": [
+      "fk.g.passive"
+    ]
+  },
+  "prior_covered": [
+    "fk.g.simple_present",
+    "fk.g.simple_past",
+    "fk.g.present_continuous",
+    "fk.g.modal_can",
+    "fk.g.questions",
+    "fk.v.school",
+    "fk.v.leisure",
+    "fk.v.media_basic"
+  ],
+  "cefr_target": "B1",
+  "known_vocab_ref": "grade-7-realschule-2026@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill",
+    "mcq",
+    "matching",
+    "error_correction"
+  ],
+  "curriculum_ref": "SA-RS-G7"
+}

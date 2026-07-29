@@ -1,0 +1,136 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2099-01-01",
+  "materials": [
+    {
+      "file": "materials/gap_fill-passive-voice-school-and-media-band-1-supported.html",
+      "type": "gap_fill",
+      "title": "Passive Voice: School and Media (Band 1 — Supported)",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "The school timetable ___ by the headteacher every year.",
+        "is made",
+        "make",
+        "English ___ in all German schools from Grade 5.",
+        "is taught",
+        "teach",
+        "The school newspaper ___ every week by the students.",
+        "is written",
+        "write",
+        "Videos ___ in our media class every Friday.",
+        "are shown",
+        "show",
+        "Advertisements ___ to sell products on TV.",
+        "are used",
+        "use",
+        "This documentary ___ by a famous film company in 2020.",
+        "was produced",
+        "produce"
+      ],
+      "createdAt": "2026-07-29T05:30:34.309Z"
+    },
+    {
+      "file": "materials/mcq-active-or-passive-choose-the-correct-form-band-2-guided.html",
+      "type": "mcq",
+      "title": "Active or Passive? Choose the Correct Form (Band 2 — Guided)",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Football ___ in many countries around the world.",
+        "is played",
+        "plays",
+        "played",
+        "is play",
+        "The teacher ___ a new exercise on the board yesterday. [active sentence]",
+        "is written",
+        "was written",
+        "wrote",
+        "was wrote",
+        "This website ___ by thousands of students every day.",
+        "visit",
+        "is visit",
+        "is visited",
+        "are visited",
+        "A famous band ___ the concert last summer. [active sentence]",
+        "was performed",
+        "performed",
+        "is performed",
+        "are performed",
+        "The school rules ___ by the headteacher last month.",
+        "changed",
+        "are changed",
+        "is changed",
+        "were changed"
+      ],
+      "createdAt": "2026-07-29T05:30:39.218Z"
+    },
+    {
+      "file": "materials/matching-active-to-passive-match-the-pairs-band-2-guided.html",
+      "type": "matching",
+      "title": "Active to Passive: Match the Pairs (Band 2 — Guided)",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Teachers correct the homework.",
+        "The homework is corrected by teachers.",
+        "The school published the results.",
+        "The results were published by the school.",
+        "Students made a film.",
+        "A film was made by the students.",
+        "A journalist writes the article.",
+        "The article is written by a journalist.",
+        "Media companies produce content.",
+        "Content is produced by media companies."
+      ],
+      "createdAt": "2026-07-29T05:30:41.955Z"
+    },
+    {
+      "file": "materials/error_correction-find-and-fix-the-passive-voice-error-band-3-independent.html",
+      "type": "error_correction",
+      "title": "Find and Fix the Passive Voice Error (Band 3 — Independent)",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "The homework is do every evening by the students.",
+        "The homework is done every evening by the students.",
+        "English are taught in all German schools.",
+        "English is taught in all German schools.",
+        "The film becomes produced in Hollywood.",
+        "The film is produced in Hollywood.",
+        "This book was wrote by a famous author.",
+        "This book was written by a famous author.",
+        "Advertisements are use to sell products.",
+        "Advertisements are used to sell products."
+      ],
+      "createdAt": "2026-07-29T05:30:44.880Z"
+    },
+    {
+      "file": "materials/vocab_intro-key-words-passive-voice-and-media.html",
+      "type": "vocab_intro",
+      "title": "Key Words: Passive Voice and Media",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "advertisement die Werbung",
+        "headteacher der Schulleiter / die Schulleiterin",
+        "content der Inhalt",
+        "produce produzieren / herstellen",
+        "publish veröffentlichen",
+        "passive voice das Passiv (Grammatikform)",
+        "active voice das Aktiv (Grammatikform)"
+      ],
+      "createdAt": "2026-07-29T05:31:01.093Z"
+    }
+  ]
+}

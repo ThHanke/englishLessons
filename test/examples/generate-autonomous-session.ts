@@ -18,10 +18,59 @@
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { runAgentTurn } from "../../src/companion/server/agentSession.ts";
+import { runAgentTurnStream } from "../../src/companion/server/agentSession.ts";
 import { renderInlineLessonPage } from "../../src/publish/renderInlineLessonPage.ts";
 import type { LessonSpec } from "../../src/schema/types.ts";
 import type { Manifest } from "../../src/publish/renderLessonPage.ts";
+import type { SDKMessage, SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
+
+interface ContentBlock {
+  type: string;
+  text?: string;
+  name?: string;
+  input?: unknown;
+  content?: unknown;
+}
+
+function blocksOf(message: unknown): ContentBlock[] {
+  const content = (message as { content?: unknown } | undefined)?.content;
+  if (Array.isArray(content)) return content as ContentBlock[];
+  if (typeof content === "string") return [{ type: "text", text: content }];
+  return [];
+}
+
+function toolResultText(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((c) => (typeof c === "object" && c && "text" in c ? String((c as { text: unknown }).text) : JSON.stringify(c)))
+      .join("\n");
+  }
+  return JSON.stringify(content, null, 2);
+}
+
+/** Renders one SDKMessage as readable markdown -- text/tool_use blocks for assistant turns,
+ * tool_result blocks for the turns the SDK feeds back. Skips message types with nothing
+ * human-readable to show (system/status/partial-streaming chunks etc). */
+function formatMessage(msg: SDKMessage): string[] {
+  const lines: string[] = [];
+  if (msg.type === "assistant") {
+    for (const block of blocksOf(msg.message)) {
+      if (block.type === "text" && block.text?.trim()) {
+        lines.push("### Assistant", "", block.text, "");
+      } else if (block.type === "tool_use") {
+        lines.push(`### Tool call: \`${block.name}\``, "", "```json", JSON.stringify(block.input, null, 2), "```", "");
+      }
+    }
+  } else if (msg.type === "user") {
+    for (const block of blocksOf(msg.message)) {
+      if (block.type === "tool_result") {
+        lines.push("### Tool result", "", "```", toolResultText(block.content), "```", "");
+      }
+    }
+  }
+  return lines;
+}
 
 if (process.env.AUTONOMOUS_SESSION !== "1") {
   console.error(
@@ -67,18 +116,32 @@ const instructions = [
 ].join("\n");
 
 console.log(`Starting autonomous session for ${classId} / ${date}...`);
-const outcome = await runAgentTurn({
+const transcriptLines: string[] = [];
+let resultMessage: SDKResultMessage | undefined;
+
+const stream = runAgentTurnStream({
   classId,
   date,
   cwd: repoRoot,
   prompt: `${seedContext}\n\n${instructions}`,
 });
+while (true) {
+  const step = await stream.next();
+  if (step.done) break;
+  const msg = step.value;
+  transcriptLines.push(...formatMessage(msg));
+  if (msg.type === "result") resultMessage = msg;
+}
 
-if (outcome.result.subtype !== "success") {
-  console.error("Session did not complete successfully:", JSON.stringify(outcome.result, null, 2));
+if (!resultMessage) {
+  console.error("Stream ended without a terminal result message.");
   process.exit(1);
 }
-console.log("Session complete. Final assistant message:\n", outcome.result.result);
+if (resultMessage.subtype !== "success") {
+  console.error("Session did not complete successfully:", JSON.stringify(resultMessage, null, 2));
+  process.exit(1);
+}
+console.log("Session complete. Final assistant message:\n", resultMessage.result);
 
 if (!existsSync(artifactsDir)) {
   console.error(`No artifacts were written to ${artifactsDir} -- the model didn't save anything.`);
@@ -123,13 +186,18 @@ writeFileSync(
   [
     "# Autonomous planning session transcript",
     "",
+    "Every assistant message, tool call, and tool result from one real, non-interactive Claude " +
+      "Agent SDK turn -- no teacher input beyond the seed prompt below.",
+    "",
     "## Seed prompt",
+    "",
     "```",
     `${seedContext}\n\n${instructions}`,
     "```",
     "",
-    "## Final assistant message",
-    outcome.result.result,
+    "## Conversation",
+    "",
+    ...transcriptLines,
   ].join("\n"),
 );
 
