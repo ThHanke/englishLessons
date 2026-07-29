@@ -132,6 +132,78 @@ describe("artifactTools", () => {
     });
   });
 
+  describe("save_lesson_plan", () => {
+    function validLessonPlan(overrides: Record<string, unknown> = {}) {
+      return {
+        class: CLASS_ID,
+        date: DATE,
+        objectives: ["Identify active vs passive voice", "Produce passive sentences about school/media"],
+        stages: [
+          { name: "Warm-up / Review", durationMinutes: 9, description: "Retrieval + prior-knowledge bridge" },
+          { name: "Input", durationMinutes: 10, description: "Dialog with passive-voice pattern" },
+          { name: "Guided Practice", durationMinutes: 20, description: "Gap fill, MCQ, matching" },
+          { name: "Production", durationMinutes: 5, description: "Error correction" },
+          { name: "Wrap-up", durationMinutes: 1, description: "Exit ticket" },
+        ],
+        differentiationNotes: "Band 1 gets a full word bank; Band 3 gets no hints.",
+        exercisePlan: ["gap_fill: 6 sentences, supported", "mcq: 5 items, guided"],
+        ...overrides,
+      };
+    }
+
+    it("writes a valid lesson-plan.json to the correct path", async () => {
+      const handler = extractToolHandler(makeServer(), "save_lesson_plan");
+      const plan = validLessonPlan();
+
+      const result = await handler(plan);
+
+      expect(result.isError).toBeFalsy();
+      expect(result.content[0]!.text).toContain("Saved lesson plan");
+
+      const filePath = join(tmpDir, "artifacts", CLASS_ID, DATE, "lesson-plan.json");
+      expect(existsSync(filePath)).toBe(true);
+      const written = JSON.parse(readFileSync(filePath, "utf-8"));
+      expect(written.objectives).toEqual(plan.objectives);
+      expect(written.stages).toHaveLength(5);
+    });
+
+    it("rejects mismatched class", async () => {
+      const handler = extractToolHandler(makeServer(), "save_lesson_plan");
+      const result = await handler(validLessonPlan({ class: "wrong-class" }));
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0]!.text).toContain("wrong-class");
+      const filePath = join(tmpDir, "artifacts", CLASS_ID, DATE, "lesson-plan.json");
+      expect(existsSync(filePath)).toBe(false);
+    });
+
+    it("rejects mismatched date", async () => {
+      const handler = extractToolHandler(makeServer(), "save_lesson_plan");
+      const result = await handler(validLessonPlan({ date: "2099-01-01" }));
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0]!.text).toContain("2099-01-01");
+    });
+
+    it("overwrites an existing lesson-plan.json", async () => {
+      const handler = extractToolHandler(makeServer(), "save_lesson_plan");
+
+      await handler(validLessonPlan({ differentiationNotes: "first" }));
+      await handler(validLessonPlan({ differentiationNotes: "second" }));
+
+      const filePath = join(tmpDir, "artifacts", CLASS_ID, DATE, "lesson-plan.json");
+      const written = JSON.parse(readFileSync(filePath, "utf-8"));
+      expect(written.differentiationNotes).toBe("second");
+    });
+
+    it("is independent of lesson-spec.json -- can be saved without one existing yet", async () => {
+      const handler = extractToolHandler(makeServer(), "save_lesson_plan");
+      const result = await handler(validLessonPlan());
+      expect(result.isError).toBeFalsy();
+      expect(existsSync(join(tmpDir, "artifacts", CLASS_ID, DATE, "lesson-spec.json"))).toBe(false);
+    });
+  });
+
   describe("save_material", () => {
     it("rejects type 'exercise' -- exercises must go through generate_exercise (KTD1)", async () => {
       // MaterialSchema's type enum no longer includes 'exercise'; this proves the Zod schema
