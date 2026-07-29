@@ -1,5 +1,6 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import type {
+  AgentDefinition,
   McpServerConfig,
   Options,
   SDKMessage,
@@ -8,6 +9,25 @@ import type {
 import { getSessionId, setSessionId } from "./sessionIndex.ts";
 import type { SessionKey } from "./sessionIndex.ts";
 import { createLessonArtifactServer } from "./artifactTools.ts";
+
+/** Matches the key `mcpServers` is registered under in `startQuery` below -- referenced by name
+ * (not redefined) from the exercise-builder subagent's own `mcpServers` list. */
+const ARTIFACT_SERVER_NAME = "companion-artifacts";
+
+/** Runs on Haiku instead of the main session's model: exercise items (sentences, options, pairs)
+ * are mechanical once the type/competences/content are already decided by the main agent -- this
+ * doesn't need the main model's reasoning budget, just a correct generate_exercise call. Cuts
+ * cost on the highest-volume tool call (several per lesson) without touching lesson-spec/plan
+ * drafting or vocabulary judgment calls, which stay on the main model. */
+const EXERCISE_BUILDER_AGENT: AgentDefinition = {
+  description:
+    "Builds and saves ONE typed exercise (gap_fill, mcq, matching, error_correction, or crossword) via generate_exercise. Invoke once per exercise, after you've already decided its type, competenceIds, and items -- this agent calls the tool correctly, it doesn't redesign the exercise.",
+  prompt:
+    "You build exactly one exercise per invocation by calling generate_exercise with the type, title, competenceIds, and items you're given. Follow those parameters precisely -- the pedagogical decisions (type, scaffolding band, item content) were already made by the agent that invoked you. For gap_fill items, always include a hint (the base/prompt word) on every blank. Call generate_exercise once, then report back what was saved.",
+  model: "haiku",
+  tools: [`mcp__${ARTIFACT_SERVER_NAME}__generate_exercise`],
+  mcpServers: [ARTIFACT_SERVER_NAME],
+};
 
 /** KTD2/KTD10: `allowedTools` doesn't gate built-in tools at all, so this deny-list is the only
  * enforcement mechanism for R8's read-only guarantee. Every version bump of the Agent SDK
@@ -98,8 +118,8 @@ Once you've drafted the actual pedagogical plan (not just the constraints), save
 - \`differentiationNotes\`: how weaker/stronger pupils are supported differently (scaffolds, word banks, hint removal, etc.)
 - \`exercisePlan\`: string array — one line per exercise you intend to build (type + a short description), a plan of intent before you actually call \`generate_exercise\` for each one
 
-### generate_exercise
-When you create a gap-fill, multiple-choice, matching, error-correction, or crossword exercise, save it with \`generate_exercise\` — never write the HTML yourself. Parameters:
+### generate_exercise — via the exercise-builder subagent
+Decide the exercise's type, title, competenceIds, and items yourself (invoke \`eal-scaffold\`, \`error-correction-design\`, etc. as normal to design the content), then delegate the actual save to the \`exercise-builder\` subagent (the \`Agent\` tool) instead of calling \`generate_exercise\` directly — it runs on a cheaper model since calling the tool correctly needs no reasoning once you've already decided the content. Give it the fully-decided parameters in your prompt to it:
 - \`type\`: one of "gap_fill", "mcq", "matching", "error_correction", "crossword"
 - \`title\`: descriptive title (used in the filename)
 - \`competenceIds\`: the bracketed competence IDs this exercise practices
@@ -118,7 +138,7 @@ When you create a gap-fill, multiple-choice, matching, error-correction, or cros
   - \`crossword\`: \`{ word, clue }\` pairs — words are placed automatically (crossing where letters share);
     keep the word list short (5-8) since the layout is a simple greedy placement, not an optimizer.
 
-This renders a self-contained, self-checking worksheet and records it in the coverage ledger at "practiced" depth for each competence — this is what makes the exercise count as real coverage, not just a saved file.
+One \`exercise-builder\` invocation per exercise. This renders a self-contained, self-checking worksheet and records it in the coverage ledger at "practiced" depth for each competence — this is what makes the exercise count as real coverage, not just a saved file.
 
 ### find_new_vocabulary / generate_vocab_intro
 Before or after drafting exercises, call \`find_new_vocabulary\` (no parameters) to scan the lesson-spec plus everything already generated for this date and get back the words that are genuinely new — not yet in the class's known-vocabulary chain (\`known_vocab_ref\`). It's a mechanical scan, not a suggestion: trust its "new" list over your own guess about what pupils already know.
@@ -174,6 +194,9 @@ function buildQueryOptions(params: {
     // tools left able to run are the sanctioned MCP ones this file registers.
     permissionMode: "bypassPermissions" as const,
     allowDangerouslySkipPermissions: true,
+    agents: {
+      "exercise-builder": EXERCISE_BUILDER_AGENT,
+    },
     systemPrompt: {
       type: "preset" as const,
       preset: "claude_code" as const,
