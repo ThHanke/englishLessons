@@ -14,11 +14,17 @@ function escapeHtml(s: string): string {
  * silently used"). Each row has a read-aloud button using the browser's native Web Speech API
  * (`speechSynthesis` -- already an established convention for listening exercises in this repo,
  * docs/spec/03-generation.md/04-roadmap.md/06-exercise-design-reference.md); the button is
- * disabled (not hidden) when the browser doesn't support it, so the page still degrades to a
- * printable static glossary either way. An empty `words` list renders a "no new vocabulary" note,
- * not a crash or an empty table.
+ * disabled (not hidden) when the API itself doesn't exist, so the page still degrades to a
+ * printable static glossary either way. The API existing doesn't guarantee any voices are
+ * installed (common on Linux without a system TTS engine like espeak-ng/speech-dispatcher) --
+ * that's checked at click time (voices load asynchronously, so an upfront check risks a false
+ * negative) and surfaced as a visible notice instead of `.speak()` failing silently. An empty
+ * `words` list renders a "no new vocabulary" note, not a crash or an empty table.
  */
 export function renderVocabIntroHtml(title: string, words: VocabWord[]): string {
+  const noticeHtml =
+    words.length === 0 ? '' : `<p id="tts-notice" class="tts-notice" hidden></p>`;
+
   const rowsHtml =
     words.length === 0
       ? `<p class="no-words">No new vocabulary for this lesson.</p>`
@@ -49,21 +55,46 @@ ${words
   button.speak { border: 1px solid #888; border-radius: 0.3rem; background: #fff; cursor: pointer; font-size: 1rem; }
   button.speak:disabled { opacity: 0.4; cursor: not-allowed; }
   .no-words { color: #666; font-style: italic; }
+  .tts-notice { background: #fff3cd; border: 1px solid #e0c36a; border-radius: 0.3rem; padding: 0.5rem 0.7rem; }
 </style>
 </head>
 <body>
 <h1>${escapeHtml(title)}</h1>
+${noticeHtml}
 ${rowsHtml}
 <script>
 (function () {
   var supported = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-  document.querySelectorAll('button.speak').forEach(function (btn) {
-    if (!supported) {
+  var notice = document.getElementById('tts-notice');
+
+  function showNotice(message) {
+    if (!notice) return;
+    notice.textContent = message;
+    notice.hidden = false;
+  }
+
+  if (!supported) {
+    document.querySelectorAll('button.speak').forEach(function (btn) {
       btn.disabled = true;
       btn.title = 'Read-aloud not supported in this browser';
-      return;
-    }
+    });
+    showNotice('Read-aloud is not supported in this browser.');
+    return;
+  }
+
+  document.querySelectorAll('button.speak').forEach(function (btn) {
     btn.addEventListener('click', function () {
+      // Checked at click time (not on page load): voices load asynchronously in some browsers,
+      // so an upfront check risks a false negative. A genuinely empty list at click time -- most
+      // commonly no system TTS engine installed on Linux (no espeak-ng/speech-dispatcher) -- means
+      // .speak() would otherwise fail silently with no feedback at all.
+      if (window.speechSynthesis.getVoices().length === 0) {
+        showNotice(
+          'No text-to-speech voices are installed on this system. On Linux, install a system ' +
+            'TTS engine such as espeak-ng or speech-dispatcher, then reload this page.'
+        );
+        return;
+      }
       var utterance = new SpeechSynthesisUtterance(btn.getAttribute('data-word'));
       utterance.lang = 'en-GB';
       window.speechSynthesis.speak(utterance);

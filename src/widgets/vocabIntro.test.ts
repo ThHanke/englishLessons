@@ -48,13 +48,16 @@ describe('renderVocabIntroHtml', () => {
     expect(btn.disabled).toBe(true);
   });
 
-  it('speaks the word via window.speechSynthesis when supported', () => {
+  it('speaks the word via window.speechSynthesis when supported and voices are installed', () => {
     const html = renderVocabIntroHtml('New Vocabulary', [{ word: 'caretaker', translation: 'Hausmeister' }]);
     const speak = vi.fn();
     const dom = new JSDOM(html, {
       runScripts: 'dangerously',
       beforeParse(window) {
-        (window as unknown as { speechSynthesis: { speak: typeof speak } }).speechSynthesis = { speak };
+        (window as unknown as { speechSynthesis: { speak: typeof speak; getVoices: () => unknown[] } }).speechSynthesis = {
+          speak,
+          getVoices: () => [{ name: 'Fake Voice', lang: 'en-GB' }],
+        };
         (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = function (
           this: { text: string },
           text: string,
@@ -68,5 +71,32 @@ describe('renderVocabIntroHtml', () => {
     btn.click();
     expect(speak).toHaveBeenCalledTimes(1);
     expect(speak.mock.calls[0]![0]).toMatchObject({ text: 'caretaker' });
+  });
+
+  it('shows a visible notice instead of speaking when the API exists but no voices are installed (common on Linux without a system TTS engine)', () => {
+    const html = renderVocabIntroHtml('New Vocabulary', [{ word: 'caretaker', translation: 'Hausmeister' }]);
+    const speak = vi.fn();
+    const dom = new JSDOM(html, {
+      runScripts: 'dangerously',
+      beforeParse(window) {
+        (window as unknown as { speechSynthesis: { speak: typeof speak; getVoices: () => unknown[] } }).speechSynthesis = {
+          speak,
+          getVoices: () => [],
+        };
+        (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = function (
+          this: { text: string },
+          text: string,
+        ) {
+          this.text = text;
+        };
+      },
+    });
+    const btn = dom.window.document.querySelector('button.speak') as HTMLButtonElement;
+    btn.click();
+
+    expect(speak).not.toHaveBeenCalled();
+    const notice = dom.window.document.getElementById('tts-notice');
+    expect(notice?.hidden).toBe(false);
+    expect(notice?.textContent).toContain('espeak-ng');
   });
 });
