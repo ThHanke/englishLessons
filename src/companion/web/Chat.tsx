@@ -20,6 +20,10 @@ export interface ChatProps {
   baseUrl: string;
   serverAvailable: boolean;
   sessionToken: string | null;
+  /** Fires once per completed chat turn (isRunning's true -> false transition) -- a cheap proxy
+   * for "the agent may have saved something" without needing to know which tool ran, so a
+   * sibling component (the calendar) can refetch and pick up new lesson-specs/materials. */
+  onTurnComplete?: () => void;
 }
 
 interface PreviewTarget {
@@ -94,6 +98,7 @@ export function Chat({
   baseUrl,
   serverAvailable,
   sessionToken,
+  onTurnComplete,
 }: ChatProps) {
   const [activeSession, setActiveSession] = useState<ChatSession | null>(null);
   const [preview, setPreview] = useState<PreviewState | null>(null);
@@ -101,12 +106,20 @@ export function Chat({
   const hasMessagesRef = useRef(false);
 
   const runtimeOptions = { baseUrl, sessionToken: sessionToken ?? "" };
-  const { runtime, messages, setMessages, sendMessage, error } = useCompanionRuntime(
+  const { runtime, messages, setMessages, sendMessage, error, isRunning } = useCompanionRuntime(
     activeSession,
     runtimeOptions,
   );
   const pendingInitialPromptRef = useRef<string | null>(null);
   hasMessagesRef.current = messages.length > 0;
+
+  const wasRunningRef = useRef(false);
+  useEffect(() => {
+    if (wasRunningRef.current && !isRunning) {
+      onTurnComplete?.();
+    }
+    wasRunningRef.current = isRunning;
+  }, [isRunning, onTurnComplete]);
 
   const loadPreview = useCallback(
     async (target: PreviewTarget) => {
@@ -300,6 +313,12 @@ export function Chat({
                 }}
               />
             </ThreadPrimitive.Viewport>
+
+            {isRunning && (
+              <div className="companion-chat-typing" data-testid="chat-typing">
+                Thinking…
+              </div>
+            )}
 
             <ComposerPrimitive.Root className="companion-chat-composer">
               <ComposerPrimitive.Input

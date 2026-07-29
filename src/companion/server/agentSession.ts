@@ -109,6 +109,7 @@ You have six tools for persisting lesson artifacts. Always confirm with the teac
 
 ### save_lesson_spec
 When the teacher approves the lesson's constraints (module, phase, focus competences, milestone context), save it with \`save_lesson_spec\`. Pass the full lesson-spec object. The \`class\` and \`date\` fields MUST match the current session — the tool rejects mismatches. Saved lesson-specs automatically update coverage tracking on the next calendar load.
+- \`known_vocab_ref\`: MUST be \`<classId>@<moduleId>\` — the current session's class id, a literal \`@\`, then the module id from this lesson's placement (e.g. \`grade-7-realschule-2026@m1\`). Never a file path, and never invented — this is a lookup key into \`vocabulary/*.yaml\`, not a filename. The tool rejects a value that doesn't start with \`<classId>@\`.
 
 ### save_lesson_plan
 Once you've drafted the actual pedagogical plan (not just the constraints), save it with \`save_lesson_plan\` — this is what renders as the teacher-facing lesson page. Parameters:

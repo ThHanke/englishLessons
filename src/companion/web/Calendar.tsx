@@ -49,6 +49,10 @@ export interface CalendarProps {
   month: string;
   onOpenChat: (classId: string, date: string, slotId?: string) => void;
   dark?: boolean;
+  /** Bump this (e.g. after a chat turn completes) to force a refetch outside of the normal
+   * mount/month-navigation triggers -- lets a sibling component signal "data may have changed"
+   * without Calendar needing to know why. */
+  refreshKey?: number;
 }
 
 /** `href`s point at the companion's own local artifact-preview route (KTD6) — same origin as the
@@ -147,6 +151,7 @@ export function Calendar({
   month,
   onOpenChat,
   dark = false,
+  refreshKey,
 }: CalendarProps) {
   const [classes, setClasses] = useState<ClassSummary[]>([]);
   const [tasks, setTasks] = useState<ModuleTask[]>([]);
@@ -220,7 +225,7 @@ export function Calendar({
     return () => {
       cancelled = true;
     };
-  }, [baseUrl, month]);
+  }, [baseUrl, month, refreshKey]);
 
   const taskById = useMemo(
     () => new Map(tasks.map((t) => [`${t.classId}::${t.moduleId}`, t])),

@@ -234,6 +234,100 @@ describe("Chat", () => {
     expect(screen.getByTestId("chat-preview-loading")).toBeInTheDocument();
   });
 
+  it("shows a working indicator while a chat turn is in flight, and hides it once the turn completes", async () => {
+    // Entering the live chat view auto-sends an initial prompt (Chat.tsx's
+    // pendingInitialPromptRef effect), which is enough on its own to drive isRunning
+    // true -> false without needing to simulate typing into the composer.
+    mockLessonPreview();
+    let resolveFetch!: (res: Response) => void;
+    const chatFetch = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
+    });
+    vi.spyOn(globalThis, "fetch").mockImplementation((input: RequestInfo | URL) => {
+      if (String(input).includes("/api/chat")) return chatFetch;
+      throw new Error(`unexpected fetch: ${String(input)}`);
+    });
+
+    render(
+      <Chat
+        classId="5a"
+        date="2026-08-05"
+        baseUrl="http://localhost:5199"
+        serverAvailable={true}
+        sessionToken="tok"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Start planning")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText("Start planning"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("chat-typing")).toBeInTheDocument();
+    });
+
+    resolveFetch({
+      ok: true,
+      body: {
+        getReader: () => ({
+          read: async () => ({ done: true, value: undefined }),
+        }),
+      },
+    } as unknown as Response);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("chat-typing")).not.toBeInTheDocument();
+    });
+  });
+
+  it("calls onTurnComplete once, only after a turn finishes (not while it's still running)", async () => {
+    mockLessonPreview();
+    let resolveFetch!: (res: Response) => void;
+    const chatFetch = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
+    });
+    vi.spyOn(globalThis, "fetch").mockImplementation((input: RequestInfo | URL) => {
+      if (String(input).includes("/api/chat")) return chatFetch;
+      throw new Error(`unexpected fetch: ${String(input)}`);
+    });
+    const onTurnComplete = vi.fn();
+
+    render(
+      <Chat
+        classId="5a"
+        date="2026-08-05"
+        baseUrl="http://localhost:5199"
+        serverAvailable={true}
+        sessionToken="tok"
+        onTurnComplete={onTurnComplete}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Start planning")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText("Start planning"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("chat-typing")).toBeInTheDocument();
+    });
+    expect(onTurnComplete).not.toHaveBeenCalled();
+
+    resolveFetch({
+      ok: true,
+      body: {
+        getReader: () => ({
+          read: async () => ({ done: true, value: undefined }),
+        }),
+      },
+    } as unknown as Response);
+
+    await waitFor(() => {
+      expect(onTurnComplete).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("shows error state with fallback button on preview fetch failure", async () => {
     vi.spyOn(api, "fetchLessonPreview").mockRejectedValue(new Error("network error"));
     render(

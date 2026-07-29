@@ -58,6 +58,25 @@ describe("security", () => {
         originMatches("http://127.0.0.1:9999", "http://127.0.0.1:5173"),
       ).toBe(false);
     });
+
+    it("accepts localhost as equivalent to 127.0.0.1 for the same port (a teacher who typed localhost isn't rejected)", () => {
+      expect(
+        originMatches("http://localhost:5199", "http://127.0.0.1:5199"),
+      ).toBe(true);
+      expect(
+        originMatches("http://127.0.0.1:5199", "http://localhost:5199"),
+      ).toBe(true);
+    });
+
+    it("still enforces an exact port match even across the localhost/127.0.0.1 equivalence", () => {
+      expect(
+        originMatches("http://localhost:9999", "http://127.0.0.1:5199"),
+      ).toBe(false);
+    });
+
+    it("does not treat an unparseable Origin header as a match", () => {
+      expect(originMatches("not-a-url", "http://127.0.0.1:5199")).toBe(false);
+    });
   });
 
   describe("extractSessionToken", () => {

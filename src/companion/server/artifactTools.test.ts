@@ -110,6 +110,30 @@ describe("artifactTools", () => {
       expect(result.content[0]!.text).toContain("2099-01-01");
     });
 
+    it("rejects a known_vocab_ref that isn't <classId>@<moduleId> -- e.g. a guessed file path (regression: the agent once guessed 'plans/grade-7-realschule/vocabulary.yaml' instead of '<classId>@m1', which silently broke find_new_vocabulary three tool calls later)", async () => {
+      const handler = extractToolHandler(makeServer(), "save_lesson_spec");
+      const spec = validLessonSpec({
+        known_vocab_ref: "plans/grade-7-realschule/vocabulary.yaml",
+      });
+
+      const result = await handler(spec);
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0]!.text).toContain("known_vocab_ref");
+      expect(result.content[0]!.text).toContain(`${CLASS_ID}@`);
+      const filePath = join(tmpDir, "artifacts", CLASS_ID, DATE, "lesson-spec.json");
+      expect(existsSync(filePath)).toBe(false);
+    });
+
+    it("accepts a known_vocab_ref with any module id suffix, as long as it's scoped to the current class", async () => {
+      const handler = extractToolHandler(makeServer(), "save_lesson_spec");
+      const spec = validLessonSpec({ known_vocab_ref: `${CLASS_ID}@m3` });
+
+      const result = await handler(spec);
+
+      expect(result.isError).toBeFalsy();
+    });
+
     it("creates directories when they don't exist", async () => {
       const handler = extractToolHandler(makeServer(), "save_lesson_spec");
       const spec = validLessonSpec();

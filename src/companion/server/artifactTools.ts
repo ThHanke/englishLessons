@@ -290,6 +290,17 @@ export function createLessonArtifactServer(params: {
               isError: true,
             };
           }
+          if (!args.known_vocab_ref.startsWith(`${classId}@`)) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Rejected: 'known_vocab_ref' must be "${classId}@<moduleId>" (e.g. "${classId}@m1"), not a file path or invented value -- got "${args.known_vocab_ref}".`,
+                },
+              ],
+              isError: true,
+            };
+          }
 
           mkdirSync(baseDir, { recursive: true });
           const filePath = join(baseDir, "lesson-spec.json");

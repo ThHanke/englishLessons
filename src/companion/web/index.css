@@ -131,10 +131,12 @@
   border: 2px solid #dc2626 !important;
 }
 
-/* Appointment with existing lesson-spec */
+/* Appointment with existing lesson-spec -- a background tint alongside the border so "planned"
+ * reads at a glance in a dense month/week grid, not just on close inspection of a thin edge. */
 .companion-planned[class*="wx-box-event"],
 .companion-planned[class*="wx-bar-event"] {
   border-left: 4px solid #16a34a !important;
+  background-color: rgba(22, 163, 74, 0.12) !important;
 }
 
 .companion-event-content {
@@ -202,6 +204,17 @@
 .companion-chat-assistant {
   background: #f1f5f9;
   margin-right: 2rem;
+}
+.companion-chat-typing {
+  padding: 0.25rem 1rem 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-style: italic;
+  animation: companion-chat-typing-pulse 1.4s ease-in-out infinite;
+}
+@keyframes companion-chat-typing-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 .companion-chat-composer {
   display: flex;

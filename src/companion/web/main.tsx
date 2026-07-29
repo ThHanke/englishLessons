@@ -13,6 +13,7 @@ function App() {
   } | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [serverAvailable, setServerAvailable] = useState(true);
+  const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
 
   useEffect(() => {
     fetch(new URL("/api/session-token", baseUrl).toString())
@@ -35,6 +36,7 @@ function App() {
           onOpenChat={(classId, date, slotId) =>
             setChatTarget({ classId, date, slotId })
           }
+          refreshKey={calendarRefreshKey}
         />
       </div>
       <div className="companion-app-chat">
@@ -45,6 +47,7 @@ function App() {
           baseUrl={baseUrl}
           serverAvailable={serverAvailable}
           sessionToken={sessionToken}
+          onTurnComplete={() => setCalendarRefreshKey((k) => k + 1)}
         />
       </div>
     </div>
