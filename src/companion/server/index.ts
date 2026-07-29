@@ -16,6 +16,7 @@ import {
   handleCreateSeriesRequest,
   handleDeleteSeriesRequest,
 } from "./routes/lessonSeries.ts";
+import { handleRescheduleLessonRequest } from "./routes/rescheduleLesson.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -113,6 +114,14 @@ export async function createCompanionServer(params?: {
     }
     if (req.method === "DELETE" && url.pathname === "/api/lesson-series") {
       void handleDeleteSeriesRequest(req, res, {
+        repoRoot,
+        expectedOrigin: origin,
+        sessionToken,
+      });
+      return;
+    }
+    if (req.method === "POST" && url.pathname === "/api/reschedule-lesson") {
+      void handleRescheduleLessonRequest(req, res, {
         repoRoot,
         expectedOrigin: origin,
         sessionToken,
