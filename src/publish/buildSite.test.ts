@@ -50,7 +50,7 @@ function writeLessonDate(
   repoRoot: string,
   className: string,
   date: string,
-  options: { manifest?: unknown; materialFiles?: Record<string, string> } = {},
+  options: { manifest?: unknown; plan?: unknown; materialFiles?: Record<string, string> } = {},
 ): void {
   const dateDir = join(repoRoot, "artifacts", className, date);
   mkdirSync(dateDir, { recursive: true });
@@ -60,6 +60,9 @@ function writeLessonDate(
   );
   if (options.manifest) {
     writeFileSync(join(dateDir, "manifest.json"), JSON.stringify(options.manifest, null, 2));
+  }
+  if (options.plan) {
+    writeFileSync(join(dateDir, "lesson-plan.json"), JSON.stringify(options.plan, null, 2));
   }
   if (options.materialFiles) {
     const materialsDir = join(dateDir, "materials");
@@ -168,6 +171,42 @@ describe("buildSite", () => {
     const rootIndex = readFileSync(join(outDir, "index.html"), "utf-8");
     expect(rootIndex).not.toContain("classes/grade-7-2026/");
     expect(existsSync(join(outDir, "classes"))).toBe(false);
+  });
+
+  it("renders lesson-plan.json's objectives/stages when present alongside a lesson-spec", () => {
+    writeClass(repoRoot, "grade-7", "grade-7-2026");
+    writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21", {
+      plan: {
+        objectives: ["Identify active vs passive voice"],
+        stages: [{ name: "Warm-up", durationMinutes: 9, description: "Retrieval practice" }],
+        differentiationNotes: "Band 1 gets a full word bank.",
+        exercisePlan: ["gap_fill: 6 sentences, supported"],
+      },
+    });
+
+    buildSite({ repoRoot, outDir });
+
+    const lessonPage = readFileSync(
+      join(outDir, "classes", "grade-7-2026", "2026-08-21", "index.html"),
+      "utf-8",
+    );
+    expect(lessonPage).toContain("Identify active vs passive voice");
+    expect(lessonPage).toContain("Warm-up");
+    expect(lessonPage).toContain("Band 1 gets a full word bank.");
+    expect(lessonPage).not.toContain("No detailed lesson plan saved");
+  });
+
+  it('renders "no detailed lesson plan saved" for a lesson-spec with no lesson-plan.json yet', () => {
+    writeClass(repoRoot, "grade-7", "grade-7-2026");
+    writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21");
+
+    buildSite({ repoRoot, outDir });
+
+    const lessonPage = readFileSync(
+      join(outDir, "classes", "grade-7-2026", "2026-08-21", "index.html"),
+      "utf-8",
+    );
+    expect(lessonPage).toContain("No detailed lesson plan saved for this date yet.");
   });
 
   it("is idempotent: running twice against the same outDir does not append or duplicate output", () => {

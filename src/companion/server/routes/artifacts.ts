@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, isAbsolute, join, relative, resolve } from "node:path";
 import { loadYaml } from "../../../schema/yaml.ts";
 import type { ClassFile, LessonSpec } from "../../../schema/types.ts";
-import { renderLessonPage, type Manifest } from "../../../publish/renderLessonPage.ts";
+import { renderLessonPage, type LessonPlan, type Manifest } from "../../../publish/renderLessonPage.ts";
 import { originMatches } from "../security.ts";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -106,13 +106,17 @@ export async function handleArtifactsRequest(
     const manifest: Manifest | null = existsSync(manifestPath)
       ? (JSON.parse(readFileSync(manifestPath, "utf-8")) as Manifest)
       : null;
+    const planPath = join(artifactsRoot, classId, date, "lesson-plan.json");
+    const plan: LessonPlan | null = existsSync(planPath)
+      ? (JSON.parse(readFileSync(planPath, "utf-8")) as LessonPlan)
+      : null;
     const materialsDir = join(artifactsRoot, classId, date, "materials");
     const materialFiles = existsSync(materialsDir)
       ? readdirSync(materialsDir)
           .filter((f) => f.endsWith(".html"))
           .sort()
       : [];
-    const html = renderLessonPage({ spec, manifest, materialFiles });
+    const html = renderLessonPage({ spec, manifest, plan, materialFiles });
     res.writeHead(200, { "content-type": "text/html" });
     res.end(html);
     return;

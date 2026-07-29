@@ -55,6 +55,13 @@ describe("handleArtifactsRequest (HTTP)", () => {
     expect(body).toContain("Fixture Gap Fill");
   });
 
+  it("includes lesson-plan.json's objectives/stages when one exists for the date", async () => {
+    const res = await get("/api/artifacts/fixture-class/2026-08-05/lesson-spec.json");
+    const body = await res.text();
+    expect(body).toContain("Fixture objective one");
+    expect(body).toContain("Fixture differentiation notes.");
+  });
+
   it("rejects an unknown class before touching the filesystem", async () => {
     const res = await get("/api/artifacts/not-a-real-class/2026-08-05/lesson-spec.json");
     expect(res.status).toBe(400);
