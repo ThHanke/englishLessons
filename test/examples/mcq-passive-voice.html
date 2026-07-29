@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Passive Voice: Multiple Choice</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; color: #111; }
+  fieldset.question { border: 1px solid #ccc; border-radius: 0.4rem; margin-bottom: 1.5rem; padding: 1rem; }
+  legend { font-weight: bold; padding: 0 0.4rem; }
+  label.option { display: block; padding: 0.3rem 0.2rem; cursor: pointer; }
+  label.option:focus-within { outline: 2px solid #06c; }
+  label.option.selected { background: #eef4ff; }
+  label.option.correct { background: #d4f7d4; }
+  label.option.incorrect { background: #f7d4d4; }
+  .no-options { font-style: italic; color: #666; }
+  button.check { margin-top: 0.6rem; }
+  p.result { font-weight: bold; min-height: 1.2em; }
+  p.result.correct { color: #2a2; }
+  p.result.incorrect { color: #a22; }
+  p.result.unanswered { color: #666; }
+</style>
+</head>
+<body>
+<h1>Passive Voice: Multiple Choice</h1>
+
+    <fieldset class="question" data-question="0">
+      <legend>Which sentence is in the passive voice?</legend>
+      <div class="options">
+      <label class="option" for="q0o0">
+        <input type="radio" id="q0o0" name="q0" value="0">
+        <span>The dog chased the cat.</span>
+      </label>
+      <label class="option" for="q0o1">
+        <input type="radio" id="q0o1" name="q0" value="1">
+        <span>The cat was chased by the dog.</span>
+      </label>
+      <label class="option" for="q0o2">
+        <input type="radio" id="q0o2" name="q0" value="2">
+        <span>The dog is chasing the cat.</span>
+      </label></div>
+      <button type="button" class="check" data-question="0">Check</button>
+      <p class="result" data-result="0"></p>
+    </fieldset>
+    <fieldset class="question" data-question="1">
+      <legend>Choose the correct passive form: 'They built this house in 1990.'</legend>
+      <div class="options">
+      <label class="option" for="q1o0">
+        <input type="radio" id="q1o0" name="q1" value="0">
+        <span>This house built in 1990.</span>
+      </label>
+      <label class="option" for="q1o1">
+        <input type="radio" id="q1o1" name="q1" value="1">
+        <span>This house was built in 1990.</span>
+      </label>
+      <label class="option" for="q1o2">
+        <input type="radio" id="q1o2" name="q1" value="2">
+        <span>This house is building in 1990.</span>
+      </label></div>
+      <button type="button" class="check" data-question="1">Check</button>
+      <p class="result" data-result="1"></p>
+    </fieldset>
+    <fieldset class="question" data-question="2">
+      <legend>Which auxiliary verb forms the passive voice?</legend>
+      <div class="options">
+      <label class="option" for="q2o0">
+        <input type="radio" id="q2o0" name="q2" value="0">
+        <span>do</span>
+      </label>
+      <label class="option" for="q2o1">
+        <input type="radio" id="q2o1" name="q2" value="1">
+        <span>be</span>
+      </label>
+      <label class="option" for="q2o2">
+        <input type="radio" id="q2o2" name="q2" value="2">
+        <span>have</span>
+      </label></div>
+      <button type="button" class="check" data-question="2">Check</button>
+      <p class="result" data-result="2"></p>
+    </fieldset>
+<script>
+(function () {
+  var answers = [1,1,1];
+
+  document.querySelectorAll('input[type="radio"]').forEach(function (input) {
+    input.addEventListener('change', function () {
+      var name = input.getAttribute('name');
+      document.querySelectorAll('input[name="' + name + '"]').forEach(function (sibling) {
+        var label = sibling.closest('label');
+        if (label) label.classList.remove('selected', 'correct', 'incorrect');
+      });
+      var label = input.closest('label');
+      if (label) label.classList.add('selected');
+    });
+  });
+
+  document.querySelectorAll('button.check').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var qi = Number(btn.getAttribute('data-question'));
+      var fieldset = document.querySelector('fieldset[data-question="' + qi + '"]');
+      var resultEl = document.querySelector('[data-result="' + qi + '"]');
+      var selected = fieldset.querySelector('input[name="q' + qi + '"]:checked');
+      fieldset.querySelectorAll('label.option').forEach(function (label) {
+        label.classList.remove('selected', 'correct', 'incorrect');
+      });
+      if (!selected) {
+        resultEl.textContent = 'Unanswered';
+        resultEl.className = 'result unanswered';
+        return;
+      }
+      var idx = Number(selected.value);
+      var label = selected.closest('label');
+      if (idx === answers[qi]) {
+        resultEl.textContent = 'Correct';
+        resultEl.className = 'result correct';
+        if (label) label.classList.add('correct');
+      } else {
+        resultEl.textContent = 'Incorrect';
+        resultEl.className = 'result incorrect';
+        if (label) label.classList.add('incorrect');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

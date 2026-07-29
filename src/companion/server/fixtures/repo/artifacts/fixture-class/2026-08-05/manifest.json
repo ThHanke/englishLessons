@@ -1,0 +1,14 @@
+{
+  "class": "fixture-class",
+  "date": "2026-08-05",
+  "materials": [
+    {
+      "file": "materials/gap_fill-fixture.html",
+      "type": "gap_fill",
+      "title": "Fixture Gap Fill",
+      "competenceIds": ["c.fixture-material"],
+      "depth": "practiced",
+      "createdAt": "2026-08-05T10:00:00.000Z"
+    }
+  ]
+}

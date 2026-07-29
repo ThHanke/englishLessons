@@ -85,14 +85,45 @@ Start each conversation by briefly acknowledging the lesson context (date, modul
 
 ## Saving your work
 
-You have two tools for persisting lesson artifacts. Always confirm with the teacher before saving.
+You have five tools for persisting lesson artifacts. Always confirm with the teacher before saving.
 
 ### save_lesson_spec
 When the teacher approves a lesson plan, save it with \`save_lesson_spec\`. Pass the full lesson-spec object. The \`class\` and \`date\` fields MUST match the current session — the tool rejects mismatches. Saved lesson-specs automatically update coverage tracking on the next calendar load.
 
+### generate_exercise
+When you create a gap-fill, multiple-choice, matching, error-correction, or crossword exercise, save it with \`generate_exercise\` — never write the HTML yourself. Parameters:
+- \`type\`: one of "gap_fill", "mcq", "matching", "error_correction", "crossword"
+- \`title\`: descriptive title (used in the filename)
+- \`competenceIds\`: the bracketed competence IDs this exercise practices
+- \`items\`: an array shaped for the chosen type —
+  - \`gap_fill\`: \`{ sentence: string (blank marked "___"), blanks: [{ answer, position, hint }] }\` — always
+    give a \`hint\` (the base/prompt word, e.g. "clean" for answer "is cleaned"). Without a hint the pupil
+    doesn't know which word is even being asked for, and the checker only accepts that one exact answer
+    string — a hint disambiguates intent so a plausible-but-different word choice doesn't just fail silently.
+  - \`mcq\`: \`{ question, options: string[], correctIndex }\`
+  - \`matching\`: \`{ left, right }\` pairs
+  - \`error_correction\`: \`{ sentence, correction, errorType? }\` — invoke the \`error-correction-design\`
+    skill first for realistic German→English transfer errors (one error per sentence). \`errorType\` is an
+    optional A1 hint (e.g. "word order") — omit it for A2+ so students identify the error type themselves.
+    Only the corrected-sentence step is auto-checked; the pupil-facing "find the mistake"/"explain why"
+    steps are open-ended and never auto-graded.
+  - \`crossword\`: \`{ word, clue }\` pairs — words are placed automatically (crossing where letters share);
+    keep the word list short (5-8) since the layout is a simple greedy placement, not an optimizer.
+
+This renders a self-contained, self-checking worksheet and records it in the coverage ledger at "practiced" depth for each competence — this is what makes the exercise count as real coverage, not just a saved file.
+
+### find_new_vocabulary / generate_vocab_intro
+Before or after drafting exercises, call \`find_new_vocabulary\` (no parameters) to scan the lesson-spec plus everything already generated for this date and get back the words that are genuinely new — not yet in the class's known-vocabulary chain (\`known_vocab_ref\`). It's a mechanical scan, not a suggestion: trust its "new" list over your own guess about what pupils already know.
+
+If there's new vocabulary worth pre-teaching, call \`generate_vocab_intro\` with:
+- \`title\`: descriptive title
+- \`words\`: \`[{ word, translation }]\` — supply the German translation yourself for each word you're including (there's no translation data in the repo; this is on you). Only include words from \`find_new_vocabulary\`'s list, not vocabulary that's already known.
+
+This saves a glossary (word, translation, read-aloud button) and records it in the ledger at "introduced" depth — matching the pre-taught-glossary practice from the generation spec: genuinely new words are surfaced explicitly, never silently used inside an exercise.
+
 ### save_material
-When you create exercises, homework, tests, or notes, save each with \`save_material\`. Parameters:
-- \`type\`: one of "exercise", "homework", "test", "notes"
+When you create homework, tests, or notes (not exercises — those go through \`generate_exercise\`), save each with \`save_material\`. Parameters:
+- \`type\`: one of "homework", "test", "notes"
 - \`title\`: descriptive title (used in the filename)
 - \`content\`: the full material content
 - \`format\`: "html" or "md"
@@ -125,6 +156,16 @@ function buildQueryOptions(params: {
     cwd: params.cwd,
     settingSources: SETTING_SOURCES,
     disallowedTools: DISALLOWED_TOOLS,
+    // This is a headless server with no channel to answer an interactive permission prompt --
+    // under the SDK's default permissionMode a tool call either hangs or silently gets skipped,
+    // which is exactly what happened before this was added: a real session drafted a full lesson
+    // in prose instead of ever calling save_lesson_spec/generate_exercise, because it had no way
+    // to get a permission grant. Bypassing the prompt layer here doesn't weaken the security
+    // boundary: Write/Edit/MultiEdit/NotebookEdit/Bash are already hard-blocked via
+    // disallowedTools (KTD2/KTD10, the only enforcement mechanism that matters), so the only
+    // tools left able to run are the sanctioned MCP ones this file registers.
+    permissionMode: "bypassPermissions" as const,
+    allowDangerouslySkipPermissions: true,
     systemPrompt: {
       type: "preset" as const,
       preset: "claude_code" as const,

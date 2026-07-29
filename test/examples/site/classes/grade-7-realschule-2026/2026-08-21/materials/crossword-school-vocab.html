@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>School Life Crossword</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
+  .grid { display: grid; grid-template-columns: repeat(9, 2rem); gap: 1px; margin-bottom: 1.5rem; }
+  .cell { position: relative; width: 2rem; height: 2rem; }
+  .cell.blocked { background: transparent; }
+  .cell.filled input { width: 100%; height: 100%; box-sizing: border-box; text-align: center; text-transform: uppercase;
+    border: 1px solid #888; padding: 0; font-size: 1rem; }
+  .cell.filled input.correct { background: #d4f7d4; border-color: #2a2; }
+  .cell.filled input.incorrect { background: #f7d4d4; border-color: #a22; }
+  .cell-number { position: absolute; top: 0; left: 2px; font-size: 0.6rem; color: #444; pointer-events: none; }
+  .clues { display: flex; gap: 2rem; }
+  .clues ul { padding-left: 1.2rem; }
+  button { margin-top: 1rem; }
+  p#result { font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>School Life Crossword</h1>
+<div class="grid"><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><span class="cell-number">1</span><input type="text" maxlength="1" data-row="0" data-col="2" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="1" data-col="2" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><span class="cell-number">2</span><input type="text" maxlength="1" data-row="2" data-col="0" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="2" data-col="1" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="2" data-col="2" autocomplete="off"></div><div class="cell filled"><span class="cell-number">3</span><input type="text" maxlength="1" data-row="2" data-col="3" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="2" data-col="4" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="2" data-col="5" autocomplete="off"></div><div class="cell filled"><span class="cell-number">4</span><input type="text" maxlength="1" data-row="2" data-col="6" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="2" data-col="7" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="2" data-col="8" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="3" data-col="2" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="3" data-col="3" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="3" data-col="6" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="4" data-col="2" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="4" data-col="3" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="4" data-col="6" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="5" data-col="2" autocomplete="off"></div><div class="cell filled"><input type="text" maxlength="1" data-row="5" data-col="3" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="5" data-col="6" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="6" data-col="2" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="6" data-col="6" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell filled"><input type="text" maxlength="1" data-row="7" data-col="2" autocomplete="off"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div><div class="cell blocked"></div></div>
+<div class="clues">
+  <div><h2>Across</h2><ul><li>2. Shows when each lesson happens (Stundenplan)</li></ul></div>
+  <div><h2>Down</h2><ul><li>1. Work done at home for school</li>
+<li>3. A formal test</li>
+<li>4. A short pause between lessons</li></ul></div>
+</div>
+<button type="button" id="check">Check</button>
+<p id="result"></p>
+<script>
+(function () {
+  var solution = {"2,0":"T","2,1":"I","2,2":"M","2,3":"E","2,4":"T","2,5":"A","2,6":"B","2,7":"L","2,8":"E","0,2":"H","1,2":"O","3,2":"E","4,2":"W","5,2":"O","6,2":"R","7,2":"K","3,6":"R","4,6":"E","5,6":"A","6,6":"K","3,3":"X","4,3":"A","5,3":"M"};
+  document.getElementById('check').addEventListener('click', function () {
+    var inputs = document.querySelectorAll('input[data-row]');
+    var correctCount = 0;
+    inputs.forEach(function (input) {
+      var key = input.getAttribute('data-row') + ',' + input.getAttribute('data-col');
+      var value = input.value.trim().toUpperCase();
+      input.classList.remove('correct', 'incorrect');
+      if (value.length === 0) return;
+      if (value === solution[key]) {
+        input.classList.add('correct');
+        correctCount++;
+      } else {
+        input.classList.add('incorrect');
+      }
+    });
+    document.getElementById('result').textContent = correctCount + ' / ' + inputs.length + ' correct';
+  });
+})();
+</script>
+</body>
+</html>

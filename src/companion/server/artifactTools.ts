@@ -1,4 +1,4 @@
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod/v4";
 import {
@@ -6,6 +6,15 @@ import {
   tool,
 } from "@anthropic-ai/claude-agent-sdk";
 import type { McpSdkServerConfigWithInstance } from "@anthropic-ai/claude-agent-sdk";
+import { renderGapFillHtml, type GapFillItem } from "../../widgets/gapFill.ts";
+import { renderMcqHtml, type McqItem } from "../../widgets/mcq.ts";
+import { renderMatchingHtml, type MatchingPair } from "../../widgets/matching.ts";
+import { renderErrorCorrectionHtml, type ErrorCorrectionItem } from "../../widgets/errorCorrection.ts";
+import { renderCrosswordHtml, type CrosswordItem } from "../../widgets/crossword.ts";
+import { renderVocabIntroHtml } from "../../widgets/vocabIntro.ts";
+import type { LessonSpec } from "../../schema/types.ts";
+import { resolveKnownVocabulary } from "../../vocab/resolveKnownVocabulary.ts";
+import { findNewVocabulary } from "../../vocab/findNewVocabulary.ts";
 
 const LessonSpecSchema = {
   class: z.string(),
@@ -48,12 +57,112 @@ const LessonSpecSchema = {
   curriculum_ref: z.string(),
 };
 
-const MaterialSchema = {
-  type: z.enum(["exercise", "homework", "test", "notes"]),
+export const MaterialSchema = {
+  type: z.enum(["homework", "test", "notes"]),
   title: z.string(),
   content: z.string(),
   format: z.enum(["md", "html"]),
 };
+
+const GapFillItemSchema = z.object({
+  sentence: z.string(),
+  blanks: z.array(
+    z.object({ answer: z.string(), position: z.number().int(), hint: z.string().optional() }),
+  ),
+});
+
+const McqItemSchema = z.object({
+  question: z.string(),
+  options: z.array(z.string()),
+  correctIndex: z.number().int(),
+});
+
+const MatchingPairSchema = z.object({
+  left: z.string(),
+  right: z.string(),
+});
+
+const ErrorCorrectionItemSchema = z.object({
+  sentence: z.string(),
+  correction: z.string(),
+  errorType: z.string().optional(),
+});
+
+const CrosswordItemSchema = z.object({
+  word: z.string(),
+  clue: z.string(),
+});
+
+/** Per-type `items` shapes, keyed by `GenerateExerciseSchema.type` -- validated a level down from
+ * the outer schema so a `gap_fill` request can't smuggle `mcq`-shaped items (KTD1). */
+const ITEMS_SCHEMA_BY_TYPE = {
+  gap_fill: z.array(GapFillItemSchema),
+  mcq: z.array(McqItemSchema),
+  matching: z.array(MatchingPairSchema),
+  error_correction: z.array(ErrorCorrectionItemSchema),
+  crossword: z.array(CrosswordItemSchema),
+} as const;
+
+const GenerateExerciseSchema = {
+  type: z.enum(["gap_fill", "mcq", "matching", "error_correction", "crossword"]),
+  title: z.string(),
+  competenceIds: z.array(z.string()),
+  items: z.array(z.unknown()),
+};
+
+const GenerateVocabIntroSchema = {
+  title: z.string(),
+  words: z.array(z.object({ word: z.string(), translation: z.string() })),
+};
+
+/** Plain-English strings authored for a material, extracted from the already-validated
+ * (Zod-parsed) items generate_exercise has in hand -- deliberately not scraped back out of the
+ * rendered HTML, which is full of instructional/UI chrome text (button labels, prompts) that
+ * would pollute vocabulary scanning. Consumed by find_new_vocabulary. */
+function extractContentText(type: string, items: unknown[]): string[] {
+  if (type === "gap_fill") {
+    return (items as GapFillItem[]).flatMap((it) => [
+      it.sentence,
+      ...it.blanks.map((b) => b.answer),
+      ...it.blanks.filter((b) => b.hint).map((b) => b.hint!),
+    ]);
+  }
+  if (type === "mcq") {
+    return (items as McqItem[]).flatMap((it) => [it.question, ...it.options]);
+  }
+  if (type === "matching") {
+    return (items as MatchingPair[]).flatMap((it) => [it.left, it.right]);
+  }
+  if (type === "error_correction") {
+    return (items as ErrorCorrectionItem[]).flatMap((it) => [it.sentence, it.correction]);
+  }
+  return (items as CrosswordItem[]).flatMap((it) => [it.word, it.clue]);
+}
+
+interface ManifestEntry {
+  file: string;
+  type: string;
+  title: string;
+  competenceIds: string[];
+  depth: string;
+  createdAt: string;
+  /** Plain-text content this material was authored from -- find_new_vocabulary's scanning
+   * source. Absent on entries written before this field existed. */
+  contentText?: string[];
+}
+
+interface Manifest {
+  class: string;
+  date: string;
+  materials: ManifestEntry[];
+}
+
+function readManifest(manifestPath: string, classId: string, date: string): Manifest {
+  if (!existsSync(manifestPath)) {
+    return { class: classId, date, materials: [] };
+  }
+  return JSON.parse(readFileSync(manifestPath, "utf-8")) as Manifest;
+}
 
 function slugify(text: string): string {
   return text
@@ -147,6 +256,190 @@ export function createLessonArtifactServer(params: {
           const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
           return {
             content: [{ type: "text", text: `Saved material to ${relPath}` }],
+          };
+        },
+      ),
+      tool(
+        "generate_exercise",
+        "Generate a typed exercise widget (gap_fill, mcq, matching, error_correction, or crossword) for specific competences and save it as a self-contained, self-checking worksheet.",
+        GenerateExerciseSchema,
+        async (args) => {
+          const slug = slugify(args.title);
+          if (!slug) {
+            return {
+              content: [
+                { type: "text", text: "Rejected: title produces an empty slug." },
+              ],
+              isError: true,
+            };
+          }
+
+          const itemsSchema = ITEMS_SCHEMA_BY_TYPE[args.type];
+          const parsedItems = itemsSchema.safeParse(args.items);
+          if (!parsedItems.success) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Rejected: 'items' doesn't match the shape expected for type "${args.type}": ${parsedItems.error.message}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+
+          let html: string;
+          if (args.type === "gap_fill") {
+            html = renderGapFillHtml(args.title, parsedItems.data as GapFillItem[]);
+          } else if (args.type === "mcq") {
+            html = renderMcqHtml(args.title, parsedItems.data as McqItem[]);
+          } else if (args.type === "matching") {
+            html = renderMatchingHtml(args.title, parsedItems.data as MatchingPair[]);
+          } else if (args.type === "error_correction") {
+            html = renderErrorCorrectionHtml(args.title, parsedItems.data as ErrorCorrectionItem[]);
+          } else {
+            html = renderCrosswordHtml(args.title, parsedItems.data as CrosswordItem[]);
+          }
+
+          const materialsDir = join(baseDir, "materials");
+          mkdirSync(materialsDir, { recursive: true });
+          const fileName = `${args.type}-${slug}.html`;
+          const filePath = join(materialsDir, fileName);
+          atomicWriteFileSync(filePath, html);
+
+          mkdirSync(baseDir, { recursive: true });
+          const manifestPath = join(baseDir, "manifest.json");
+          const manifest = readManifest(manifestPath, classId, date);
+          manifest.materials.push({
+            file: `materials/${fileName}`,
+            type: args.type,
+            title: args.title,
+            competenceIds: args.competenceIds,
+            // KTD3: exercise generation always records 'practiced' for now -- the escalation to
+            // 'assessed' depends on the not-yet-built klassenarbeit skill/test context.
+            depth: "practiced",
+            contentText: extractContentText(args.type, parsedItems.data),
+            createdAt: new Date().toISOString(),
+          });
+          atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+          const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
+          return {
+            content: [{ type: "text", text: `Saved ${args.type} exercise to ${relPath}` }],
+          };
+        },
+      ),
+      tool(
+        "find_new_vocabulary",
+        "Scans this lesson's lesson-spec and any already-generated materials for vocabulary used, and reports which words are genuinely new (not yet in the class's known-vocabulary chain). Call this before generate_vocab_intro so you know which words need a translation.",
+        {},
+        async () => {
+          const specPath = join(baseDir, "lesson-spec.json");
+          if (!existsSync(specPath)) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: "No lesson-spec.json saved yet for this date -- save one first (it carries known_vocab_ref, needed to know what's already known).",
+                },
+              ],
+              isError: true,
+            };
+          }
+          const spec = JSON.parse(readFileSync(specPath, "utf-8")) as LessonSpec;
+
+          const texts: string[] = [
+            spec.module.title,
+            spec.content_field.text,
+            ...spec.focus_competences.map((fc) => fc.topic),
+          ];
+
+          const manifestPath = join(baseDir, "manifest.json");
+          if (existsSync(manifestPath)) {
+            const manifest = readManifest(manifestPath, classId, date);
+            for (const entry of manifest.materials) {
+              if (entry.contentText) texts.push(...entry.contentText);
+            }
+          }
+
+          let known: Set<string>;
+          try {
+            known = resolveKnownVocabulary(spec.known_vocab_ref, repoRoot);
+          } catch (err) {
+            return {
+              content: [{ type: "text", text: `Could not resolve known vocabulary: ${(err as Error).message}` }],
+              isError: true,
+            };
+          }
+
+          const newWords = findNewVocabulary({ texts, known });
+          if (newWords.length === 0) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: "No new vocabulary found -- everything scanned in this lesson is already in the known-vocabulary chain.",
+                },
+              ],
+            };
+          }
+          return {
+            content: [
+              {
+                type: "text",
+                text: `New vocabulary found (${newWords.length}): ${newWords.join(", ")}. Provide a German translation for each you want to pre-teach, then call generate_vocab_intro.`,
+              },
+            ],
+          };
+        },
+      ),
+      tool(
+        "generate_vocab_intro",
+        "Save a pre-taught vocabulary glossary (word + German translation + read-aloud button) for genuinely new words in this lesson. Call find_new_vocabulary first to identify which words to include.",
+        GenerateVocabIntroSchema,
+        async (args) => {
+          const slug = slugify(args.title);
+          if (!slug) {
+            return {
+              content: [{ type: "text", text: "Rejected: title produces an empty slug." }],
+              isError: true,
+            };
+          }
+
+          const html = renderVocabIntroHtml(args.title, args.words);
+
+          const materialsDir = join(baseDir, "materials");
+          mkdirSync(materialsDir, { recursive: true });
+          const fileName = `vocab_intro-${slug}.html`;
+          const filePath = join(materialsDir, fileName);
+          atomicWriteFileSync(filePath, html);
+
+          let competenceIds: string[] = [];
+          const specPath = join(baseDir, "lesson-spec.json");
+          if (existsSync(specPath)) {
+            const spec = JSON.parse(readFileSync(specPath, "utf-8")) as LessonSpec;
+            competenceIds = spec.focus_competences.map((fc) => fc.id);
+          }
+
+          mkdirSync(baseDir, { recursive: true });
+          const manifestPath = join(baseDir, "manifest.json");
+          const manifest = readManifest(manifestPath, classId, date);
+          manifest.materials.push({
+            file: `materials/${fileName}`,
+            type: "vocab_intro",
+            title: args.title,
+            competenceIds,
+            // Pre-teaching a glossary introduces vocabulary but doesn't practice/assess it --
+            // 'introduced' is the correct depth here, distinct from generate_exercise's 'practiced'.
+            depth: "introduced",
+            contentText: args.words.map((w) => `${w.word} ${w.translation}`),
+            createdAt: new Date().toISOString(),
+          });
+          atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+          const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
+          return {
+            content: [{ type: "text", text: `Saved vocabulary introduction to ${relPath}` }],
           };
         },
       ),

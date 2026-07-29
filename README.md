@@ -39,6 +39,11 @@ at a Sachsen-Anhalt Sekundarschule (grades 5–7).
    ```
    Open <http://localhost:5199> in your browser.
 
+4. Enable GitHub Pages (one-time, per repo): in the GitHub repo's
+   **Settings → Pages**, set **Source** to **GitHub Actions**. No workflow file
+   can flip this setting itself — it's a one-time manual step before the first
+   `git push` will actually deploy anything.
+
 ## How it works
 
 ### 1. Set up your lesson schedule
@@ -76,8 +81,11 @@ git add .
 git commit -m "lesson for 7a 2026-01-14"
 git push
 ```
-GitHub Pages serves them at stable per-date URLs. The files also work offline
-(`file://`) and print cleanly.
+The push triggers the `pages.yml` Actions workflow, which builds `site/` (via
+`npm run build:site`) and deploys it to GitHub Pages — watch progress under the
+repo's **Actions** tab. Once deployed, Pages serves each lesson at a stable
+`/classes/<class>/<date>/` URL. The files also work offline (`file://`, e.g. from the
+companion's local artifact preview) and print cleanly.
 
 ### Module progress
 
