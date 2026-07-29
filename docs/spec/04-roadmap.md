@@ -91,8 +91,9 @@ own checkboxes (several were stale).
   each generated material plus the rendered lesson-spec preview instead of a static
   "· planned" label. Remaining manual step: the repo's Settings → Pages → Source switch
   to "GitHub Actions" (documented in README, can't be automated by a workflow file).
-- **Phase 3 (generation pipeline G + first 3 exercise skills H) — DONE** (2026-07-28
-  plan) for the full decided first-build set. A typed `generate_exercise` MCP tool
+- **Phase 3 (generation pipeline G + first 3 exercise skills H) — DONE** (2026-07-28/29
+  plans) for the full decided first-build set, including the §4.2 step 1 lesson-plan
+  body that was originally deferred. A typed `generate_exercise` MCP tool
   (`src/companion/server/artifactTools.ts`) dispatches to all five widget renderers
   (`src/widgets/{gapFill,mcq,matching,errorCorrection,crossword}.ts`), writes
   self-contained HTML under `materials/`, and appends a `manifest.json` entry (the
@@ -100,7 +101,15 @@ own checkboxes (several were stale).
   `'exercise'` so the old free-form bypass is closed. `crossword` is hand-rolled
   (no verified-MIT layout lib was found); `error_correction` follows the
   `error-correction-design` skill's find→explain→correct scaffold, auto-checking
-  only the final corrected-sentence step.
+  only the final corrected-sentence step. A `save_lesson_plan` tool persists the
+  structured plan body (objectives, timed stages, differentiation notes, planned
+  exercises) to `lesson-plan.json`, distinct from `lesson-spec.json`'s pre-generation
+  constraints; both `renderLessonPage.ts` and `renderInlineLessonPage.ts` render it.
+  A `find_new_vocabulary` / `generate_vocab_intro` pair scans a lesson's spec +
+  generated materials against the class's cumulative known-vocabulary chain
+  (`src/vocab/resolveKnownVocabulary.ts`) and saves a pre-taught glossary (word,
+  translation, browser-native read-aloud) for genuinely new words — the "pre-taught
+  glossary" §4.2 step 1 calls for, not vocabulary silently used inside a task.
 - **Phase 3.5 (coverage loop closes) — DONE** for exercise-generation coverage.
   `buildLedger.ts` now folds both `lesson-spec.json` (capped at `introduced` — a plan,
   not confirmed delivery) and `manifest.json` (real generated materials, `practiced`)

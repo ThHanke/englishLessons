@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { LessonSpec } from "../schema/types.ts";
-import { renderLessonPage, type Manifest } from "./renderLessonPage.ts";
+import { renderLessonPage, type LessonPlan, type Manifest } from "./renderLessonPage.ts";
 
 function lessonSpec(overrides: Partial<LessonSpec> = {}): LessonSpec {
   return {
@@ -89,5 +89,45 @@ describe("renderLessonPage", () => {
 
     expect(html).not.toContain("<script>alert");
     expect(html).toContain("&lt;script&gt;");
+  });
+
+  it('renders a "no detailed lesson plan saved" note when plan is absent', () => {
+    const html = renderLessonPage({ spec: lessonSpec(), manifest: null, plan: null, materialFiles: [] });
+    expect(html).toContain("No detailed lesson plan saved for this date yet.");
+    expect(html).not.toContain("<h3>Objectives</h3>");
+  });
+
+  it("renders objectives, stages (with duration), differentiation notes, and the exercise plan when present", () => {
+    const plan: LessonPlan = {
+      objectives: ["Identify active vs passive voice"],
+      stages: [{ name: "Warm-up", durationMinutes: 9, description: "Retrieval practice" }],
+      differentiationNotes: "Band 1 gets a full word bank.",
+      exercisePlan: ["gap_fill: 6 sentences, supported"],
+    };
+    const html = renderLessonPage({ spec: lessonSpec(), manifest: null, plan, materialFiles: [] });
+
+    expect(html).toContain("Identify active vs passive voice");
+    expect(html).toContain("Warm-up");
+    expect(html).toContain("9 min");
+    expect(html).toContain("Retrieval practice");
+    expect(html).toContain("Band 1 gets a full word bank.");
+    expect(html).toContain("gap_fill: 6 sentences, supported");
+    expect(html).not.toContain("No detailed lesson plan saved");
+  });
+
+  it("escapes HTML in plan fields", () => {
+    const plan: LessonPlan = {
+      objectives: ['<script>alert("x")</script>'],
+      stages: [{ name: "<b>Warm-up</b>", durationMinutes: 5, description: "<i>desc</i>" }],
+      differentiationNotes: "<u>notes</u>",
+      exercisePlan: ["<em>plan</em>"],
+    };
+    const html = renderLessonPage({ spec: lessonSpec(), manifest: null, plan, materialFiles: [] });
+
+    expect(html).not.toContain("<script>alert");
+    expect(html).not.toContain("<b>Warm-up</b>");
+    expect(html).not.toContain("<i>desc</i>");
+    expect(html).not.toContain("<u>notes</u>");
+    expect(html).not.toContain("<em>plan</em>");
   });
 });

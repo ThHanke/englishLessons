@@ -12,7 +12,7 @@ import { basename, dirname, join } from "node:path";
 import { loadYaml } from "../schema/yaml.ts";
 import type { ClassFile, LessonSpec } from "../schema/types.ts";
 import { walkLessonSpecFiles } from "../companion/server/buildLedger.ts";
-import { renderLessonPage, type Manifest } from "./renderLessonPage.ts";
+import { renderLessonPage, type LessonPlan, type Manifest } from "./renderLessonPage.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../", import.meta.url).pathname;
 
@@ -124,6 +124,11 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
         ? (JSON.parse(readFileSync(manifestPath, "utf-8")) as Manifest)
         : null;
 
+      const planPath = join(specDir, "lesson-plan.json");
+      const plan: LessonPlan | null = existsSync(planPath)
+        ? (JSON.parse(readFileSync(planPath, "utf-8")) as LessonPlan)
+        : null;
+
       const materialsSrcDir = join(specDir, "materials");
       const materialFiles = existsSync(materialsSrcDir)
         ? readdirSync(materialsSrcDir)
@@ -141,7 +146,7 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
 
       writeFileSync(
         join(lessonDir, "index.html"),
-        renderLessonPage({ spec, manifest, materialFiles }),
+        renderLessonPage({ spec, manifest, plan, materialFiles }),
       );
     }
 

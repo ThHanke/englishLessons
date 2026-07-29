@@ -21,7 +21,7 @@ import { join } from "node:path";
 import { runAgentTurnStream } from "../../src/companion/server/agentSession.ts";
 import { renderInlineLessonPage } from "../../src/publish/renderInlineLessonPage.ts";
 import type { LessonSpec } from "../../src/schema/types.ts";
-import type { Manifest } from "../../src/publish/renderLessonPage.ts";
+import type { LessonPlan, Manifest } from "../../src/publish/renderLessonPage.ts";
 import type { SDKMessage, SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 
 interface ContentBlock {
@@ -104,12 +104,14 @@ const instructions = [
     "this conversation. Make every decision yourself and proceed directly through drafting AND " +
     "saving every artifact -- do not pause to ask for confirmation at any step.",
   "",
-  `1. Draft a full 45-minute lesson plan and save it with save_lesson_spec (class must be exactly "${classId}", date exactly "${date}").`,
-  "2. Create a well-rounded set of exercises with generate_exercise to practice the focus " +
+  `1. Save the lesson-spec constraints with save_lesson_spec (class must be exactly "${classId}", date exactly "${date}").`,
+  "2. Draft the full 45-minute pedagogical plan (objectives, timed stages, differentiation " +
+    "notes, planned exercises) and save it with save_lesson_plan.",
+  "3. Create a well-rounded set of exercises with generate_exercise to practice the focus " +
     "competences -- decide the types, count, and content yourself, invoking whichever " +
     "pedagogical skills you'd normally use (eal-scaffold, difficulty-progression, " +
     "error-correction-design, etc.).",
-  "3. Call find_new_vocabulary, and if it finds anything worth pre-teaching, call " +
+  "4. Call find_new_vocabulary, and if it finds anything worth pre-teaching, call " +
     "generate_vocab_intro with your own German translations.",
   "",
   "Proceed end to end now.",
@@ -160,6 +162,11 @@ const manifest: Manifest | null = existsSync(manifestPath)
   ? (JSON.parse(readFileSync(manifestPath, "utf-8")) as Manifest)
   : null;
 
+const planPath = join(artifactsDir, "lesson-plan.json");
+const plan: LessonPlan | null = existsSync(planPath)
+  ? (JSON.parse(readFileSync(planPath, "utf-8")) as LessonPlan)
+  : null;
+
 const materialsDir = join(artifactsDir, "materials");
 const materials = existsSync(materialsDir)
   ? readdirSync(materialsDir)
@@ -168,7 +175,7 @@ const materials = existsSync(materialsDir)
       .map((file) => ({ file, html: readFileSync(join(materialsDir, file), "utf-8") }))
   : [];
 
-const inlineHtml = renderInlineLessonPage({ spec, manifest, materials });
+const inlineHtml = renderInlineLessonPage({ spec, manifest, plan, materials });
 writeFileSync(join(outDir, "full-lesson-plan-autonomous.html"), inlineHtml);
 
 // Also keep the raw, unprocessed session output for transparency/inspection.
@@ -176,6 +183,7 @@ const rawDir = join(outDir, "autonomous-session-raw");
 rmSync(rawDir, { recursive: true, force: true });
 mkdirSync(rawDir, { recursive: true });
 writeFileSync(join(rawDir, "lesson-spec.json"), JSON.stringify(spec, null, 2));
+if (plan) writeFileSync(join(rawDir, "lesson-plan.json"), JSON.stringify(plan, null, 2));
 if (manifest) writeFileSync(join(rawDir, "manifest.json"), JSON.stringify(manifest, null, 2));
 if (materials.length > 0) {
   mkdirSync(join(rawDir, "materials"), { recursive: true });

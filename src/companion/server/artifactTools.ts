@@ -57,6 +57,25 @@ const LessonSpecSchema = {
   curriculum_ref: z.string(),
 };
 
+/** §4.2 step 1's structured plan body -- objectives/timed stages/differentiation notes/planned
+ * exercises -- distinct from LessonSpecSchema (the pre-generation constraints the plan is built
+ * from) and from the actual generate_exercise calls (the plan's exercisePlan entries are a plain
+ * description of intent, not the typed items generate_exercise itself validates). */
+const LessonPlanSchema = {
+  class: z.string(),
+  date: z.string(),
+  objectives: z.array(z.string()),
+  stages: z.array(
+    z.object({
+      name: z.string(),
+      durationMinutes: z.number().int().positive(),
+      description: z.string(),
+    }),
+  ),
+  differentiationNotes: z.string(),
+  exercisePlan: z.array(z.string()),
+};
+
 export const MaterialSchema = {
   type: z.enum(["homework", "test", "notes"]),
   title: z.string(),
@@ -226,6 +245,48 @@ export function createLessonArtifactServer(params: {
               {
                 type: "text",
                 text: `Saved lesson-spec to artifacts/${classId}/${date}/lesson-spec.json`,
+              },
+            ],
+          };
+        },
+      ),
+      tool(
+        "save_lesson_plan",
+        "Save the structured lesson-plan body (objectives, timed stages, differentiation notes, and the list of exercises you plan to build) for the current lesson -- this is what renders as the teacher-facing lesson-plan page, separate from the lesson-spec constraints. The 'class' and 'date' fields MUST match the current session.",
+        LessonPlanSchema,
+        async (args) => {
+          if (args.class !== classId) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Rejected: 'class' must be "${classId}" but got "${args.class}".`,
+                },
+              ],
+              isError: true,
+            };
+          }
+          if (args.date !== date) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Rejected: 'date' must be "${date}" but got "${args.date}".`,
+                },
+              ],
+              isError: true,
+            };
+          }
+
+          mkdirSync(baseDir, { recursive: true });
+          const filePath = join(baseDir, "lesson-plan.json");
+          atomicWriteFileSync(filePath, JSON.stringify(args, null, 2));
+
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Saved lesson plan to artifacts/${classId}/${date}/lesson-plan.json`,
               },
             ],
           };

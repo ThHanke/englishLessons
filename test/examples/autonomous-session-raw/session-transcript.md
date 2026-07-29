@@ -16,18 +16,34 @@ Upcoming milestone: test in 20 lessons, assesses: active and passive voice [fk.g
 
 This is a fully autonomous lesson-planning session: the teacher will not respond further in this conversation. Make every decision yourself and proceed directly through drafting AND saving every artifact -- do not pause to ask for confirmation at any step.
 
-1. Draft a full 45-minute lesson plan and save it with save_lesson_spec (class must be exactly "grade-7-realschule-2026", date exactly "2099-01-01").
-2. Create a well-rounded set of exercises with generate_exercise to practice the focus competences -- decide the types, count, and content yourself, invoking whichever pedagogical skills you'd normally use (eal-scaffold, difficulty-progression, error-correction-design, etc.).
-3. Call find_new_vocabulary, and if it finds anything worth pre-teaching, call generate_vocab_intro with your own German translations.
+1. Save the lesson-spec constraints with save_lesson_spec (class must be exactly "grade-7-realschule-2026", date exactly "2099-01-01").
+2. Draft the full 45-minute pedagogical plan (objectives, timed stages, differentiation notes, planned exercises) and save it with save_lesson_plan.
+3. Create a well-rounded set of exercises with generate_exercise to practice the focus competences -- decide the types, count, and content yourself, invoking whichever pedagogical skills you'd normally use (eal-scaffold, difficulty-progression, error-correction-design, etc.).
+4. Call find_new_vocabulary, and if it finds anything worth pre-teaching, call generate_vocab_intro with your own German translations.
 
 Proceed end to end now.
 ```
 
 ## Conversation
 
+### Tool call: `ToolSearch`
+
+```json
+{
+  "query": "select:mcp__companion-artifacts__save_lesson_plan",
+  "max_results": 1
+}
+```
+
+### Tool result
+
+```
+{"type":"tool_reference","tool_name":"mcp__companion-artifacts__save_lesson_plan"}
+```
+
 ### Assistant
 
-All skills loaded, content drafted. Firing all in parallel.
+All schemas loaded, all content drafted. Firing spec + plan + 4 exercises in parallel.
 
 ### Tool call: `mcp__companion-artifacts__save_lesson_spec`
 
@@ -96,6 +112,66 @@ All skills loaded, content drafted. Firing all in parallel.
 
 ```
 Saved lesson-spec to artifacts/grade-7-realschule-2026/2099-01-01/lesson-spec.json
+```
+
+### Tool call: `mcp__companion-artifacts__save_lesson_plan`
+
+```json
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2099-01-01",
+  "objectives": [
+    "Identify passive voice constructions (be + past participle) in a dialog about school and media",
+    "Explain the passive voice pattern and contrast it with active voice using the board reference",
+    "Produce present simple and past simple passive sentences about school, media, and leisure topics",
+    "Correct passive voice errors caused by common German L1 transfer patterns (wrong auxiliary, base form, number agreement, irregular participle)"
+  ],
+  "stages": [
+    {
+      "name": "Opening: Retrieval + Bridge + I can",
+      "durationMinutes": 9,
+      "description": "Part 1 — Retrieval warm-up (5 min): Quick fire (whole class, oral): Q1 — show 'The teacher explains the rule' — who does the action? Q2 — which sentence focuses on action not doer: 'Students read the newspaper' vs 'The newspaper is read by students'? Q3 — complete 'The rule ___ (explain) by the teacher.' Think-write (2 min): pupils write in German or English the difference between 'She writes the letter' and 'The letter is written by her'. Partner swap and check (1 min). Part 2 — Prior knowledge bridge (2 min): 'In German you know Passiv: Das Buch wird gelesen. English works the same way but uses to be, not werden. Today we build this in English using school and media topics.' Flag false friend explicitly: wird does NOT become becomes in English — it becomes is/are. Part 3 — I can (1 min): Write on board and leave visible all lesson: I can identify active and passive sentences, and write passive sentences about school and media topics."
+    },
+    {
+      "name": "Input: Dialog — passive voice in context",
+      "durationMinutes": 10,
+      "description": "Present dialog on board (Mia and Tom discuss school and media): Tom: Did you know that English is taught in all schools in Germany from Grade 5? Mia: Really? Is it also tested every year? Tom: Yes! And our school newspaper is written by the older students. Mia: I read it last week. A good article was published about our new media class. Tom: In media class, we learn how advertisements are used to sell products. Mia: I know! This documentary was made by a local film company. Tom: Who produced it? Mia: It was produced by students from Grade 9! Procedure: (1) Pupils read silently 2 min. (2) Teacher reads aloud; pupils underline every be + past participle form 2 min. (3) Teacher writes pattern on board — stays all lesson: PASSIVE = Subject + be (is/are/was/were) + past participle [+ by + agent] — 2 min. (4) Comparison table on board: Active: Students write the newspaper / Passive: The newspaper is written by students. Active: A company made the film / Passive: The film was made by a company. (5) Pupils copy pattern and table into exercise book 2 min. Register note: by + agent is often omitted when doer is obvious or unknown — e.g. English is taught in all schools needs no by teachers."
+    },
+    {
+      "name": "Exercise 1: Gap Fill (Band 1 — Supported)",
+      "durationMinutes": 10,
+      "description": "Pupils complete 6 passive sentences about school and media. Full word bank provided (is made, is taught, is written, are shown, are used, was produced). Each sentence has a base-verb hint in brackets. Board pattern visible. Procedure: individual work 5 min, partner check 3 min, class reveal 2 min. First item modelled by teacher before pupils work independently."
+    },
+    {
+      "name": "Exercises 2+3: MCQ + Matching (Band 2 — Guided)",
+      "durationMinutes": 10,
+      "description": "MCQ (5 min): 5 items requiring pupils to choose correct active or passive form. No word bank — applies rule without support. Two items labelled [active sentence] so pupils practice both directions. Matching (5 min): match 5 active sentences to passive equivalents — reinforces active-to-passive transformation pattern. Board pattern still visible; no word bank. Pupils work individually, then swap to check."
+    },
+    {
+      "name": "Exercise 4: Error Correction (Band 3 — Independent)",
+      "durationMinutes": 5,
+      "description": "5 sentences each containing exactly one realistic German L1 transfer error: base form instead of past participle (is do), number agreement (English are taught), wird-becomes false friend (becomes produced), irregular participle (was wrote), dropped -d (are use). No error-type hints — B1 pupils identify error type themselves. Pupils: (1) underline mistake, (2) explain why wrong, (3) write correct sentence. Individual work 3 min, then teacher discusses the two most revealing errors whole-class 2 min — especially the becomes/is error as it targets the core German transfer risk."
+    },
+    {
+      "name": "Exit Ticket",
+      "durationMinutes": 1,
+      "description": "Oral round: each pupil says one thing that IS DONE at school using passive voice. If time, pupils write sentence on sticky note and post on door. Teacher scans notes to gauge readiness for Band 2 practice next lesson."
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: board pattern (Subject + be + past participle) stays visible all lesson — do not erase; first gap-fill item modelled by teacher before independent work; word bank in Exercise 1 covers all answers so no production required at Band 1. If struggling with MCQ, allow reference to board pattern. Stronger pupils: if warm-up Q3 shows confident passive production, skip Exercise 1 and start at Exercise 2; extension task after error correction — write 3 original passive sentences about your school without frames; in error correction, also write the German sentence that causes each mistake, to deepen metalinguistic awareness. Mixed-ability pair work during gap-fill check and matching allows peer explanation without teacher bottleneck.",
+  "exercisePlan": [
+    "gap_fill — 6 present/past passive sentences, school and media context, full word bank + base-verb hints (Band 1 Supported)",
+    "mcq — 5 items, active vs passive form choice, no word bank, includes 2 active-sentence distractors (Band 2 Guided)",
+    "matching — 5 active/passive sentence pairs, transformation recognition (Band 2 Guided)",
+    "error_correction — 5 German L1 transfer errors: base-form, number agreement, wird-becomes, irregular participle, dropped -d; no hints at B1 (Band 3 Independent)"
+  ]
+}
+```
+
+### Tool result
+
+```
+Saved lesson plan to artifacts/grade-7-realschule-2026/2099-01-01/lesson-plan.json
 ```
 
 ### Tool call: `mcp__companion-artifacts__generate_exercise`
@@ -342,7 +418,7 @@ New vocabulary found (53): active, advertisements, around, author, back, becomes
 
 ### Assistant
 
-Scanner pulled 53 hits — mostly basic A1/A2 words, German content-field strings, and exercise participles. Genuinely new for lesson access: 7 words.
+53 hits — same as prior run. German content strings + basic A1/A2 words + exercise participles dominate. Pre-teach 7 genuinely lesson-critical words.
 
 ### Tool call: `mcp__companion-artifacts__generate_vocab_intro`
 
@@ -390,20 +466,12 @@ Saved vocabulary introduction to artifacts/grade-7-realschule-2026/2099-01-01/ma
 
 ### Assistant
 
-Done. All 6 artifacts saved.
+7 artifacts saved:
 
-**Saved:**
-- `lesson-spec.json` — spec + coverage tracking update
-- `gap_fill` Band 1 — 6 sentences, full word bank + base-verb hints, school/media context
-- `mcq` Band 2 — 5 items, active vs passive discrimination, no word bank
-- `matching` Band 2 — 5 active/passive sentence pairs
-- `error_correction` Band 3 — 5 German L1 transfer errors (base-form-for-participle, number agreement, "wird"→"becomes" false friend, irregular pp, -d drop), no hints per B1 standard
-- `vocab_intro` — 7 words; excluded 46 scanner hits (basic known, German content strings, exercise participles)
-
-**Lesson shape (45 min):**
-- 0-9 Opening: retrieval (subject/object/be-forms), German Passiv bridge ("wird" = "is/are", not "becomes"), "I can..." on board
-- 9-19 Input dialog: 8 passive sentences in context; underline be+pp; pattern + comparison table copied to books
-- 19-29 Ex 1 gap fill (Band 1), individual + partner check
-- 29-39 Ex 2 MCQ + Ex 3 matching (Band 2), no word bank
-- 39-44 Ex 4 error correction (Band 3), independent
-- 44-45 Exit ticket: one passive sentence about school, oral round
+- `lesson-spec.json`
+- `lesson-plan.json` — 6 timed stages, 4 objectives, differentiation notes
+- `gap_fill` Band 1 — 6 sentences, full word bank + hints
+- `mcq` Band 2 — 5 items, active/passive discrimination
+- `matching` Band 2 — 5 active/passive pairs
+- `error_correction` Band 3 — 5 L1 transfer errors, no hints
+- `vocab_intro` — 7 words (advertisement, headteacher, content, produce, publish, passive/active voice)
