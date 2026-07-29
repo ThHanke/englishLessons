@@ -171,6 +171,32 @@ describe("appointmentToEvent", () => {
     );
     expect(a.id).not.toBe(b.id);
   });
+
+  it("gives two double-period appointments (same class/module/date, different slot) distinct ids and start times", () => {
+    const morning = appointmentToEvent(
+      appointment({
+        classId: "grade-7-realschule-2026",
+        moduleId: "m1",
+        date: "2026-08-17",
+        slotId: "morning",
+        start: "08:15",
+        end: "08:45",
+      }),
+    );
+    const afternoon = appointmentToEvent(
+      appointment({
+        classId: "grade-7-realschule-2026",
+        moduleId: "m1",
+        date: "2026-08-17",
+        slotId: "afternoon",
+        start: "13:00",
+        end: "13:45",
+      }),
+    );
+    expect(morning.id).not.toBe(afternoon.id);
+    expect(morning.start.getHours()).toBe(8);
+    expect(afternoon.start.getHours()).toBe(13);
+  });
 });
 
 describe("appointmentEventClass", () => {

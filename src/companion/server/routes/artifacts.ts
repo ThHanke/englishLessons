@@ -5,6 +5,7 @@ import { loadYaml } from "../../../schema/yaml.ts";
 import type { ClassFile, LessonSpec } from "../../../schema/types.ts";
 import { renderLessonPage, type LessonPlan, type Manifest } from "../../../publish/renderLessonPage.ts";
 import { originMatches } from "../security.ts";
+import { artifactDir } from "../artifactPath.ts";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -35,7 +36,10 @@ function isKnownClassName(className: string, repoRoot: string): boolean {
 }
 
 /**
- * `GET /api/artifacts/<class>/<date>/<...path>` (KTD6): a local-authoring convenience that
+ * `GET /api/artifacts/<class>/<date>/<...path>` (KTD6), where `<...path>` mirrors
+ * `artifactPath.ts`'s on-disk shape -- either `lesson-spec.json`/`materials/...` directly, or
+ * `<slotId>/lesson-spec.json`/`<slotId>/materials/...` for a double-period class. A
+ * local-authoring convenience that
  * serves files straight from `<repoRoot>/artifacts/` so the calendar UI can link to materials
  * before a push. Read-only, no session token required (matches `GET /api/calendar`'s existing
  * unauthenticated-read posture) -- but this route DOES check Origin (unlike the other GET routes),
@@ -95,22 +99,27 @@ export async function handleArtifactsRequest(
     return;
   }
 
-  if (restSegments.length === 1 && restSegments[0] === "lesson-spec.json") {
-    const specPath = join(artifactsRoot, classId, date, "lesson-spec.json");
+  const isFlatSpecRequest = restSegments.length === 1 && restSegments[0] === "lesson-spec.json";
+  const isSlotScopedSpecRequest =
+    restSegments.length === 2 && restSegments[1] === "lesson-spec.json";
+  if (isFlatSpecRequest || isSlotScopedSpecRequest) {
+    const slotId = isSlotScopedSpecRequest ? restSegments[0] : undefined;
+    const lessonDir = artifactDir(config.repoRoot, classId, date, slotId);
+    const specPath = join(lessonDir, "lesson-spec.json");
     if (!existsSync(specPath)) {
       sendJson(res, 404, { error: "not_found" });
       return;
     }
     const spec = JSON.parse(readFileSync(specPath, "utf-8")) as LessonSpec;
-    const manifestPath = join(artifactsRoot, classId, date, "manifest.json");
+    const manifestPath = join(lessonDir, "manifest.json");
     const manifest: Manifest | null = existsSync(manifestPath)
       ? (JSON.parse(readFileSync(manifestPath, "utf-8")) as Manifest)
       : null;
-    const planPath = join(artifactsRoot, classId, date, "lesson-plan.json");
+    const planPath = join(lessonDir, "lesson-plan.json");
     const plan: LessonPlan | null = existsSync(planPath)
       ? (JSON.parse(readFileSync(planPath, "utf-8")) as LessonPlan)
       : null;
-    const materialsDir = join(artifactsRoot, classId, date, "materials");
+    const materialsDir = join(lessonDir, "materials");
     const materialFiles = existsSync(materialsDir)
       ? readdirSync(materialsDir)
           .filter((f) => f.endsWith(".html"))

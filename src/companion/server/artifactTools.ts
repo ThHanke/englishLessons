@@ -15,6 +15,7 @@ import { renderVocabIntroHtml } from "../../widgets/vocabIntro.ts";
 import type { LessonSpec } from "../../schema/types.ts";
 import { resolveKnownVocabulary } from "../../vocab/resolveKnownVocabulary.ts";
 import { findNewVocabulary } from "../../vocab/findNewVocabulary.ts";
+import { artifactDir } from "./artifactPath.ts";
 
 const LessonSpecSchema = {
   class: z.string(),
@@ -200,10 +201,11 @@ function atomicWriteFileSync(filePath: string, data: string): void {
 export function createLessonArtifactServer(params: {
   classId: string;
   date: string;
+  slotId?: string;
   repoRoot: string;
 }): McpSdkServerConfigWithInstance {
-  const { classId, date, repoRoot } = params;
-  const baseDir = join(repoRoot, "artifacts", classId, date);
+  const { classId, date, slotId, repoRoot } = params;
+  const baseDir = artifactDir(repoRoot, classId, date, slotId);
 
   return createSdkMcpServer({
     name: "companion-artifacts",

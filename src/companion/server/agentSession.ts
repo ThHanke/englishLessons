@@ -243,9 +243,9 @@ function resumeFailureNotice(err: unknown): string {
 export async function runAgentTurn(
   params: AgentTurnParams,
 ): Promise<AgentTurnResult> {
-  const { classId, date, prompt, cwd } = params;
-  const storedSessionId = await getSessionId({ classId, date });
-  const artifactServer = createLessonArtifactServer({ classId, date, repoRoot: cwd });
+  const { classId, date, slotId, prompt, cwd } = params;
+  const storedSessionId = await getSessionId({ classId, date, slotId });
+  const artifactServer = createLessonArtifactServer({ classId, date, slotId, repoRoot: cwd });
   const mcpServers: Record<string, McpServerConfig> = {
     "companion-artifacts": artifactServer,
   };
@@ -268,7 +268,7 @@ export async function runAgentTurn(
     result = await drainToResult(startQuery({ prompt, cwd, mcpServers }));
   }
 
-  await setSessionId({ classId, date, sessionId: result.session_id });
+  await setSessionId({ classId, date, slotId, sessionId: result.session_id });
 
   return { sessionId: result.session_id, result, startedFresh, notice };
 }
@@ -310,9 +310,9 @@ async function drainToResult(
 export async function* runAgentTurnStream(
   params: AgentTurnParams,
 ): AsyncGenerator<SDKMessage, AgentTurnStreamResult> {
-  const { classId, date, prompt, cwd } = params;
-  const storedSessionId = await getSessionId({ classId, date });
-  const artifactServer = createLessonArtifactServer({ classId, date, repoRoot: cwd });
+  const { classId, date, slotId, prompt, cwd } = params;
+  const storedSessionId = await getSessionId({ classId, date, slotId });
+  const artifactServer = createLessonArtifactServer({ classId, date, slotId, repoRoot: cwd });
   const mcpServers: Record<string, McpServerConfig> = {
     "companion-artifacts": artifactServer,
   };
@@ -345,7 +345,7 @@ export async function* runAgentTurnStream(
   if (!sessionId) {
     throw new Error("Agent SDK query completed without a result message.");
   }
-  await setSessionId({ classId, date, sessionId });
+  await setSessionId({ classId, date, slotId, sessionId });
 
   return { sessionId, startedFresh, notice };
 }

@@ -12,29 +12,11 @@ import {
   enumerateSlots,
   weightSlots,
 } from "../../projection/slots.ts";
-import {
-  deriveHalfYearBoundary,
-  dateHalfYear,
-} from "../../projection/halfYear.ts";
-
-const WEEKDAY_ABBR = [
-  "Sun",
-  "Mon",
-  "Tue",
-  "Wed",
-  "Thu",
-  "Fri",
-  "Sat",
-] as const;
-
-function isoWeekday(dateIso: string): string {
-  const [y, m, d] = dateIso.split("-").map(Number);
-  return WEEKDAY_ABBR[new Date(Date.UTC(y!, m! - 1, d!)).getUTCDay()]!;
-}
 import { fillModules } from "../../projection/fillModules.ts";
 import { gapReport } from "../../coverage/gapReport.ts";
 import type { Gap } from "../../coverage/types.ts";
 import { buildLedger, listLessonSpecs } from "./buildLedger.ts";
+import { artifactDir } from "./artifactPath.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -73,14 +55,15 @@ export interface Appointment {
   slotId?: string;
 }
 
-/** Reads `artifacts/<className>/<date>/manifest.json` for the appointment-link summary (R8) --
- * just the fields the calendar link needs, not the full manifest entry shape. */
+/** Reads `<artifactDir>/manifest.json` for the appointment-link summary (R8) -- just the fields
+ * the calendar link needs, not the full manifest entry shape. */
 function readAppointmentMaterials(
   className: string,
   date: string,
   repoRoot: string,
+  slotId?: string,
 ): Array<{ file: string; type: string; title: string }> {
-  const manifestPath = join(repoRoot, "artifacts", className, date, "manifest.json");
+  const manifestPath = join(artifactDir(repoRoot, className, date, slotId), "manifest.json");
   if (!existsSync(manifestPath)) return [];
   const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as {
     materials: Array<{ file: string; type: string; title: string }>;
@@ -185,7 +168,9 @@ export function moduleTasks(params: {
       modulesFile.modules.map((m) => [m.id, m.title]),
     );
 
-    const plannedDateSet = new Set(specs.map((s) => s.date));
+    const plannedDateSlotSet = new Set(
+      specs.map((s) => `${s.date}::${s.slotId ?? ""}`),
+    );
 
     for (const placement of placements) {
       if (placement.slots.length === 0) continue;
@@ -221,12 +206,6 @@ export function moduleTasks(params: {
 
     if (hasLessonSlots) {
       const scheduledDates = enumerateSlots(calendar, classFile.name);
-      let boundary: string | null = null;
-      try {
-        boundary = deriveHalfYearBoundary(calendar);
-      } catch {
-        /* no boundary */
-      }
 
       for (const sd of scheduledDates) {
         if (sd.date < params.from || sd.date > params.to) continue;
@@ -237,12 +216,8 @@ export function moduleTasks(params: {
             sd.date <= p.slots[p.slots.length - 1]!.date,
         );
         if (!mod) continue;
-        const weekday = isoWeekday(sd.date);
-        const halfYear = boundary ? dateHalfYear(sd.date, boundary) : null;
         const matchingSlot = classLessonSlots.find(
-          (ls: LessonSlot) =>
-            ls.day === weekday &&
-            (halfYear === null || ls.half_year === halfYear),
+          (ls: LessonSlot) => ls.id === sd.slotId,
         );
         appointments.push({
           classId: classFile.name,
@@ -251,8 +226,13 @@ export function moduleTasks(params: {
           moduleTitle:
             moduleTitleById.get(mod.moduleId) ?? mod.moduleId,
           date: sd.date,
-          hasLessonSpec: plannedDateSet.has(sd.date),
-          materials: readAppointmentMaterials(classFile.name, sd.date, repoRoot),
+          hasLessonSpec: plannedDateSlotSet.has(`${sd.date}::${matchingSlot?.id ?? ""}`),
+          materials: readAppointmentMaterials(
+            classFile.name,
+            sd.date,
+            repoRoot,
+            matchingSlot?.id,
+          ),
           start: matchingSlot?.start,
           end: matchingSlot?.end,
           slotId: matchingSlot?.id,

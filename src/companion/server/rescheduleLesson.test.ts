@@ -41,6 +41,13 @@ function setupRepo(): { repoRoot: string; cleanup: () => void } {
   );
   writeFileSync(join(fromDir, "materials", "gap-fill.html"), "<html></html>");
 
+  const fromSlotDir = join(repoRoot, "artifacts", "test-class", "2026-08-04", "morning");
+  mkdirSync(fromSlotDir, { recursive: true });
+  writeFileSync(
+    join(fromSlotDir, "lesson-spec.json"),
+    JSON.stringify({ class: "test-class", date: "2026-08-04", note: "morning spec" }),
+  );
+
   return { repoRoot, cleanup: () => rmSync(repoRoot, { recursive: true, force: true }) };
 }
 
@@ -130,5 +137,57 @@ describe("rescheduleLesson", () => {
 
     expect(result.moved).toBe(false);
     expect(result.error).toMatch(/YYYY-MM-DD/);
+  });
+
+  it("moves a slot-scoped double-period lesson, keeping the same slot at the new date", () => {
+    const result = rescheduleLesson({
+      className: "test-class",
+      fromDate: "2026-08-04",
+      toDate: "2026-08-11",
+      slotId: "morning",
+      repoRoot,
+    });
+
+    expect(result).toEqual({ moved: true });
+
+    const oldDir = join(repoRoot, "artifacts", "test-class", "2026-08-04", "morning");
+    const newDir = join(repoRoot, "artifacts", "test-class", "2026-08-11", "morning");
+    expect(existsSync(oldDir)).toBe(false);
+    expect(existsSync(newDir)).toBe(true);
+    const data = JSON.parse(readFileSync(join(newDir, "lesson-spec.json"), "utf-8"));
+    expect(data.date).toBe("2026-08-11");
+  });
+
+  it("does not collide with a different slot already at the destination date", () => {
+    const otherSlotDir = join(repoRoot, "artifacts", "test-class", "2026-08-11", "afternoon");
+    mkdirSync(otherSlotDir, { recursive: true });
+    writeFileSync(join(otherSlotDir, "lesson-spec.json"), "{}");
+
+    const result = rescheduleLesson({
+      className: "test-class",
+      fromDate: "2026-08-04",
+      toDate: "2026-08-11",
+      slotId: "morning",
+      repoRoot,
+    });
+
+    expect(result).toEqual({ moved: true });
+    expect(existsSync(otherSlotDir)).toBe(true);
+    expect(
+      existsSync(join(repoRoot, "artifacts", "test-class", "2026-08-11", "morning")),
+    ).toBe(true);
+  });
+
+  it("rejects a malformed slotId before touching the filesystem", () => {
+    const result = rescheduleLesson({
+      className: "test-class",
+      fromDate: "2026-08-04",
+      toDate: "2026-08-11",
+      slotId: "../../etc",
+      repoRoot,
+    });
+
+    expect(result.moved).toBe(false);
+    expect(result.error).toMatch(/Invalid slotId/);
   });
 });

@@ -16,6 +16,7 @@ import type {
 export interface ChatProps {
   classId: string | null;
   date: string | null;
+  slotId?: string;
   baseUrl: string;
   serverAvailable: boolean;
   sessionToken: string | null;
@@ -24,6 +25,7 @@ export interface ChatProps {
 interface PreviewTarget {
   classId: string;
   date: string;
+  slotId?: string;
 }
 
 interface PreviewState {
@@ -34,7 +36,9 @@ interface PreviewState {
 }
 
 function buildSeedContent(target: PreviewTarget, ctx: DateContext): string {
-  const parts: string[] = [`Date: ${target.date}, Class: ${target.classId}`];
+  const parts: string[] = [
+    `Date: ${target.date}${target.slotId ? ` (slot: ${target.slotId})` : ""}, Class: ${target.classId}`,
+  ];
   if (ctx.isTeachingDay) {
     const t = ctx as TeachingDayContext;
     parts.push(`Module: ${t.moduleTitle ?? t.moduleId}, Week ${t.weekInModule}, Phase: ${PHASE_LABELS[t.phase] ?? t.phase}`);
@@ -81,6 +85,7 @@ function buildInitialPrompt(ctx: DateContext | null): string {
 export function Chat({
   classId,
   date,
+  slotId,
   baseUrl,
   serverAvailable,
   sessionToken,
@@ -106,6 +111,7 @@ export function Chat({
           baseUrl,
           className: target.classId,
           date: target.date,
+          slotId: target.slotId,
         });
         setPreview({ target, context: ctx, loading: false, error: null });
       } catch (err) {
@@ -122,11 +128,13 @@ export function Chat({
 
   useEffect(() => {
     if (!classId || !date || !serverAvailable || !sessionToken) return;
-    const target: PreviewTarget = { classId, date };
+    const target: PreviewTarget = { classId, date, slotId };
 
     if (
       activeSession &&
-      (activeSession.classId !== classId || activeSession.date !== date) &&
+      (activeSession.classId !== classId ||
+        activeSession.date !== date ||
+        activeSession.slotId !== slotId) &&
       hasMessagesRef.current
     ) {
       setPendingSwitch(target);
@@ -136,14 +144,15 @@ export function Chat({
     if (
       activeSession &&
       activeSession.classId === classId &&
-      activeSession.date === date
+      activeSession.date === date &&
+      activeSession.slotId === slotId
     ) {
       return;
     }
 
     setActiveSession(null);
     loadPreview(target);
-  }, [classId, date, serverAvailable, sessionToken, activeSession, loadPreview]);
+  }, [classId, date, slotId, serverAvailable, sessionToken, activeSession, loadPreview]);
 
   useEffect(() => {
     if (!activeSession || !pendingInitialPromptRef.current) return;

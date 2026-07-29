@@ -1,14 +1,16 @@
 import {
   existsSync,
+  mkdirSync,
   readFileSync,
   readdirSync,
   renameSync,
   statSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { loadYaml } from "../../schema/yaml.ts";
 import type { ClassFile } from "../../schema/types.ts";
+import { artifactDir } from "./artifactPath.ts";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DATED_JSON_FILES = ["lesson-spec.json", "lesson-plan.json", "manifest.json"];
@@ -36,12 +38,15 @@ export interface RescheduleResult {
 }
 
 /**
- * Moves one dated lesson's content -- `artifacts/<class>/<fromDate>/` and the `date` field inside
- * its `lesson-spec.json`/`lesson-plan.json`/`manifest.json` -- to a new date, without
- * regenerating anything. `date` is the only persisted identity a lesson has: the coverage ledger,
- * `gapReport`, and `driftReport` all recompute live from the artifacts tree (`buildLedger.ts`
- * walks it fresh each call), so renaming the directory and patching those three `date` fields is
- * sufficient -- there's no separate index to migrate.
+ * Moves one dated lesson's content -- `artifacts/<class>/<fromDate>/` (or `.../<fromDate>/
+ * <slotId>/` for a double-period class, see `artifactPath.ts`) and the `date` field inside its
+ * `lesson-spec.json`/`lesson-plan.json`/`manifest.json` -- to a new date, without regenerating
+ * anything. `date` (+ `slotId` when the class has one) is the only persisted identity a lesson
+ * has: the coverage ledger, `gapReport`, and `driftReport` all recompute live from the artifacts
+ * tree (`buildLedger.ts` walks it fresh each call), so renaming the directory and patching those
+ * three `date` fields is sufficient -- there's no separate index to migrate. `slotId` identifies
+ * which lesson to move when `fromDate` has more than one (double periods); the moved lesson keeps
+ * the same slot at its new date, since a reschedule changes the day, not which period it is.
  *
  * Validation order is load-bearing (mirrors `routes/artifacts.ts`): `className` and both dates
  * are checked against a strict whitelist/format before any filesystem path is built from them.
@@ -50,9 +55,10 @@ export function rescheduleLesson(params: {
   className: string;
   fromDate: string;
   toDate: string;
+  slotId?: string;
   repoRoot: string;
 }): RescheduleResult {
-  const { className, fromDate, toDate, repoRoot } = params;
+  const { className, fromDate, toDate, slotId, repoRoot } = params;
 
   if (!isKnownClassName(className, repoRoot)) {
     return { moved: false, error: `Unknown class "${className}"` };
@@ -64,9 +70,14 @@ export function rescheduleLesson(params: {
     return { moved: false, error: "fromDate and toDate are the same" };
   }
 
-  const classDir = join(repoRoot, "artifacts", className);
-  const fromDir = join(classDir, fromDate);
-  const toDir = join(classDir, toDate);
+  let fromDir: string;
+  let toDir: string;
+  try {
+    fromDir = artifactDir(repoRoot, className, fromDate, slotId);
+    toDir = artifactDir(repoRoot, className, toDate, slotId);
+  } catch (err) {
+    return { moved: false, error: (err as Error).message };
+  }
 
   if (!existsSync(fromDir)) {
     return { moved: false, error: `No artifacts found for ${className}/${fromDate}` };
@@ -78,6 +89,7 @@ export function rescheduleLesson(params: {
     };
   }
 
+  mkdirSync(dirname(toDir), { recursive: true });
   renameSync(fromDir, toDir);
 
   for (const filename of DATED_JSON_FILES) {

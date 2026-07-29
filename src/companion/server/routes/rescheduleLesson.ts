@@ -65,6 +65,7 @@ export async function handleRescheduleLessonRequest(
   const fromDate =
     typeof body.fromDate === "string" ? body.fromDate : undefined;
   const toDate = typeof body.toDate === "string" ? body.toDate : undefined;
+  const slotId = typeof body.slotId === "string" ? body.slotId : undefined;
 
   if (!className || !fromDate || !toDate) {
     sendJson(res, 400, {
@@ -78,6 +79,7 @@ export async function handleRescheduleLessonRequest(
     className,
     fromDate,
     toDate,
+    slotId,
     repoRoot: config.repoRoot,
   });
 
@@ -86,5 +88,5 @@ export async function handleRescheduleLessonRequest(
     return;
   }
 
-  sendJson(res, 200, { moved: true, className, fromDate, toDate });
+  sendJson(res, 200, { moved: true, className, fromDate, toDate, slotId });
 }

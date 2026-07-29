@@ -111,7 +111,9 @@ export function appointmentToEvent(appointment: Appointment): CalendarEvent {
   }
 
   return {
-    id: `${appointment.classId}::${appointment.moduleId}::${appointment.date}`,
+    id: `${appointment.classId}::${appointment.moduleId}::${appointment.date}${
+      appointment.slotId ? `::${appointment.slotId}` : ""
+    }`,
     start,
     end,
     allDay: false,

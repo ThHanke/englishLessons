@@ -6,11 +6,16 @@ import { deriveHalfYearBoundary, dateHalfYear } from "./halfYear.ts";
 export interface RawSlot {
   date: string;
   capacity: number;
+  /** The matched `LessonSlot.id` -- only ever set by `enumerateSlots` (the `lesson_slots`-based
+   * path), which is also the only path that can emit more than one slot for the same date (e.g.
+   * double periods). `enumerateProjectionSlots` never sets this since it's structurally
+   * incapable of emitting two slots on the same date. */
+  slotId?: string;
 }
 
 const WEEKDAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
-function isoWeekday(dateIso: string): string {
+export function isoWeekday(dateIso: string): string {
   const [y, m, d] = dateIso.split("-").map(Number);
   return WEEKDAY_ABBR[new Date(Date.UTC(y!, m! - 1, d!)).getUTCDay()]!;
 }
@@ -131,7 +136,7 @@ export function enumerateSlots(
           (cursorHalfYear === null || slot.half_year === cursorHalfYear),
       );
 
-      for (const _slot of matchingSlots) {
+      for (const slot of matchingSlots) {
         const matchingEvents = calendar.events.filter((e) =>
           matchesEvent(cursor, e),
         );
@@ -143,6 +148,7 @@ export function enumerateSlots(
           slots.push({
             date: cursor,
             capacity: reducing ? reducing.capacity : 1,
+            slotId: slot.id,
           });
         }
       }

@@ -9,6 +9,7 @@ function App() {
   const [chatTarget, setChatTarget] = useState<{
     classId: string;
     date: string;
+    slotId?: string;
   } | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [serverAvailable, setServerAvailable] = useState(true);
@@ -31,13 +32,16 @@ function App() {
         <Calendar
           baseUrl={baseUrl}
           month="2026-08-01"
-          onOpenChat={(classId, date) => setChatTarget({ classId, date })}
+          onOpenChat={(classId, date, slotId) =>
+            setChatTarget({ classId, date, slotId })
+          }
         />
       </div>
       <div className="companion-app-chat">
         <Chat
           classId={chatTarget?.classId ?? null}
           date={chatTarget?.date ?? null}
+          slotId={chatTarget?.slotId}
           baseUrl={baseUrl}
           serverAvailable={serverAvailable}
           sessionToken={sessionToken}

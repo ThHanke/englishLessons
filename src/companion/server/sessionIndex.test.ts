@@ -108,6 +108,29 @@ describe("sessionIndex", () => {
     ).resolves.toBe("session-6b");
   });
 
+  it("keeps two same-day double-period slots for the same class as distinct entries", async () => {
+    tmpDirs.push(isolateConfigDir());
+    await setSessionId({
+      classId: "grade7a",
+      date: "2026-09-01",
+      slotId: "morning",
+      sessionId: "session-morning",
+    });
+    await setSessionId({
+      classId: "grade7a",
+      date: "2026-09-01",
+      slotId: "afternoon",
+      sessionId: "session-afternoon",
+    });
+
+    await expect(
+      getSessionId({ classId: "grade7a", date: "2026-09-01", slotId: "morning" }),
+    ).resolves.toBe("session-morning");
+    await expect(
+      getSessionId({ classId: "grade7a", date: "2026-09-01", slotId: "afternoon" }),
+    ).resolves.toBe("session-afternoon");
+  });
+
   it("serializes two overlapping writes for the same class+date without corrupting the index", async () => {
     tmpDirs.push(isolateConfigDir());
 

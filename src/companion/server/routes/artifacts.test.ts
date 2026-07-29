@@ -38,7 +38,7 @@ describe("handleArtifactsRequest (HTTP)", () => {
 
   it("serves a material file with content-type: text/html", async () => {
     const res = await get(
-      "/api/artifacts/fixture-class/2026-08-05/materials/gap_fill-fixture.html",
+      "/api/artifacts/fixture-class/2026-08-05/fix-s2/materials/gap_fill-fixture.html",
     );
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toContain("text/html");
@@ -47,7 +47,7 @@ describe("handleArtifactsRequest (HTTP)", () => {
   });
 
   it("renders lesson-spec.json through renderLessonPage as HTML, not raw JSON", async () => {
-    const res = await get("/api/artifacts/fixture-class/2026-08-05/lesson-spec.json");
+    const res = await get("/api/artifacts/fixture-class/2026-08-05/fix-s2/lesson-spec.json");
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toContain("text/html");
     const body = await res.text();
@@ -56,10 +56,15 @@ describe("handleArtifactsRequest (HTTP)", () => {
   });
 
   it("includes lesson-plan.json's objectives/stages when one exists for the date", async () => {
-    const res = await get("/api/artifacts/fixture-class/2026-08-05/lesson-spec.json");
+    const res = await get("/api/artifacts/fixture-class/2026-08-05/fix-s2/lesson-spec.json");
     const body = await res.text();
     expect(body).toContain("Fixture objective one");
     expect(body).toContain("Fixture differentiation notes.");
+  });
+
+  it("404s the flat (no-slot) lesson-spec.json path once content lives under a slot", async () => {
+    const res = await get("/api/artifacts/fixture-class/2026-08-05/lesson-spec.json");
+    expect(res.status).toBe(404);
   });
 
   it("rejects an unknown class before touching the filesystem", async () => {

@@ -140,11 +140,13 @@ export async function fetchLessonPreview(params: {
   baseUrl: string;
   className: string;
   date: string;
+  slotId?: string;
 }): Promise<DateContext> {
-  const { baseUrl, className, date } = params;
+  const { baseUrl, className, date, slotId } = params;
   const url = new URL("/api/lesson-preview", baseUrl);
   url.searchParams.set("class", className);
   url.searchParams.set("date", date);
+  if (slotId) url.searchParams.set("slotId", slotId);
 
   const res = await fetch(url.toString());
   if (!res.ok) {

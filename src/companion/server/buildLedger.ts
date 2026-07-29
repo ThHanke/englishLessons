@@ -107,22 +107,27 @@ export function buildLedger(
   const manifestFiles = walkManifestFiles(classDir);
   const manifestLessons = manifestFiles.map((f) => {
     const manifest = JSON.parse(readFileSync(f, "utf-8")) as ManifestFile;
-    return manifestToCoverage(manifest, basename(dirname(f)));
+    return manifestToCoverage(manifest, manifest.date);
   });
 
   return coverageLedger([...specLessons, ...manifestLessons], modulesFile);
 }
 
-/** `{ date, moduleId }` for every `lesson-spec.json` already landed for a class — the "already
- * planned lessons" markers a module's spanning task shows on hover (R11). */
+/** `{ date, moduleId, slotId }` for every `lesson-spec.json` already landed for a class — the
+ * "already planned lessons" markers a module's spanning task shows on hover (R11). `slotId` is
+ * derived from the artifact path (the immediate parent directory name, when it isn't the date
+ * itself) rather than stored in the spec JSON -- see `artifactPath.ts`'s shape: flat for a class
+ * that can't have more than one lesson per day, `<date>/<slotId>/` when it can. */
 export function listLessonSpecs(
   className: string,
   repoRoot: string = DEFAULT_REPO_ROOT,
-): Array<{ date: string; moduleId: string }> {
+): Array<{ date: string; moduleId: string; slotId?: string }> {
   const classDir = join(repoRoot, "artifacts", className);
   if (!existsSync(classDir)) return [];
   return walkLessonSpecFiles(classDir).map((f) => {
     const spec = JSON.parse(readFileSync(f, "utf-8")) as LessonSpec;
-    return { date: spec.date, moduleId: spec.module.id };
+    const parentDirName = basename(dirname(f));
+    const slotId = parentDirName === spec.date ? undefined : parentDirName;
+    return { date: spec.date, moduleId: spec.module.id, slotId };
   });
 }

@@ -88,6 +88,7 @@ export async function handleChatRequest(
 
   const classId = typeof body.classId === "string" ? body.classId : undefined;
   const date = typeof body.date === "string" ? body.date : undefined;
+  const slotId = typeof body.slotId === "string" ? body.slotId : undefined;
   const prompt = typeof body.prompt === "string" ? body.prompt : undefined;
   if (!classId || !date || !prompt) {
     sendJson(res, 400, {
@@ -102,7 +103,7 @@ export async function handleChatRequest(
     "cache-control": "no-cache",
   });
 
-  const stream = runAgentTurnStream({ classId, date, prompt, cwd: config.cwd });
+  const stream = runAgentTurnStream({ classId, date, slotId, prompt, cwd: config.cwd });
   // Manual `.next()` loop (not `for await...of`) so the generator's return value - the final
   // `{ done: true, value }` - is captured rather than discarded, per agentSession.ts's own doc
   // comment on `AgentTurnStreamResult`.

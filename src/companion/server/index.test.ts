@@ -152,7 +152,7 @@ describe("companion server (integration)", () => {
     });
     try {
       const res = await fetch(
-        `${handle.url}/api/artifacts/fixture-class/2026-08-05/materials/gap_fill-fixture.html`,
+        `${handle.url}/api/artifacts/fixture-class/2026-08-05/fix-s2/materials/gap_fill-fixture.html`,
         { headers: { origin: handle.url } },
       );
       expect(res.status).toBe(200);

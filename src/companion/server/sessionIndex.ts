@@ -7,6 +7,9 @@ const INDEX_FILE_NAME = "session-index.json";
 export type SessionKey = {
   classId: string;
   date: string;
+  /** Disambiguates double periods (two lesson_slots on the same date) -- omitted for classes
+   * that can't have more than one lesson per day, where it would just be dead weight. */
+  slotId?: string;
 };
 
 type IndexFile = Record<string, string>;
@@ -15,8 +18,8 @@ export function getSessionIndexPath(): string {
   return join(getCompanionStateDir(), INDEX_FILE_NAME);
 }
 
-function keyFor({ classId, date }: SessionKey): string {
-  return `${classId}::${date}`;
+function keyFor({ classId, date, slotId }: SessionKey): string {
+  return slotId ? `${classId}::${date}::${slotId}` : `${classId}::${date}`;
 }
 
 /**
@@ -84,10 +87,10 @@ export async function getSessionId(
 export async function setSessionId(
   params: SessionKey & { sessionId: string },
 ): Promise<void> {
-  const { classId, date, sessionId } = params;
+  const { classId, date, slotId, sessionId } = params;
   await enqueueWrite(() => {
     const index = readIndexFile();
-    index[keyFor({ classId, date })] = sessionId;
+    index[keyFor({ classId, date, slotId })] = sessionId;
     writeIndexFile(index);
   });
 }

@@ -30,6 +30,7 @@ describe("enumerateSlots", () => {
     expect(slots.find((s) => s.date === "2026-09-04")).toEqual({
       date: "2026-09-04",
       capacity: 0.5,
+      slotId: "s3",
     });
   });
 });

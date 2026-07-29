@@ -1,7 +1,78 @@
 import { describe, it, expect } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { writeYaml } from "../../schema/yaml.ts";
+import type { CalendarFile, ClassFile, ModulesFile } from "../../schema/types.ts";
 import { dateContext, type TeachingDayContext } from "./dateContext.ts";
 
 const FIXTURE_REPO_ROOT = new URL("./fixtures/repo/", import.meta.url).pathname;
+
+/** Same double-period shape as `moduleTasks.test.ts`'s fixture: two Monday `lesson_slots` for
+ * one class, both active in the same half-year. */
+function setupDoublePeriodRepo(): { repoRoot: string; cleanup: () => void } {
+  const repoRoot = mkdtempSync(join(tmpdir(), "date-context-double-period-"));
+
+  const classDir = join(repoRoot, "plans", "double-period-grade");
+  mkdirSync(classDir, { recursive: true });
+  const classFile: ClassFile = {
+    name: "double-period-class",
+    grade: 7,
+    curriculum: "fixture-curriculum",
+  };
+  writeYaml(join(classDir, "class.yaml"), classFile);
+  const modulesFile: ModulesFile = {
+    class: "double-period-class",
+    curriculum: "fixture-curriculum",
+    total_weeks: 4,
+    weekly_lessons: 2,
+    buffer_weeks: 0,
+    modules: [
+      {
+        id: "m1",
+        title: "Module One",
+        weeks: 4,
+        content_fields: [],
+        goals: [],
+        covers: [],
+        milestone: { type: "none", assesses: [] },
+        pedagogy: { new_grammar: [] },
+      },
+    ],
+  };
+  writeYaml(join(classDir, "modules.yaml"), modulesFile);
+
+  mkdirSync(join(repoRoot, "calendar"), { recursive: true });
+  const calendar: CalendarFile = {
+    state: "fixture-state",
+    school_year: "2026/2027",
+    first_school_day: "2026-08-03",
+    last_school_day: "2026-08-31",
+    holidays: [],
+    events: [],
+    pace_factors: {
+      pre_holiday_days: 0,
+      pre_holiday_factor: 1,
+      post_holiday_days: 0,
+      post_holiday_factor: 1,
+    },
+    half_year_boundary: "2027-02-01",
+    class_schedule: {
+      "double-period-class": {
+        lesson_slots: [
+          { id: "morning", day: "Mon", start: "08:00", end: "08:45", half_year: 1 },
+          { id: "afternoon", day: "Mon", start: "13:00", end: "13:45", half_year: 1 },
+        ],
+      },
+    },
+  };
+  writeYaml(join(repoRoot, "calendar", "double-period-calendar.yaml"), calendar);
+
+  return {
+    repoRoot,
+    cleanup: () => rmSync(repoRoot, { recursive: true, force: true }),
+  };
+}
 
 describe("dateContext", () => {
   it("returns moduleId, weekInModule, phase, and that module's gap-report entries for a date with an active module", () => {
@@ -55,8 +126,9 @@ describe("dateContext", () => {
     expect(ctx.isTeachingDay).toBe(true);
     const teaching = ctx as TeachingDayContext;
     expect(teaching.lessonSpecPath).toBe(
-      "artifacts/fixture-class/2026-08-05/lesson-spec.json",
+      "artifacts/fixture-class/2026-08-05/fix-s2/lesson-spec.json",
     );
+    expect(teaching.slotId).toBe("fix-s2");
     expect(teaching.lessonSpec).not.toBeNull();
     expect(teaching.lessonSpec!.date).toBe("2026-08-05");
   });
@@ -104,5 +176,38 @@ describe("dateContext", () => {
       teaching.gaps.find((g) => g.competenceId === "c.uncovered")?.kind,
     ).toBe("uncovered");
     expect(teaching.lessonSpecPath).toBeNull();
+  });
+
+  it("throws a clear error for a double-period date when no slotId is given", () => {
+    const { repoRoot, cleanup } = setupDoublePeriodRepo();
+    try {
+      expect(() =>
+        dateContext({
+          className: "double-period-class",
+          date: "2026-08-03",
+          repoRoot,
+        }),
+      ).toThrowError(/Multiple lesson slots match.*morning.*afternoon.*slotId/);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("resolves the given slot and scopes the lesson-spec lookup to it, for a double-period date", () => {
+    const { repoRoot, cleanup } = setupDoublePeriodRepo();
+    try {
+      const ctx = dateContext({
+        className: "double-period-class",
+        date: "2026-08-03",
+        slotId: "afternoon",
+        repoRoot,
+      });
+      expect(ctx.isTeachingDay).toBe(true);
+      const teaching = ctx as TeachingDayContext;
+      expect(teaching.slotId).toBe("afternoon");
+      expect(teaching.lessonSpecPath).toBeNull();
+    } finally {
+      cleanup();
+    }
   });
 });

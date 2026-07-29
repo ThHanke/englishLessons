@@ -45,16 +45,19 @@ import {
 export interface CalendarProps {
   baseUrl: string;
   month: string;
-  onOpenChat: (classId: string, date: string) => void;
+  onOpenChat: (classId: string, date: string, slotId?: string) => void;
   dark?: boolean;
 }
 
 /** `href`s point at the companion's own local artifact-preview route (KTD6) — same origin as the
  * calendar UI, so a plain root-relative path resolves correctly without needing `baseUrl` (which
  * this module-scope component can't close over anyway). `stopPropagation` keeps a link click from
- * also firing the calendar's own event-select handler (which would open a chat session). */
-function artifactHref(classId: string, date: string, path: string): string {
-  return `/api/artifacts/${classId}/${date}/${path}`;
+ * also firing the calendar's own event-select handler (which would open a chat session). `slotId`
+ * mirrors `artifactPath.ts`'s on-disk shape for a double-period class. */
+function artifactHref(classId: string, date: string, path: string, slotId?: string): string {
+  return slotId
+    ? `/api/artifacts/${classId}/${date}/${slotId}/${path}`
+    : `/api/artifacts/${classId}/${date}/${path}`;
 }
 
 export function EventContent({
@@ -84,7 +87,12 @@ export function EventContent({
           <>
             {" · "}
             <a
-              href={artifactHref(appointment.classId, appointment.date, "lesson-spec.json")}
+              href={artifactHref(
+                appointment.classId,
+                appointment.date,
+                "lesson-spec.json",
+                appointment.slotId,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -97,7 +105,12 @@ export function EventContent({
           <span key={material.file}>
             {" · "}
             <a
-              href={artifactHref(appointment.classId, appointment.date, material.file)}
+              href={artifactHref(
+                appointment.classId,
+                appointment.date,
+                material.file,
+                appointment.slotId,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -303,7 +316,7 @@ export function Calendar({
           });
         }
       } else {
-        onOpenChat(appointment.classId, appointment.date);
+        onOpenChat(appointment.classId, appointment.date, appointment.slotId);
         calendarApi?.getStores().data.setState({ editorData: null });
       }
     }

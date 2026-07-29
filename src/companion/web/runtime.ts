@@ -8,6 +8,7 @@ import {
 export interface ChatSession {
   classId: string;
   date: string;
+  slotId?: string;
 }
 
 export interface ChatRuntimeOptions {
@@ -62,7 +63,8 @@ export function useCompanionRuntime(
   const prevSessionRef = useRef(session);
   if (
     session?.classId !== prevSessionRef.current?.classId ||
-    session?.date !== prevSessionRef.current?.date
+    session?.date !== prevSessionRef.current?.date ||
+    session?.slotId !== prevSessionRef.current?.slotId
   ) {
     seedSentRef.current = false;
     prevSessionRef.current = session;
@@ -126,6 +128,7 @@ export function useCompanionRuntime(
           body: JSON.stringify({
             classId: session.classId,
             date: session.date,
+            slotId: session.slotId,
             prompt,
             sessionToken: options.sessionToken,
           }),

@@ -25,6 +25,7 @@ export async function handleLessonPreviewRequest(
   const url = new URL(req.url ?? "/", "http://127.0.0.1");
   const className = url.searchParams.get("class");
   const date = url.searchParams.get("date");
+  const slotId = url.searchParams.get("slotId") ?? undefined;
 
   if (!className || !date) {
     sendJson(res, 400, {
@@ -38,6 +39,7 @@ export async function handleLessonPreviewRequest(
     const context: DateContext = dateContext({
       className,
       date,
+      slotId,
       repoRoot: config.repoRoot,
     });
     sendJson(res, 200, context);

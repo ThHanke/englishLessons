@@ -10,13 +10,16 @@ import type {
 import type { Phase } from "../../projection/types.ts";
 import {
   enumerateProjectionSlots,
+  isoWeekday,
   weightSlots,
 } from "../../projection/slots.ts";
+import { deriveHalfYearBoundary, dateHalfYear } from "../../projection/halfYear.ts";
 import { fillModules } from "../../projection/fillModules.ts";
 import { whichModule } from "../../projection/query.ts";
 import { gapReport } from "../../coverage/gapReport.ts";
 import type { Gap } from "../../coverage/types.ts";
 import { buildLedger } from "./buildLedger.ts";
+import { artifactDir } from "./artifactPath.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -34,6 +37,9 @@ export interface TeachingDayContext {
   lessonSpecPath: string | null;
   /** Parsed `lesson-spec.json` contents when one exists for this date, else null. */
   lessonSpec: LessonSpec | null;
+  /** The `LessonSlot.id` this context resolved to, when the class has `lesson_slots` configured
+   * -- undefined for classes that can't have more than one lesson per day. */
+  slotId?: string;
 }
 
 export interface NonTeachingDayContext {
@@ -101,6 +107,7 @@ function loadCalendarForClass(
 export function dateContext(params: {
   className: string;
   date: string;
+  slotId?: string;
   repoRoot?: string;
 }): DateContext {
   const { className, date } = params;
@@ -119,6 +126,35 @@ export function dateContext(params: {
     throw new Error(
       `No calendar file under calendar/*.yaml has a class_schedule entry for "${className}"`,
     );
+  }
+
+  // A double-period day (two `lesson_slots` matching this date's weekday+half-year) is
+  // ambiguous without an explicit `slotId` -- fail loud rather than silently picking one and
+  // colliding with the other lesson's content. A single match auto-resolves (today's common
+  // case, and every existing caller that doesn't pass `slotId` yet keeps working unchanged).
+  let slotId = params.slotId;
+  const classLessonSlots = calendar.class_schedule[className]?.lesson_slots ?? [];
+  if (classLessonSlots.length > 0) {
+    const weekday = isoWeekday(date);
+    let halfYear: 1 | 2 | null = null;
+    try {
+      halfYear = dateHalfYear(date, deriveHalfYearBoundary(calendar));
+    } catch {
+      halfYear = null;
+    }
+    const matching = classLessonSlots.filter(
+      (ls) => ls.day === weekday && (halfYear === null || ls.half_year === halfYear),
+    );
+    if (matching.length > 1 && !slotId) {
+      throw new Error(
+        `Multiple lesson slots match ${className} on ${date} (${matching
+          .map((s) => s.id)
+          .join(", ")}) -- specify slotId.`,
+      );
+    }
+    if (matching.length > 0 && !slotId) {
+      slotId = matching[0]!.id;
+    }
   }
 
   const weeklyLessons = modulesFile.weekly_lessons;
@@ -143,8 +179,14 @@ export function dateContext(params: {
   const report = gapReport({ asOfDate: date, ledger, modulesFile, placements });
   const moduleGaps = report.gaps.filter((g) => g.moduleId === which.moduleId);
 
-  const specRelPath = join("artifacts", className, date, "lesson-spec.json");
-  const specAbsPath = join(repoRoot, specRelPath);
+  const specAbsPath = join(artifactDir(repoRoot, className, date, slotId), "lesson-spec.json");
+  const specRelPath = join(
+    "artifacts",
+    className,
+    date,
+    ...(slotId ? [slotId] : []),
+    "lesson-spec.json",
+  );
   let lessonSpec: LessonSpec | null = null;
   let lessonSpecPath: string | null = null;
   if (existsSync(specAbsPath)) {
@@ -166,5 +208,6 @@ export function dateContext(params: {
     gaps: moduleGaps,
     lessonSpecPath,
     lessonSpec,
+    ...(slotId ? { slotId } : {}),
   };
 }
