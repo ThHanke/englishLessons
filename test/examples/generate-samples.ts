@@ -105,6 +105,28 @@ writeFileSync(join(artifactsDir, "lesson-spec.json"), JSON.stringify({
   curriculum_ref: "sa-sek-en-2019",
 }, null, 2));
 
+writeFileSync(join(artifactsDir, "lesson-plan.json"), JSON.stringify({
+  objectives: [
+    "Identify active vs passive voice in context",
+    "Produce passive-voice sentences about school and media topics",
+  ],
+  stages: [
+    { name: "Warm-up / Review", durationMinutes: 9, description: "Retrieval practice + German Passiv bridge; \"I can...\" on the board" },
+    { name: "Input", durationMinutes: 10, description: "Dialog with passive-voice sentences in context; underline be+past-participle" },
+    { name: "Guided Practice", durationMinutes: 20, description: "Gap fill (supported), MCQ + matching (guided)" },
+    { name: "Production", durationMinutes: 5, description: "Error correction (independent, no hints)" },
+    { name: "Wrap-up", durationMinutes: 1, description: "Exit ticket: one passive sentence about school" },
+  ],
+  differentiationNotes: "Band 1 gets a full word bank and base-verb hints; Band 2 drops the word bank; Band 3 (error correction) gets no hints at all, per B1 expectations.",
+  exercisePlan: [
+    "gap_fill: 3 sentences, supported band, hints given",
+    "mcq: 3 items, guided band, no word bank",
+    "matching: 5 vocab pairs, guided band",
+    "error_correction: 3 German L1 transfer errors, independent band",
+    "crossword: 4 vocab items, recall/spelling practice",
+  ],
+}, null, 2));
+
 writeFileSync(join(artifactsDir, "manifest.json"), JSON.stringify({
   class: classId,
   date,
