@@ -151,4 +151,6 @@ rubric/teacher-scored (no fake auto-grading of free text — matches out-of-scop
 3. `matching` (drag-drop) — SortableJS (MIT) — vocab, collocations, prepositions.
 4. `error_correction` — custom TS — grammar consolidation (agreement, tense).
 5. `crossword` — verified-MIT lib or hand-roll — vocab retention + spelling.
-Later: flashcards, mark-the-words, reorder, word-search.
+Later (DONE, Phase 4): `flashcards`, `mark_the_words`, `reorder`, `word_search` --
+`src/widgets/{flashcards,markTheWords,reorder,wordSearch}.ts`, wired into
+`generate_exercise` alongside the first-build set above.

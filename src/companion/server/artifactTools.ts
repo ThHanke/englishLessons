@@ -11,6 +11,10 @@ import { renderMcqHtml, type McqItem } from "../../widgets/mcq.ts";
 import { renderMatchingHtml, type MatchingPair } from "../../widgets/matching.ts";
 import { renderErrorCorrectionHtml, type ErrorCorrectionItem } from "../../widgets/errorCorrection.ts";
 import { renderCrosswordHtml, type CrosswordItem } from "../../widgets/crossword.ts";
+import { renderFlashcardsHtml, type FlashcardItem } from "../../widgets/flashcards.ts";
+import { renderMarkTheWordsHtml, type MarkTheWordsItem } from "../../widgets/markTheWords.ts";
+import { renderReorderHtml, type ReorderItem } from "../../widgets/reorder.ts";
+import { renderWordSearchHtml, type WordSearchItem } from "../../widgets/wordSearch.ts";
 import { renderVocabIntroHtml } from "../../widgets/vocabIntro.ts";
 import type { LessonSpec } from "../../schema/types.ts";
 import { resolveKnownVocabulary } from "../../vocab/resolveKnownVocabulary.ts";
@@ -113,6 +117,26 @@ const CrosswordItemSchema = z.object({
   clue: z.string(),
 });
 
+const FlashcardItemSchema = z.object({
+  front: z.string(),
+  back: z.string(),
+});
+
+const ReorderItemSchema = z.object({
+  fragments: z.array(z.string()),
+  instruction: z.string().optional(),
+});
+
+const MarkTheWordsItemSchema = z.object({
+  text: z.string(),
+  targetIndices: z.array(z.number().int()),
+  instruction: z.string(),
+});
+
+const WordSearchItemSchema = z.object({
+  word: z.string(),
+});
+
 /** Per-type `items` shapes, keyed by `GenerateExerciseSchema.type` -- validated a level down from
  * the outer schema so a `gap_fill` request can't smuggle `mcq`-shaped items (KTD1). */
 const ITEMS_SCHEMA_BY_TYPE = {
@@ -121,10 +145,24 @@ const ITEMS_SCHEMA_BY_TYPE = {
   matching: z.array(MatchingPairSchema),
   error_correction: z.array(ErrorCorrectionItemSchema),
   crossword: z.array(CrosswordItemSchema),
+  flashcards: z.array(FlashcardItemSchema),
+  reorder: z.array(ReorderItemSchema),
+  mark_the_words: z.array(MarkTheWordsItemSchema),
+  word_search: z.array(WordSearchItemSchema),
 } as const;
 
 const GenerateExerciseSchema = {
-  type: z.enum(["gap_fill", "mcq", "matching", "error_correction", "crossword"]),
+  type: z.enum([
+    "gap_fill",
+    "mcq",
+    "matching",
+    "error_correction",
+    "crossword",
+    "flashcards",
+    "reorder",
+    "mark_the_words",
+    "word_search",
+  ]),
   title: z.string(),
   competenceIds: z.array(z.string()),
   items: z.array(z.unknown()),
@@ -156,7 +194,19 @@ function extractContentText(type: string, items: unknown[]): string[] {
   if (type === "error_correction") {
     return (items as ErrorCorrectionItem[]).flatMap((it) => [it.sentence, it.correction]);
   }
-  return (items as CrosswordItem[]).flatMap((it) => [it.word, it.clue]);
+  if (type === "crossword") {
+    return (items as CrosswordItem[]).flatMap((it) => [it.word, it.clue]);
+  }
+  if (type === "flashcards") {
+    return (items as FlashcardItem[]).flatMap((it) => [it.front, it.back]);
+  }
+  if (type === "reorder") {
+    return (items as ReorderItem[]).flatMap((it) => it.fragments);
+  }
+  if (type === "mark_the_words") {
+    return (items as MarkTheWordsItem[]).map((it) => it.text);
+  }
+  return (items as WordSearchItem[]).map((it) => it.word);
 }
 
 interface ManifestEntry {
@@ -206,6 +256,9 @@ export function createLessonArtifactServer(params: {
 }): McpSdkServerConfigWithInstance {
   const { classId, date, slotId, repoRoot } = params;
   const baseDir = artifactDir(repoRoot, classId, date, slotId);
+  // Repo-relative mirror of baseDir, for the confirmation messages returned to the agent below --
+  // must stay in sync with artifactDir's shape or those messages point at the wrong path.
+  const relDir = join("artifacts", classId, date, ...(slotId ? [slotId] : []));
 
   return createSdkMcpServer({
     name: "companion-artifacts",
@@ -246,7 +299,7 @@ export function createLessonArtifactServer(params: {
             content: [
               {
                 type: "text",
-                text: `Saved lesson-spec to artifacts/${classId}/${date}/lesson-spec.json`,
+                text: `Saved lesson-spec to ${relDir}/lesson-spec.json`,
               },
             ],
           };
@@ -288,7 +341,7 @@ export function createLessonArtifactServer(params: {
             content: [
               {
                 type: "text",
-                text: `Saved lesson plan to artifacts/${classId}/${date}/lesson-plan.json`,
+                text: `Saved lesson plan to ${relDir}/lesson-plan.json`,
               },
             ],
           };
@@ -316,7 +369,7 @@ export function createLessonArtifactServer(params: {
           const filePath = join(materialsDir, fileName);
           atomicWriteFileSync(filePath, args.content);
 
-          const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
+          const relPath = `${relDir}/materials/${fileName}`;
           return {
             content: [{ type: "text", text: `Saved material to ${relPath}` }],
           };
@@ -324,7 +377,7 @@ export function createLessonArtifactServer(params: {
       ),
       tool(
         "generate_exercise",
-        "Generate a typed exercise widget (gap_fill, mcq, matching, error_correction, or crossword) for specific competences and save it as a self-contained, self-checking worksheet.",
+        "Generate a typed exercise widget (gap_fill, mcq, matching, error_correction, crossword, flashcards, reorder, mark_the_words, or word_search) for specific competences and save it as a self-contained, self-checking worksheet.",
         GenerateExerciseSchema,
         async (args) => {
           const slug = slugify(args.title);
@@ -360,8 +413,16 @@ export function createLessonArtifactServer(params: {
             html = renderMatchingHtml(args.title, parsedItems.data as MatchingPair[]);
           } else if (args.type === "error_correction") {
             html = renderErrorCorrectionHtml(args.title, parsedItems.data as ErrorCorrectionItem[]);
-          } else {
+          } else if (args.type === "crossword") {
             html = renderCrosswordHtml(args.title, parsedItems.data as CrosswordItem[]);
+          } else if (args.type === "flashcards") {
+            html = renderFlashcardsHtml(args.title, parsedItems.data as FlashcardItem[]);
+          } else if (args.type === "reorder") {
+            html = renderReorderHtml(args.title, parsedItems.data as ReorderItem[]);
+          } else if (args.type === "mark_the_words") {
+            html = renderMarkTheWordsHtml(args.title, parsedItems.data as MarkTheWordsItem[]);
+          } else {
+            html = renderWordSearchHtml(args.title, parsedItems.data as WordSearchItem[]);
           }
 
           const materialsDir = join(baseDir, "materials");
@@ -386,7 +447,7 @@ export function createLessonArtifactServer(params: {
           });
           atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
-          const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
+          const relPath = `${relDir}/materials/${fileName}`;
           return {
             content: [{ type: "text", text: `Saved ${args.type} exercise to ${relPath}` }],
           };
@@ -500,7 +561,7 @@ export function createLessonArtifactServer(params: {
           });
           atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
-          const relPath = `artifacts/${classId}/${date}/materials/${fileName}`;
+          const relPath = `${relDir}/materials/${fileName}`;
           return {
             content: [{ type: "text", text: `Saved vocabulary introduction to ${relPath}` }],
           };

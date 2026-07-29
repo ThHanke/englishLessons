@@ -119,7 +119,31 @@ own checkboxes (several were stale).
   exposure-not-mastery caveat as lesson-spec-derived coverage. A `produce`-required
   competence covered only via `mcq`/`matching` still shows as under-depth, since
   neither is in `PRODUCTIVE_EXERCISE_TYPES` — expected, not a regression.
-- **Phase 4 (breadth) — NOT STARTED.**
+- **Phase 4 (breadth) — IN PROGRESS.** Remaining exercise skills and drift-driven
+  re-planning are done; a second class/track extensibility check and a grades feed are
+  not started.
+  - **Remaining exercise skills — DONE.** The four skills deferred at Phase 3
+    (`docs/spec/06-exercise-design-reference.md`'s "Later" list) now have widget
+    renderers (`src/widgets/{flashcards,reorder,markTheWords,wordSearch}.ts`) wired
+    into `generate_exercise` alongside the original five, bringing the catalog to nine
+    types. `flashcards` (`front`/`back`, self-rated, not auto-checkable — matches the
+    "no algorithm needed for MVP" guidance) and `reorder` (fragments given in correct
+    order, scrambled + click-based Up/Down reordering, matching.ts's no-drag-and-drop
+    convention) follow the existing widgets closely. `mark_the_words` targets word
+    positions by index into the whitespace-split passage (not by text, so duplicate
+    words never collide). `word_search` hand-rolls its own grid placement
+    (across/down only, no diagonals — same scope-limiting choice crossword.ts already
+    made), reusing crossword's `Map<"row,col", letter>` + seeded-PRNG pattern but
+    filling every cell (no blocked cells) since a word search grid has no gaps.
+  - **Drift-driven re-planning — DONE.** `driftReport()` (`coverage/driftReport.ts`)
+    existed but was never called from anywhere. `buildLedger.ts` gained
+    `lastTaughtDate()` (max manifest date, falling back to lesson-spec date) to feed
+    its `actualLastTaughtDate` param; `moduleTasks.ts` now computes it per class and
+    exposes it via `/api/tasks`; `dateContext.ts` adds `calendarDrift` to the chat seed
+    context so the agent can compensate (skip a practice slot, fold in remedial
+    coverage) when a class has fallen behind instead of planning to the nominal
+    calendar position. Surfaced in the calendar's class legend and the chat
+    preview/seed text.
 - **`klassenarbeit` skill (§5.6) — NOT BUILT.** `assessment-design` (the
   blueprint-before-items skill) exists but the full Erlass-grounded artifact set
   (`klassenarbeit.html` + `erwartungshorizont.html` with AFB tagging and the §6.3

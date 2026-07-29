@@ -21,7 +21,7 @@ const ARTIFACT_SERVER_NAME = "companion-artifacts";
  * drafting or vocabulary judgment calls, which stay on the main model. */
 const EXERCISE_BUILDER_AGENT: AgentDefinition = {
   description:
-    "Builds and saves ONE typed exercise (gap_fill, mcq, matching, error_correction, or crossword) via generate_exercise. Invoke once per exercise, after you've already decided its type, competenceIds, and items -- this agent calls the tool correctly, it doesn't redesign the exercise.",
+    "Builds and saves ONE typed exercise (gap_fill, mcq, matching, error_correction, crossword, flashcards, reorder, mark_the_words, or word_search) via generate_exercise. Invoke once per exercise, after you've already decided its type, competenceIds, and items -- this agent calls the tool correctly, it doesn't redesign the exercise.",
   prompt:
     "You build exactly one exercise per invocation by calling generate_exercise with the type, title, competenceIds, and items you're given. Follow those parameters precisely -- the pedagogical decisions (type, scaffolding band, item content) were already made by the agent that invoked you. For gap_fill items, always include a hint (the base/prompt word) on every blank. Call generate_exercise once, then report back what was saved.",
   model: "haiku",
@@ -120,7 +120,8 @@ Once you've drafted the actual pedagogical plan (not just the constraints), save
 
 ### generate_exercise — via the exercise-builder subagent
 Decide the exercise's type, title, competenceIds, and items yourself (invoke \`eal-scaffold\`, \`error-correction-design\`, etc. as normal to design the content), then delegate the actual save to the \`exercise-builder\` subagent (the \`Agent\` tool) instead of calling \`generate_exercise\` directly — it runs on a cheaper model since calling the tool correctly needs no reasoning once you've already decided the content. Give it the fully-decided parameters in your prompt to it:
-- \`type\`: one of "gap_fill", "mcq", "matching", "error_correction", "crossword"
+- \`type\`: one of "gap_fill", "mcq", "matching", "error_correction", "crossword", "flashcards", "reorder",
+  "mark_the_words", "word_search"
 - \`title\`: descriptive title (used in the filename)
 - \`competenceIds\`: the bracketed competence IDs this exercise practices
 - \`items\`: an array shaped for the chosen type —
@@ -137,6 +138,16 @@ Decide the exercise's type, title, competenceIds, and items yourself (invoke \`e
     steps are open-ended and never auto-graded.
   - \`crossword\`: \`{ word, clue }\` pairs — words are placed automatically (crossing where letters share);
     keep the word list short (5-8) since the layout is a simple greedy placement, not an optimizer.
+  - \`flashcards\`: \`{ front, back }\` pairs — vocabulary review, self-rated ("Got it" / "Still learning"),
+    not auto-graded (there's no wrong answer to a flip).
+  - \`reorder\`: \`{ fragments: string[] (in correct final order), instruction? }\` — give fragments in the
+    CORRECT order; the widget scrambles and re-checks them itself. Good for sentence/paragraph/storyboard
+    sequencing.
+  - \`mark_the_words\`: \`{ text, targetIndices: number[], instruction }\` — \`targetIndices\` are 0-based
+    positions into \`text\` split on whitespace (so punctuation stays attached to its word — count carefully).
+    Use for "click every past-tense verb"/"click every connector" style identification tasks.
+  - \`word_search\`: \`{ word }\` list — words are placed automatically in a random grid (across/down only);
+    keep the list short (6-10) so the grid stays a reasonable size.
 
 One \`exercise-builder\` invocation per exercise. This renders a self-contained, self-checking worksheet and records it in the coverage ledger at "practiced" depth for each competence — this is what makes the exercise count as real coverage, not just a saved file.
 

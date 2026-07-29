@@ -417,6 +417,92 @@ describe("artifactTools", () => {
       expect(manifest.materials[0]).toMatchObject({ type: "crossword", depth: "practiced" });
     });
 
+    it("dispatches flashcards requests to the flashcards renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "flashcards",
+        title: "Vocab Flashcards Dispatch Check",
+        competenceIds: ["fk.v.school"],
+        items: [{ front: "apple", back: "der Apfel" }],
+      });
+
+      expect(result.isError).toBeFalsy();
+      const filePath = join(
+        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
+        "flashcards-vocab-flashcards-dispatch-check.html",
+      );
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('class="flip"');
+      const manifest = readManifest();
+      expect(manifest.materials[0]).toMatchObject({ type: "flashcards", depth: "practiced" });
+    });
+
+    it("dispatches reorder requests to the reorder renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "reorder",
+        title: "Story Order Dispatch Check",
+        competenceIds: ["fk.k.schreiben"],
+        items: [{ fragments: ["First.", "Then.", "Finally."] }],
+      });
+
+      expect(result.isError).toBeFalsy();
+      const filePath = join(
+        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
+        "reorder-story-order-dispatch-check.html",
+      );
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('class="fragments"');
+      const manifest = readManifest();
+      expect(manifest.materials[0]).toMatchObject({ type: "reorder", depth: "practiced" });
+    });
+
+    it("dispatches mark_the_words requests to the mark-the-words renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "mark_the_words",
+        title: "Past Tense Dispatch Check",
+        competenceIds: ["fk.g.tense"],
+        items: [
+          { text: "She walked to school.", targetIndices: [1], instruction: "Click every past-tense verb." },
+        ],
+      });
+
+      expect(result.isError).toBeFalsy();
+      const filePath = join(
+        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
+        "mark_the_words-past-tense-dispatch-check.html",
+      );
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('class="word"');
+      const manifest = readManifest();
+      expect(manifest.materials[0]).toMatchObject({ type: "mark_the_words", depth: "practiced" });
+    });
+
+    it("dispatches word_search requests to the word-search renderer", async () => {
+      const handler = extractToolHandler(makeServer(), "generate_exercise");
+
+      const result = await handler({
+        type: "word_search",
+        title: "Vocab Word Search Dispatch Check",
+        competenceIds: ["fk.v.school"],
+        items: [{ word: "CAT" }, { word: "DOG" }],
+      });
+
+      expect(result.isError).toBeFalsy();
+      const filePath = join(
+        tmpDir, "artifacts", CLASS_ID, DATE, "materials",
+        "word_search-vocab-word-search-dispatch-check.html",
+      );
+      const html = readFileSync(filePath, "utf-8");
+      expect(html).toContain('class="cell"');
+      const manifest = readManifest();
+      expect(manifest.materials[0]).toMatchObject({ type: "word_search", depth: "practiced" });
+    });
+
     it("rejects crossword-typed items shaped like matching items", async () => {
       const handler = extractToolHandler(makeServer(), "generate_exercise");
 

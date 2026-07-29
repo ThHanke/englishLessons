@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>School Vocab Word Search</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; color: #111; }
+  .layout { display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
+  .grid { display: grid; grid-template-columns: repeat(9, 1.8rem); gap: 1px; }
+  .cell { width: 1.8rem; height: 1.8rem; font: inherit; font-weight: bold; text-transform: uppercase;
+    border: 1px solid #ccc; background: #fff; cursor: pointer; padding: 0; }
+  .cell.selecting { background: #eef4ff; border-color: #06c; }
+  .cell.found { background: #d4f7d4; border-color: #2a2; }
+  ul.words { list-style: none; padding: 0; }
+  ul.words li { text-transform: uppercase; padding: 0.15rem 0; }
+  ul.words li.found { text-decoration: line-through; color: #2a2; }
+  p#result { font-weight: bold; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<h1>School Vocab Word Search</h1>
+<p>Click a letter to start, then click another letter in the same row or column to select a word.</p>
+<div class="layout">
+  <div class="grid"><button type="button" class="cell" data-row="0" data-col="0">V</button><button type="button" class="cell" data-row="0" data-col="1">Y</button><button type="button" class="cell" data-row="0" data-col="2">C</button><button type="button" class="cell" data-row="0" data-col="3">B</button><button type="button" class="cell" data-row="0" data-col="4">T</button><button type="button" class="cell" data-row="0" data-col="5">W</button><button type="button" class="cell" data-row="0" data-col="6">H</button><button type="button" class="cell" data-row="0" data-col="7">W</button><button type="button" class="cell" data-row="0" data-col="8">C</button><button type="button" class="cell" data-row="1" data-col="0">N</button><button type="button" class="cell" data-row="1" data-col="1">Y</button><button type="button" class="cell" data-row="1" data-col="2">H</button><button type="button" class="cell" data-row="1" data-col="3">S</button><button type="button" class="cell" data-row="1" data-col="4">I</button><button type="button" class="cell" data-row="1" data-col="5">E</button><button type="button" class="cell" data-row="1" data-col="6">E</button><button type="button" class="cell" data-row="1" data-col="7">R</button><button type="button" class="cell" data-row="1" data-col="8">A</button><button type="button" class="cell" data-row="2" data-col="0">Y</button><button type="button" class="cell" data-row="2" data-col="1">D</button><button type="button" class="cell" data-row="2" data-col="2">O</button><button type="button" class="cell" data-row="2" data-col="3">Z</button><button type="button" class="cell" data-row="2" data-col="4">M</button><button type="button" class="cell" data-row="2" data-col="5">E</button><button type="button" class="cell" data-row="2" data-col="6">X</button><button type="button" class="cell" data-row="2" data-col="7">K</button><button type="button" class="cell" data-row="2" data-col="8">R</button><button type="button" class="cell" data-row="3" data-col="0">D</button><button type="button" class="cell" data-row="3" data-col="1">K</button><button type="button" class="cell" data-row="3" data-col="2">M</button><button type="button" class="cell" data-row="3" data-col="3">B</button><button type="button" class="cell" data-row="3" data-col="4">E</button><button type="button" class="cell" data-row="3" data-col="5">I</button><button type="button" class="cell" data-row="3" data-col="6">A</button><button type="button" class="cell" data-row="3" data-col="7">R</button><button type="button" class="cell" data-row="3" data-col="8">E</button><button type="button" class="cell" data-row="4" data-col="0">N</button><button type="button" class="cell" data-row="4" data-col="1">N</button><button type="button" class="cell" data-row="4" data-col="2">E</button><button type="button" class="cell" data-row="4" data-col="3">R</button><button type="button" class="cell" data-row="4" data-col="4">T</button><button type="button" class="cell" data-row="4" data-col="5">B</button><button type="button" class="cell" data-row="4" data-col="6">M</button><button type="button" class="cell" data-row="4" data-col="7">V</button><button type="button" class="cell" data-row="4" data-col="8">T</button><button type="button" class="cell" data-row="5" data-col="0">W</button><button type="button" class="cell" data-row="5" data-col="1">H</button><button type="button" class="cell" data-row="5" data-col="2">W</button><button type="button" class="cell" data-row="5" data-col="3">E</button><button type="button" class="cell" data-row="5" data-col="4">A</button><button type="button" class="cell" data-row="5" data-col="5">E</button><button type="button" class="cell" data-row="5" data-col="6">H</button><button type="button" class="cell" data-row="5" data-col="7">X</button><button type="button" class="cell" data-row="5" data-col="8">A</button><button type="button" class="cell" data-row="6" data-col="0">H</button><button type="button" class="cell" data-row="6" data-col="1">D</button><button type="button" class="cell" data-row="6" data-col="2">O</button><button type="button" class="cell" data-row="6" data-col="3">A</button><button type="button" class="cell" data-row="6" data-col="4">B</button><button type="button" class="cell" data-row="6" data-col="5">R</button><button type="button" class="cell" data-row="6" data-col="6">O</button><button type="button" class="cell" data-row="6" data-col="7">I</button><button type="button" class="cell" data-row="6" data-col="8">K</button><button type="button" class="cell" data-row="7" data-col="0">D</button><button type="button" class="cell" data-row="7" data-col="1">D</button><button type="button" class="cell" data-row="7" data-col="2">R</button><button type="button" class="cell" data-row="7" data-col="3">K</button><button type="button" class="cell" data-row="7" data-col="4">L</button><button type="button" class="cell" data-row="7" data-col="5">B</button><button type="button" class="cell" data-row="7" data-col="6">H</button><button type="button" class="cell" data-row="7" data-col="7">R</button><button type="button" class="cell" data-row="7" data-col="8">E</button><button type="button" class="cell" data-row="8" data-col="0">Q</button><button type="button" class="cell" data-row="8" data-col="1">D</button><button type="button" class="cell" data-row="8" data-col="2">K</button><button type="button" class="cell" data-row="8" data-col="3">N</button><button type="button" class="cell" data-row="8" data-col="4">E</button><button type="button" class="cell" data-row="8" data-col="5">N</button><button type="button" class="cell" data-row="8" data-col="6">F</button><button type="button" class="cell" data-row="8" data-col="7">U</button><button type="button" class="cell" data-row="8" data-col="8">R</button></div>
+  <div>
+    <h2>Find these words</h2>
+    <ul class="words"><li data-word="TIMETABLE">TIMETABLE</li><li data-word="HOMEWORK">HOMEWORK</li><li data-word="BREAK">BREAK</li><li data-word="EXAM">EXAM</li><li data-word="CARETAKER">CARETAKER</li></ul>
+  </div>
+</div>
+<p id="result"></p>
+<script>
+(function () {
+  var width = 9;
+  var found = {};
+  var total = 5;
+  var start = null;
+
+  function cellAt(r, c) {
+    return document.querySelector('.cell[data-row="' + r + '"][data-col="' + c + '"]');
+  }
+
+  function clearSelecting() {
+    document.querySelectorAll('.cell.selecting').forEach(function (el) { el.classList.remove('selecting'); });
+  }
+
+  function updateResult() {
+    var count = Object.keys(found).length;
+    document.getElementById('result').textContent = count + ' / ' + total + ' words found';
+  }
+
+  document.querySelectorAll('.cell').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var row = Number(btn.getAttribute('data-row'));
+      var col = Number(btn.getAttribute('data-col'));
+      if (start === null) {
+        start = { row: row, col: col };
+        btn.classList.add('selecting');
+        return;
+      }
+      var end = { row: row, col: col };
+      var line = [];
+      if (start.row === end.row) {
+        var lo = Math.min(start.col, end.col), hi = Math.max(start.col, end.col);
+        for (var c = lo; c <= hi; c++) line.push(cellAt(start.row, c));
+      } else if (start.col === end.col) {
+        var lo2 = Math.min(start.row, end.row), hi2 = Math.max(start.row, end.row);
+        for (var r = lo2; r <= hi2; r++) line.push(cellAt(r, start.col));
+      }
+      clearSelecting();
+      start = null;
+      if (line.length === 0) return;
+      var text = line.map(function (el) { return el.textContent; }).join('');
+      var reversed = text.split('').reverse().join('');
+      document.querySelectorAll('ul.words li').forEach(function (li) {
+        var word = li.getAttribute('data-word');
+        if (found[word]) return;
+        if (word === text || word === reversed) {
+          found[word] = true;
+          li.classList.add('found');
+          line.forEach(function (el) { el.classList.add('found'); });
+          updateResult();
+        }
+      });
+    });
+  });
+
+  updateResult();
+})();
+</script>
+</body>
+</html>

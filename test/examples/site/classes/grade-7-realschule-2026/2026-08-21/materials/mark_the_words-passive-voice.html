@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Find the Passive Voice</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; color: #111; }
+  fieldset.item { border: 1px solid #ccc; border-radius: 0.4rem; margin-bottom: 1.5rem; padding: 1rem; }
+  legend { font-weight: bold; padding: 0 0.4rem; }
+  p.passage { line-height: 2.4; }
+  button.word { font: inherit; cursor: pointer; border: 1px solid transparent; border-radius: 0.25rem;
+    background: none; padding: 0.1rem 0.15rem; }
+  button.word.marked { background: #eef4ff; border-color: #06c; }
+  button.word.hit { background: #d4f7d4; border-color: #2a2; }
+  button.word.miss { background: #fff3cd; border-color: #a80; text-decoration: underline dotted; }
+  button.word.false-positive { background: #f7d4d4; border-color: #a22; }
+  button.check { margin-top: 0.8rem; }
+  p.result { font-weight: bold; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<h1>Find the Passive Voice</h1>
+
+    <fieldset class="item" data-item="0">
+      <legend>Click every passive-voice past participle.</legend>
+      <p class="passage" data-item="0"><button type="button" class="word" data-item="0" data-word="0">The</button> <button type="button" class="word" data-item="0" data-word="1">classroom</button> <button type="button" class="word" data-item="0" data-word="2">was</button> <button type="button" class="word" data-item="0" data-word="3">cleaned</button> <button type="button" class="word" data-item="0" data-word="4">yesterday</button> <button type="button" class="word" data-item="0" data-word="5">and</button> <button type="button" class="word" data-item="0" data-word="6">the</button> <button type="button" class="word" data-item="0" data-word="7">books</button> <button type="button" class="word" data-item="0" data-word="8">were</button> <button type="button" class="word" data-item="0" data-word="9">borrowed</button> <button type="button" class="word" data-item="0" data-word="10">last</button> <button type="button" class="word" data-item="0" data-word="11">week.</button></p>
+      <button type="button" class="check" data-item="0">Check</button>
+      <p class="result" data-result="0"></p>
+    </fieldset>
+<script>
+(function () {
+  var targets = [[3,9]];
+
+  document.querySelectorAll('button.word').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.classList.toggle('marked');
+      btn.classList.remove('hit', 'miss', 'false-positive');
+    });
+  });
+
+  document.querySelectorAll('button.check').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var ii = btn.getAttribute('data-item');
+      var itemTargets = targets[ii];
+      var words = document.querySelectorAll('.passage[data-item="' + ii + '"] button.word');
+      var hits = 0;
+      var falsePositives = 0;
+      words.forEach(function (w) {
+        var wi = Number(w.getAttribute('data-word'));
+        var isTarget = itemTargets.indexOf(wi) !== -1;
+        var isMarked = w.classList.contains('marked');
+        w.classList.remove('hit', 'miss', 'false-positive');
+        if (isTarget && isMarked) { w.classList.add('hit'); hits++; }
+        else if (isTarget && !isMarked) { w.classList.add('miss'); }
+        else if (!isTarget && isMarked) { w.classList.add('false-positive'); falsePositives++; }
+      });
+      var resultEl = document.querySelector('[data-result="' + ii + '"]');
+      resultEl.textContent = hits + ' / ' + itemTargets.length + ' found' +
+        (falsePositives > 0 ? ', ' + falsePositives + ' extra word' + (falsePositives > 1 ? 's' : '') + ' marked' : '');
+    });
+  });
+})();
+</script>
+</body>
+</html>
