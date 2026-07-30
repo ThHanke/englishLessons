@@ -138,6 +138,9 @@ export function EventPopup({
           </p>
         )}
         <p>
+          Planned: {task.progressSlotsPlanned} of {task.progressSlotsTotal} lessons
+        </p>
+        <p>
           Gaps: {gap ?? "none"} ({task.gaps.length})
         </p>
         <p>Coverage: {task.coveragePercent}% at required depth</p>

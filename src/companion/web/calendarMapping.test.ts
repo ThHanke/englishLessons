@@ -24,6 +24,8 @@ function task(
     milestoneType: "none",
     milestoneAssesses: [],
     estimated: false,
+    progressSlotsPlanned: 0,
+    progressSlotsTotal: 0,
     ...overrides,
   };
 }

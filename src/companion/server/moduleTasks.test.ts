@@ -275,6 +275,20 @@ describe("moduleTasks", () => {
     expect(m1.plannedDates).toContain("2026-08-05");
   });
 
+  it("progressSlotsPlanned counts planned lessons, not calendar-elapsed slots (there's no 'was it taught' signal)", () => {
+    const { tasks } = moduleTasks({
+      from: "2026-08-01",
+      to: "2026-09-30",
+      repoRoot: FIXTURE_REPO_ROOT,
+    });
+    const m1 = tasks.find(
+      (t) => t.classId === "fixture-class" && t.moduleId === "m1",
+    )!;
+
+    expect(m1.progressSlotsPlanned).toBe(m1.plannedDates.length);
+    expect(m1.progressSlotsTotal).toBeGreaterThanOrEqual(m1.progressSlotsPlanned);
+  });
+
   it("excludes tasks entirely outside the requested date range", () => {
     const { tasks } = moduleTasks({
       from: "2030-01-01",

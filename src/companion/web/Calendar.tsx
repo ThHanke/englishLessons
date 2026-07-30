@@ -95,13 +95,16 @@ export function EventContent({
     // All-day task bars get one stacked row each at a fixed height (SVAR's own layout, not ours
     // to resize per-event) -- unlike the appointment card below, there's no room for a second
     // line, so this stays single-line-ellipsis (.companion-task-content) rather than the
-    // appointment's multi-row flex layout. Milestone date lives in the click-through popup
-    // only, not here -- moduleTitle/coverage/gap is already enough to fill a narrow column.
+    // appointment's multi-row flex layout. Shows planning progress (lessons planned/total) +
+    // gap severity -- the two things worth an at-a-glance reaction; coveragePercent (content
+    // depth, not planning position) moves to the hover tooltip instead of crowding this line,
+    // and milestone date stays popup-only.
     return (
       <span className="companion-task-content">
         <span className="companion-event-badge">{task.classLabel}</span>
         {task.estimated && "~ "}
-        <strong>{task.moduleTitle}</strong> · {task.coveragePercent}%
+        <strong>{task.moduleTitle}</strong> · {task.progressSlotsPlanned}/
+        {task.progressSlotsTotal} planned
         {gap && <> · {gap}</>}
       </span>
     );

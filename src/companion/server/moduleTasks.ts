@@ -51,6 +51,15 @@ export interface ModuleTask {
    * exist for this class yet) rather than the class's actual schedule -- a coarse
    * week-count preview, not a placement the teacher can plan a lesson against yet. */
   estimated: boolean;
+  /** Purely cosmetic planning-position indicator -- "how many of this module's slots
+   * already have a lesson-spec" (same source as `plannedDates.length`), out of the
+   * module's total slot count. Independent of `coveragePercent` (which stays
+   * content-based, for the planning agent, and can legitimately hit 100% early from a
+   * single rich lesson). Deliberately *planning* progress, not *teaching* progress --
+   * there's no signal anywhere in this app for "was this lesson actually delivered,"
+   * only "was it planned" (a lesson-spec exists) and "what did it cover" (the ledger). */
+  progressSlotsPlanned: number;
+  progressSlotsTotal: number;
 }
 
 /** One real teaching slot for a class+module (from the projection engine's own placement, not a
@@ -221,6 +230,14 @@ export function moduleTasks(params: {
 
       if (endDate < params.from || startDate > params.to) continue;
       const milestone = moduleById.get(placement.moduleId)?.milestone;
+      const plannedDates = specs
+        .filter(
+          (s) =>
+            s.moduleId === placement.moduleId &&
+            s.date >= startDate &&
+            s.date <= endDate,
+        )
+        .map((s) => s.date);
       tasks.push({
         classId: classFile.name,
         classLabel: classLabel(classFile),
@@ -229,14 +246,7 @@ export function moduleTasks(params: {
         startDate,
         endDate,
         gaps: report.gaps.filter((g) => g.moduleId === placement.moduleId),
-        plannedDates: specs
-          .filter(
-            (s) =>
-              s.moduleId === placement.moduleId &&
-              s.date >= startDate &&
-              s.date <= endDate,
-          )
-          .map((s) => s.date),
+        plannedDates,
         coveragePercent: coverageByModuleId.get(placement.moduleId) ?? 0,
         milestoneDate: placement.milestoneDate,
         milestoneType: milestone?.type ?? "none",
@@ -244,6 +254,8 @@ export function moduleTasks(params: {
           ? resolveCompetenceLabels(milestone.assesses, modulesFile.curriculum, curriculumBands)
           : [],
         estimated: !hasLessonSlots,
+        progressSlotsPlanned: plannedDates.length,
+        progressSlotsTotal: dates.length,
       });
     }
 
