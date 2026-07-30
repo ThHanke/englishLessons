@@ -7,6 +7,7 @@ import {
 } from "@assistant-ui/react";
 import { useCompanionRuntime, type ChatSession } from "./runtime.ts";
 import { fetchLessonPreview } from "./api.ts";
+import { PublishButton } from "./PublishButton.tsx";
 import { lessonPlanPageHref, homeworkPageHref, testPageHref } from "./calendarMapping.ts";
 import type {
   DateContext,
@@ -300,6 +301,7 @@ export function Chat({
             <span>
               {activeSession?.classId} · {activeSession?.date}
             </span>
+            <PublishButton baseUrl={baseUrl} sessionToken={sessionToken} />
           </div>
 
           {error && (

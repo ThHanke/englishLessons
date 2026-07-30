@@ -21,6 +21,7 @@ import {
   handleDeleteSeriesRequest,
 } from "./routes/lessonSeries.ts";
 import { handleRescheduleLessonRequest } from "./routes/rescheduleLesson.ts";
+import { handleGitStatusRequest, handleGitPublishRequest } from "./routes/gitPublish.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -126,6 +127,18 @@ export async function createCompanionServer(params?: {
     }
     if (req.method === "DELETE" && url.pathname === "/api/lesson-series") {
       void handleDeleteSeriesRequest(req, res, {
+        repoRoot,
+        expectedOrigin: origin,
+        sessionToken,
+      });
+      return;
+    }
+    if (req.method === "GET" && url.pathname === "/api/git-status") {
+      void handleGitStatusRequest(req, res, { repoRoot });
+      return;
+    }
+    if (req.method === "POST" && url.pathname === "/api/git-publish") {
+      void handleGitPublishRequest(req, res, {
         repoRoot,
         expectedOrigin: origin,
         sessionToken,

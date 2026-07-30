@@ -140,6 +140,51 @@ export async function deleteLessonSeries(params: {
   return (await res.json()) as TasksRangeResponse;
 }
 
+export interface GitStatusSummary {
+  branch: string;
+  changedFiles: string[];
+  ahead: number;
+  behind: number;
+  hasUpstream: boolean;
+}
+
+/** `GET /api/git-status` — no session token required, mirrors `/api/tasks`'s read-only tier. */
+export async function fetchGitStatus(params: { baseUrl: string }): Promise<GitStatusSummary> {
+  const res = await fetch(new URL("/api/git-status", params.baseUrl).toString());
+  if (!res.ok)
+    throw new Error(`GET /api/git-status failed: ${res.status} ${res.statusText}`);
+  return (await res.json()) as GitStatusSummary;
+}
+
+export type PublishResult =
+  | { status: "nothing-to-commit" }
+  | { status: "published"; commitSha: string }
+  | { status: "commit-failed"; error: string }
+  | { status: "push-failed"; commitSha: string; error: string };
+
+/** `POST /api/git-publish` — stages/commits/pushes `artifacts/`+`calendar/` under the machine's
+ * own git identity. 200 and 500 both carry a typed `PublishResult` body (500 covers
+ * commit-failed/push-failed, which are expected outcomes the UI needs to display, not just an
+ * error to throw) -- only 400/401/403 (malformed request / not authorized) throw. */
+export async function publishGitChanges(params: {
+  baseUrl: string;
+  sessionToken: string;
+  message: string;
+}): Promise<PublishResult> {
+  const res = await fetch(new URL("/api/git-publish", params.baseUrl).toString(), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-companion-session-token": params.sessionToken,
+    },
+    body: JSON.stringify({ message: params.message }),
+  });
+  if (res.status === 400 || res.status === 401 || res.status === 403) {
+    throw new Error(`POST /api/git-publish failed: ${res.status} ${res.statusText}`);
+  }
+  return (await res.json()) as PublishResult;
+}
+
 /** `GET /api/lesson-preview?class=<className>&date=<date>` — the same seed context R2's chat-open
  * flow assembles, used by the "Plan lesson" form (R11) to preview a grade+date pick before opening
  * chat for it. */

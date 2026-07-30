@@ -111,14 +111,22 @@ public URL pupils will use.
 
 ### 6. Publish
 
-Generated materials live in the repo as self-contained HTML files. Push to publish:
+Generated materials live in the repo as self-contained HTML files. The easiest way to
+publish is the **Publish changes** button in the planning chat's header: it shows how
+many files changed under `artifacts/`/`calendar/`, asks you to confirm you've reviewed
+them, then commits and pushes under your own git identity — the chat's AI agent never
+has commit/push access itself (it's read-only by design), so this is a plain UI action,
+not something the assistant can trigger on its own. Nothing gets a Co-Authored-By
+trailer.
+
+Equivalent from the command line, if you'd rather:
 ```sh
-git add .
+git add artifacts/ calendar/
 git commit -m "lesson for 7a 2026-01-14"
 git push
 ```
-The push triggers the `pages.yml` Actions workflow, which builds `site/` (via
-`npm run build:site`) and deploys it to GitHub Pages — watch progress under the
+Either way, the push triggers the `pages.yml` Actions workflow, which builds `site/`
+(via `npm run build:site`) and deploys it to GitHub Pages — watch progress under the
 repo's **Actions** tab. Once deployed, Pages serves each lesson at a stable
 `/classes/<class>/<date>/` URL. The files also work offline (`file://`, e.g. from the
 companion's local artifact preview) and print cleanly.
