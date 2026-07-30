@@ -1,0 +1,168 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-19",
+  "objectives": [
+    "I can use 'am', 'is', and 'are' correctly without looking at my notes.",
+    "I can introduce myself in three sentences.",
+    "I can ask a partner three personal questions.",
+    "I can spell number words 1-20."
+  ],
+  "stages": [
+    {
+      "name": "Opening — Retrieval and Bridge",
+      "durationMinutes": 8,
+      "purpose": "Spaced retrieval 2 days after introduction: numbers and 'be' forms recalled without any board support, then bridge to today's no-notes production focus.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "No books, no board. Say: 'Let's recall what we learned on Monday. I say a number in German — you call back in English.' Demonstrate: 'drei' → class says 'three'.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Number call-back: teacher calls 1–20 in random German order, pupils call back in English.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Verb cue drill: say 'ich' → pupils say 'I am'; say 'er / sie' → pupils say 'he is / she is'; say 'du' → pupils say 'you are'. Repeat twice at speed.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Think-write: 'Write 3 sentences about yourself in English from memory. No board, no book.' Allow 2 minutes of silent writing.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Partner check: swap books, read each other's sentences, circle any 'am / is / are' errors.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge: 'On Monday you had all the words in front of you. Today you use them from memory.' Write on board: I can use am/is/are correctly. I can introduce myself. I can ask questions.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Grammar Recap and Error Correction",
+      "durationMinutes": 12,
+      "purpose": "Re-display the 'be' rule with explicit L1 contrast notes, then push grammar to practiced depth through error detection and correction.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Open the grammar recap (Simple Present of 'be' — recap). Read the explanation aloud. Stress: 'I is does not exist in English — ever. Only I am.' Write I AM / YOU ARE / HE-SHE IS on the board.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Error correction exercise: pupils work through 5 sentences individually — underline the mistake, explain the error, write the correct sentence.",
+          "durationMinutes": 6
+        },
+        {
+          "kind": "correction",
+          "text": "Check whole-class: for each sentence ask 'Who found the mistake? What should it be?' Write corrections on board. Highlight the German source pattern for each error.",
+          "durationMinutes": 4
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-simple-present-of-be-am-is-are-recap.html",
+        "materials/error_correction-am-is-are-error-correction.html"
+      ]
+    },
+    {
+      "name": "Personal Questions — MCQ and Pair Q&A",
+      "durationMinutes": 10,
+      "purpose": "Consolidate correct verb form selection in personal questions through a recognition task, then push to oral production with no scaffold.",
+      "procedure": [
+        {
+          "kind": "pupil_work",
+          "text": "MCQ exercise: choose the correct form of 'be' to complete 5 personal question and statement sentences.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Check answers whole-class. Write each correct sentence on the board. Pupils self-correct.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pair Q&A — no notes, no board: Pupil A asks B three questions (What is your name? How old are you? Where are you from?), B answers from memory. Then swap.",
+          "durationMinutes": 4
+        }
+      ],
+      "materialRefs": [
+        "materials/mcq-am-is-are-in-questions.html"
+      ]
+    },
+    {
+      "name": "Numbers Word Search",
+      "durationMinutes": 7,
+      "purpose": "Consolidate number spelling through a word-search recognition task, with pronunciation practice after.",
+      "procedure": [
+        {
+          "kind": "pupil_work",
+          "text": "Word search: find 8 number words hidden in the grid (one, two, three, four, five, six, seven, eight). Tick each word found.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "correction",
+          "text": "Check whole-class: read out each word together. Write any tricky spellings on board: three, four, eight.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/word_search-numbers-word-search.html"
+      ]
+    },
+    {
+      "name": "Free Spoken Production",
+      "durationMinutes": 6,
+      "purpose": "Individual spoken production at independent depth — no notes, no board frames — as a final check on fk.k.sprechen.1 and fk.w.introduce_self.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Say: 'Last check. No board, no notes. You will introduce yourself to the class in 3 sentences. I can statement: I can introduce myself.' Erase the board.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "5–6 volunteers introduce themselves to the class: 'My name is ___. I am ___ years old. I am from ___.'",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Correct only 'be' form errors aloud — 'I is' → 'I am', 'she am' → 'she is'. No pronunciation correction at this stage.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Wrap-up",
+      "durationMinutes": 2,
+      "purpose": "Self-assessment against the lesson's learning intentions and signal of progress made.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Point to the 'I can...' list on the board. Pupils: thumbs up = yes, thumbs sideways = almost. Count responses for each statement.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Say: 'Next lesson we practice in a new way — you will describe someone else in English, not yourself.'",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: allow one look at exercise book notes during pair Q&A only; in error correction, read each sentence aloud before pupils search for the mistake. Stronger pupils: in pair Q&A, add a fourth question ('Do you have a brother or sister?') and attempt a third-person answer ('She is my friend. She is ___ years old.'); in free spoken production, produce 4-5 sentences including origin and age of a partner.",
+  "exercisePlan": [
+    "Word search (Band 1 — Supported): find 8 number words 1-8 hidden in a grid [fk.g.numbers]",
+    "MCQ (Band 2 — Guided): choose correct form of 'be' (am/is/are) to complete 5 personal question and statement sentences [fk.g.simple_present, fk.w.personal_questions]",
+    "Error correction (Band 3 — Independent): identify and correct 5 German-to-English 'be' transfer errors, A1 error-type hints included [fk.g.simple_present, fk.g.sentence_forms]"
+  ]
+}

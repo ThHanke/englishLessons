@@ -1,0 +1,105 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-19",
+  "materials": [
+    {
+      "file": "materials/grammar_intro-simple-present-of-be-am-is-are-recap.html",
+      "type": "grammar_intro",
+      "title": "Simple Present of 'be' — am, is, are (recap)",
+      "competenceIds": [
+        "fk.g.simple_present",
+        "fk.g.sentence_forms",
+        "fk.g.numbers",
+        "fk.w.introduce_self",
+        "fk.w.personal_questions",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "The verb 'be' has three forms in English: 'am' (only for 'I'), 'are' (for 'you'), and 'is' (for 'he', 'she', 'it', and names like Tom or Anna). German has a similar pattern — bin, bist, ist — but the English forms do not match one-to-one, so you cannot translate directly. The most common mistake: writing 'I is' because 'er ist' feels similar. There is no 'I is' in English. 'I am' is always the right form for 'I'. In questions, the form of 'be' comes before the subject: 'Are you...?' not 'You are...?' Watch out also for 'your' (dein/deine) — it is not the same as 'you' (du).",
+        "I am ten years old.",
+        "She is from England.",
+        "How old are you?",
+        "What is your name?"
+      ],
+      "createdAt": "2026-07-30T10:43:28.213Z"
+    },
+    {
+      "file": "materials/word_search-numbers-word-search.html",
+      "type": "word_search",
+      "title": "Numbers Word Search",
+      "competenceIds": [
+        "fk.g.numbers"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five",
+        "six",
+        "seven",
+        "eight"
+      ],
+      "createdAt": "2026-07-30T10:44:26.223Z"
+    },
+    {
+      "file": "materials/mcq-am-is-are-in-questions.html",
+      "type": "mcq",
+      "title": "Am, Is, Are in Questions",
+      "competenceIds": [
+        "fk.g.simple_present",
+        "fk.w.personal_questions"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "How old ___ you?",
+        "is",
+        "am",
+        "are",
+        "___ your name Tom?",
+        "Am",
+        "Is",
+        "Are",
+        "I ___ from Spain.",
+        "is",
+        "am",
+        "are",
+        "She ___ ten years old.",
+        "is",
+        "am",
+        "are",
+        "Where ___ you from?",
+        "is",
+        "am",
+        "are"
+      ],
+      "createdAt": "2026-07-30T10:44:29.733Z"
+    },
+    {
+      "file": "materials/error_correction-am-is-are-error-correction.html",
+      "type": "error_correction",
+      "title": "Am, Is, Are — Error Correction",
+      "competenceIds": [
+        "fk.g.simple_present",
+        "fk.g.sentence_forms"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "My name is Ben. I are ten years old.",
+        "My name is Ben. I am ten years old.",
+        "This is my friend. She am from England.",
+        "This is my friend. She is from England.",
+        "What is you name?",
+        "What is your name?",
+        "How old is you?",
+        "How old are you?",
+        "I is from Germany.",
+        "I am from Germany."
+      ],
+      "createdAt": "2026-07-30T10:44:32.005Z"
+    }
+  ]
+}

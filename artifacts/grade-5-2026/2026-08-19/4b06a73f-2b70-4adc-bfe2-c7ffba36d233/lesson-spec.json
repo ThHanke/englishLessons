@@ -1,0 +1,76 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-19",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Me, my family and friends",
+    "week_in_module": 1,
+    "of": 12
+  },
+  "phase": "new_input",
+  "pace_factor": 1,
+  "pace_reason": "Second slot same day — slot 1 ran consolidation of Aug 17 material at 0.8 pace. This slot now designated new input: family vocabulary and he/she descriptions. Phase forces forward movement; pace restored to 1.0.",
+  "focus_competences": [
+    {
+      "id": "fk.w.introduce_self",
+      "topic": "Introduce family members by name and age: This is my sister. She is 8 years old.",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.g.simple_present",
+      "topic": "Simple present of be — he is / she is in family descriptions",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.hoer.1",
+      "topic": "Listen to a short family description and extract names and ages",
+      "mode": [
+        "understand"
+      ]
+    },
+    {
+      "id": "fk.k.sprechen.1",
+      "topic": "Produce a short spoken description of a family member",
+      "mode": [
+        "produce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.personal.family_friends",
+    "text": "Family members — name, age, and origin"
+  },
+  "text_types": [
+    "personal description",
+    "dialogue"
+  ],
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 52,
+    "assesses": [
+      "fk.g.simple_present",
+      "fk.w.introduce_self"
+    ]
+  },
+  "prior_covered": [
+    "fk.g.sentence_forms",
+    "fk.g.simple_present",
+    "fk.g.numbers",
+    "fk.w.introduce_self",
+    "fk.w.personal_questions",
+    "fk.k.hoer.1",
+    "fk.k.sprechen.1"
+  ],
+  "cefr_target": "A1",
+  "known_vocab_ref": "grade-5-2026@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill"
+  ],
+  "curriculum_ref": "sa-sek-en-2019.5-6"
+}

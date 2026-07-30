@@ -1,0 +1,70 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-19",
+  "materials": [
+    {
+      "file": "materials/grammar_intro-he-is-she-is-talking-about-your-family.html",
+      "type": "grammar_intro",
+      "title": "He is / She is — talking about your family",
+      "competenceIds": [
+        "fk.w.introduce_self",
+        "fk.g.simple_present",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "You already know \"am\" and \"is\" and \"are\". Now we use \"is\" for family members.\n\nUse \"he is\" for a boy or man (your dad, your brother, your grandpa).\nUse \"she is\" for a girl or woman (your mum, your sister, your grandma).\n\nGood news: this works exactly like German! \"Er ist\" = \"He is\". \"Sie ist\" = \"She is\". Same idea, just different words.\n\nOne important thing: in German, \"sie\" can mean \"she\" OR \"they\". In English, these are two different words — \"she\" (one girl or woman) and \"they\" (more than one person). Do not mix them up.\n\nNever say \"He is have a sister\" or \"She is 8 years old has\". Keep it simple: \"He is 10.\" \"She is my sister.\"",
+        "My sister is 8 years old. She is 8 years old.",
+        "My dad is from Germany. He is from Germany.",
+        "My grandma is 65 years old. She is 65 years old.",
+        "This is my brother Tom. He is 12 years old. He is from Berlin."
+      ],
+      "createdAt": "2026-07-30T11:57:43.460Z"
+    },
+    {
+      "file": "materials/reading_text-my-family.html",
+      "type": "reading_text",
+      "title": "My Family",
+      "competenceIds": [
+        "fk.w.introduce_self",
+        "fk.g.simple_present",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "My name is Lena. I am 10 years old. I am from Leipzig.\n\nThis is my brother Max. He is 12 years old. He is tall and funny.\n\nThis is my sister Anna. She is 7 years old. She is happy and kind.\n\nThis is my mum. Her name is Sandra. She is 38 years old. She is from Berlin.\n\nThis is my dad. His name is Peter. He is 40 years old. He is from Leipzig.\n\nI love my family!"
+      ],
+      "createdAt": "2026-07-30T11:57:45.003Z"
+    },
+    {
+      "file": "materials/gap_fill-my-family-gap-fill.html",
+      "type": "gap_fill",
+      "title": "My Family — gap fill",
+      "competenceIds": [
+        "fk.w.introduce_self",
+        "fk.g.simple_present"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "This is my ___ Anna. She is 8 years old.",
+        "sister",
+        "Schwester",
+        "My ___ is 40 years old. He is from Berlin.",
+        "dad",
+        "Papa",
+        "I ___ 10 years old. I am from Leipzig.",
+        "am",
+        "bin",
+        "This is my ___. She is my mum's mum.",
+        "grandma",
+        "Oma",
+        "My brother Tom ___ 12 years old. He is funny.",
+        "is",
+        "ist"
+      ],
+      "createdAt": "2026-07-30T11:58:25.256Z"
+    }
+  ]
+}

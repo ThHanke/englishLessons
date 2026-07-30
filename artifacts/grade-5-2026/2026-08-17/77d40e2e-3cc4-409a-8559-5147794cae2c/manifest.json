@@ -1,0 +1,120 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-17",
+  "materials": [
+    {
+      "file": "materials/reading_text-three-new-classmates.html",
+      "type": "reading_text",
+      "title": "Three New Classmates",
+      "competenceIds": [
+        "fk.g.numbers",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "Hello! My name is Leon. I am twelve years old. I am from England.\n\nHi! My name is Sofia. I am ten years old. I am from Spain.\n\nHello! My name is Tom. I am eleven years old. I am from Australia."
+      ],
+      "createdAt": "2026-07-30T10:31:15.775Z"
+    },
+    {
+      "file": "materials/vocab_intro-three-countries.html",
+      "type": "vocab_intro",
+      "title": "Three Countries",
+      "competenceIds": [
+        "fk.g.numbers",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "England England",
+        "Spain Spanien",
+        "Australia Australien"
+      ],
+      "createdAt": "2026-07-30T10:32:26.794Z"
+    },
+    {
+      "file": "materials/matching-who-said-what.html",
+      "type": "matching",
+      "title": "Who Said What?",
+      "competenceIds": [
+        "fk.k.hoer.1"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Leon",
+        "twelve years old — England",
+        "Sofia",
+        "ten years old — Spain",
+        "Tom",
+        "eleven years old — Australia"
+      ],
+      "createdAt": "2026-07-30T10:32:35.530Z"
+    },
+    {
+      "file": "materials/gap_fill-numbers-in-sentences.html",
+      "type": "gap_fill",
+      "title": "Numbers in Sentences",
+      "competenceIds": [
+        "fk.g.numbers"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "I am ___ years old.",
+        "ten",
+        "10",
+        "My sister is ___ years old.",
+        "eight",
+        "8",
+        "Leon is ___ years old.",
+        "twelve",
+        "12",
+        "Tom is ___ years old.",
+        "eleven",
+        "11",
+        "My teacher is ___ years old.",
+        "twenty",
+        "20",
+        "My brother is ___ years old.",
+        "fifteen",
+        "15"
+      ],
+      "createdAt": "2026-07-30T10:32:35.820Z"
+    },
+    {
+      "file": "materials/reorder-build-your-introduction.html",
+      "type": "reorder",
+      "title": "Build Your Introduction",
+      "competenceIds": [
+        "fk.k.sprechen.1",
+        "fk.g.numbers"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "My",
+        "name",
+        "is",
+        "Leon.",
+        "I",
+        "am",
+        "twelve",
+        "years",
+        "old.",
+        "I",
+        "am",
+        "from",
+        "England.",
+        "What",
+        "is",
+        "your",
+        "name?",
+        "How",
+        "old",
+        "are",
+        "you?"
+      ],
+      "createdAt": "2026-07-30T10:32:38.143Z"
+    }
+  ]
+}

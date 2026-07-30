@@ -1,0 +1,180 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-19",
+  "objectives": [
+    "I can name 6 family members in English.",
+    "I can say He is... or She is... about a family member.",
+    "I can understand a short family description and find key information.",
+    "I can introduce a family member in two sentences."
+  ],
+  "stages": [
+    {
+      "name": "Opening — Retrieval and Bridge",
+      "durationMinutes": 8,
+      "purpose": "Activate am/is/are from the 09:00 slot through quick retrieval, then bridge to the new goal: using is to describe family members.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Hold up fingers: 1 finger = I, 2 fingers = you, 3 fingers = he or she. Pupils call back the correct verb: am, are, is. Demonstrate once, then run at speed.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Quick-fire drill: teacher holds up finger signals in random order, 10 rounds. Pupils call back am / are / is as a class.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Think-write: Write 2 sentences from memory. Sentence 1 about yourself (I am...). Sentence 2 about a classmate (Name is...). No board, no book.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Partner swap: check each other's sentences. Is am / is / are correct? Circle any errors.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge: Say — You can talk about yourself and a friend. Now we go further. Today you will introduce your family. You will use is for your mum, your dad, your sister, your brother. Write on board: I can name 6 family members. I can say He is... or She is...",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Vocabulary — My Family",
+      "durationMinutes": 7,
+      "purpose": "Activate the 6 core family member words through listening, repetition, and a quick picture drill before pupils meet them in the reading text.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Write on board in two columns: English | Deutsch. Add one word at a time: mum / Mama, dad / Papa, brother / Bruder, sister / Schwester, grandma / Oma, grandpa / Opa. Say each English word aloud. Pupils repeat three times.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Point out cognates: grandma sounds like Oma, grandpa sounds like Opa — easy to remember! Bruder and Schwester are different, so practise those more.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Cover-and-recall: pupils cover the German column. Teacher points to an English word, pupils say the German. Then swap: cover English, pupils say the English from the German.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Quick model sentence: point to each word and say This is my sister. She is 8 years old. Pupils repeat.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Grammar — He is / She is",
+      "durationMinutes": 8,
+      "purpose": "Recap the is rule and extend it explicitly to he/she family descriptions, with the German L1 contrast note preempting the sie confusion.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Open the grammar card: He is / She is — talking about your family. Read aloud together. Stress: She is for a girl or woman. He is for a boy or man. Point to the board: Er ist = He is. Sie ist = She is. Same idea as German!",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Write on board: My sister is 8. She is 8. My dad is 40. He is 40. Elicit each sentence by pointing to a pupil: What do we say for my sister? Pupils complete.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Mini whiteboard / paper: teacher says a family member word (brother, mum, grandpa), pupils write He is or She is on their mini board and hold up.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Scan boards. Correct any He/She confusion aloud: grandpa is a man, so He is. Grandma is a woman, so She is.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-he-is-she-is-talking-about-your-family.html"
+      ]
+    },
+    {
+      "name": "Reading — My Family",
+      "durationMinutes": 8,
+      "purpose": "Provide a controlled-vocabulary model text showing he is / she is in a family description context, building listening comprehension before guided practice.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Say: I will read a short text about a girl named Lena and her family. Listen and count: how many family members does Lena have? Read the text aloud clearly at slow pace.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils read the text silently. Then answer two questions on paper: (1) How old is Lena's sister Anna? (2) Where is Lena's dad from?",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "correction",
+          "text": "Check whole-class. Write answers on board: Anna is 7. Lena's dad is from Leipzig. Ask: which verb did we use? Pupils identify is in each answer.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Point out the pattern: This is my ___ . He/She is ___ years old. Circle these sentences in the text on the board.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/reading_text-my-family.html"
+      ]
+    },
+    {
+      "name": "Gap-fill — My Family",
+      "durationMinutes": 9,
+      "purpose": "Guided written practice of family vocabulary and am/is at sentence level, with German hints to scaffold without removing cognitive effort.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Say: Complete 5 sentences. Each blank has a German hint in brackets — use it to help you choose the right word. Work alone.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils complete the 5-item gap-fill independently. Each blank has one answer. German hint provided for every blank.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "correction",
+          "text": "Check whole-class. For each answer ask: Who wrote sister? Who wrote dad? Write correct answers on board. For the am/is items, ask: why am and not is? Pupils explain: I use am for I.",
+          "durationMinutes": 3
+        }
+      ],
+      "materialRefs": [
+        "materials/gap_fill-my-family-gap-fill.html"
+      ]
+    },
+    {
+      "name": "Wrap-up",
+      "durationMinutes": 2,
+      "purpose": "Self-assessment against the lesson learning intentions and preview of the next lesson's listening task.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Point to I can... list on board. Thumbs up = yes, thumbs sideways = almost, thumbs down = not yet. Count responses for each statement.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Say: Next lesson you will hear someone describe their family. You will listen and write down the names and ages. Think about the words you learned today — you will need them!",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: keep the 6 family words visible on their desk (word card strip) during gap-fill and reading; during mini-whiteboard drill allow 3 seconds extra before holding up. Stronger pupils: after the gap-fill, write 2 extra sentences about a real family member without looking at the board; during wrap-up, attempt to introduce one family member aloud to a partner in 2 sentences.",
+  "exercisePlan": [
+    "Gap-fill (Guided): 5 sentences — complete family member word or am/is verb form, German hint per blank [fk.w.introduce_self, fk.g.simple_present]"
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-17",
+  "objectives": [
+    "I can say numbers 1-20 from memory.",
+    "I can listen to a short introduction and note the name, age, and country.",
+    "I can introduce myself in three sentences without looking at notes."
+  ],
+  "stages": [
+    {
+      "name": "Retrieval Warm-up and Bridge",
+      "durationMinutes": 7,
+      "purpose": "Same-day retrieval of numbers and key phrases from the first lesson, then bridge to production focus so pupils know what changes this slot.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Say: 'We practised English in our first lesson today. Let's quickly recall the numbers.' Demonstrate: say 'drei' — pupils respond 'three'.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Number call-back: teacher calls numbers 1-20 in random German order, pupils call back in English. Then reverse: teacher says English numbers, pupils count on fingers to confirm.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Quick phrase ping-pong: say a German personal question, pupils say the English version. Cover 4 phrases: Wie heisst du? / Wie alt bist du? / Woher kommst du? / Hallo!",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge + learning intention: 'In the first lesson you learned the words and forms. Now you use them — without the board. You will listen to new people and speak yourself.' Write on board: I can say numbers 1-20. / I can listen and note name, age, country. / I can introduce myself in 3 sentences.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Country Words and Listening Task",
+      "durationMinutes": 12,
+      "purpose": "Pre-teach the three country names pupils need, then push Listening competence to understand depth by extracting facts from new introductions.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Open the country vocabulary glossary (Three Countries). Read each word together using the read-aloud button: England, Spain, Australia. Note the German cognates: England = England, Spanien = Spain, Australien = Australia.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Say: 'Draw this table in your exercise book — three columns: Name | Age | Country.' Draw it on the board.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils draw the table in exercise books.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Open the reading text (Three New Classmates). Read each introduction twice at a slow, clear pace. Pause between each person.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Check answers whole-class. Ask: 'Who is first? How old is Leon? Where is he from?' Fill in the board table together. Pupils self-correct.",
+          "durationMinutes": 4
+        }
+      ],
+      "materialRefs": [
+        "materials/vocab_intro-three-countries.html",
+        "materials/reading_text-three-new-classmates.html"
+      ]
+    },
+    {
+      "name": "Numbers Production",
+      "durationMinutes": 10,
+      "purpose": "Push Numbers competence from introduced to produce depth through a written gap-fill followed by a spoken guessing game.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Open the gap-fill exercise (Numbers in Sentences). Say: 'Each sentence has a number in figures. Write the number as a word. Example: 10 = ten.' Point to first item as a model.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils complete the gap-fill independently.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "correction",
+          "text": "Check answers whole-class. Write correct spellings on board: twelve (not twelfe), eleven, fifteen, twenty. Pupils correct own work.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Guess My Age: think of a number 1-20. Pupils ask 'Is it eight?' You answer 'Yes!' or 'No, higher!' / 'No, lower!' — write higher/lower on the board. Play 2 rounds, then let a pupil take the teacher role.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/gap_fill-numbers-in-sentences.html"
+      ]
+    },
+    {
+      "name": "Speaking Production — Partner Introductions",
+      "durationMinutes": 12,
+      "purpose": "Push Speaking competence to produce depth through pair interviews followed by third-person presentations to the class.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Model with one confident pupil: ask 'What is your name? How old are you? Where are you from?' Pupil answers. Then say: 'Now I introduce my partner: This is [name]. He/She is [age] years old. He/She is from [place].' Write the frame on the board.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pairs interview each other using the three questions. Both take notes (name, age, from). After two minutes, swap roles.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "pupil_work",
+          "text": "4-5 pupils introduce their partner to the class using the third-person frame on the board. Class listens and checks they heard correctly.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Open the reorder exercise (Build Your Introduction) as a quick consolidation check — pupils can attempt it individually as others present.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/matching-who-said-what.html",
+        "materials/reorder-build-your-introduction.html"
+      ]
+    },
+    {
+      "name": "Wrap-up — Exit Speaking",
+      "durationMinutes": 4,
+      "purpose": "Individual spoken production check: every pupil produces at least one self-introduction sentence before leaving.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Say: 'Before you leave, say one sentence about yourself in English — to me, at the door.' Point to the board: I can introduce myself in 3 sentences. Aim for 3, minimum 1.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "As pupils pack up and leave, each says 1-3 sentences to teacher at the door: 'My name is ___.' / 'I am ___ years old.' / 'I am from Germany.'",
+          "durationMinutes": 3
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: allow the board frame (This is ___. He/She is ___ years old. He/She is from ___.') to stay visible during partner presentations; accept a single exit sentence at the door. Stronger pupils: during the guessing game, take the teacher role and use 'higher'/'lower' themselves; during partner presentations, add a fourth sentence ('He/She has a brother/sister.' or 'He/She likes ___.').",
+  "exercisePlan": [
+    "Gap-fill (Band 1 — Supported): write number words 1-20 in sentences about ages, number in figures given as hint [fk.g.numbers]",
+    "Matching (Band 2 — Guided): match person name to age and country from the listening text without re-reading [fk.k.hoer.1]",
+    "Reorder (Band 3 — Independent): unscramble self-introduction and personal question sentences [fk.k.sprechen.1, fk.g.numbers]"
+  ]
+}

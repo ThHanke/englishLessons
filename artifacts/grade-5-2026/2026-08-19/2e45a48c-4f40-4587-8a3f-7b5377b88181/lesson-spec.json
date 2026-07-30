@@ -1,0 +1,99 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-19",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Me, my family and friends",
+    "week_in_module": 1,
+    "of": 12
+  },
+  "phase": "practice",
+  "pace_factor": 0.8,
+  "pace_reason": "2 lessons behind planned calendar position. Consolidation slot: push Aug 17 material to practiced depth instead of advancing to new input.",
+  "focus_competences": [
+    {
+      "id": "fk.g.simple_present",
+      "topic": "Simple present of 'be': am, is, are — correction and free production",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.g.sentence_forms",
+      "topic": "Statement, question, and negative forms — identification and error correction",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.g.numbers",
+      "topic": "Numbers 1-20 — written recognition and spelling",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.w.introduce_self",
+      "topic": "Phrases for introducing oneself: name, age, origin — free production without notes",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.w.personal_questions",
+      "topic": "Personal questions: What is your name? How old are you? Where are you from? — correct form selection and oral use",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.hoer.1",
+      "topic": "Extract key information from short personal introductions",
+      "mode": [
+        "understand"
+      ]
+    },
+    {
+      "id": "fk.k.sprechen.1",
+      "topic": "Produce a short spoken self-introduction without notes",
+      "mode": [
+        "produce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.personal.family_friends",
+    "text": "Personal introductions including name, age, and origin"
+  },
+  "text_types": [
+    "personal description",
+    "dialogue"
+  ],
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 53,
+    "assesses": [
+      "fk.g.simple_present",
+      "fk.w.introduce_self"
+    ]
+  },
+  "prior_covered": [
+    "fk.g.sentence_forms",
+    "fk.g.simple_present",
+    "fk.g.numbers",
+    "fk.w.introduce_self",
+    "fk.w.personal_questions",
+    "fk.k.hoer.1",
+    "fk.k.sprechen.1"
+  ],
+  "cefr_target": "A1",
+  "known_vocab_ref": "grade-5-2026@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "error_correction",
+    "mcq",
+    "word_search"
+  ],
+  "curriculum_ref": "sa-sek-en-2019.5-6"
+}
