@@ -68,6 +68,7 @@ export const STAGE_CARD_CSS = `
   .timer { display: block; margin: 0.3rem 0 0 0; }
   button.timer-start { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid #888; border-radius: 0.3rem; background: #fff; cursor: pointer; font-size: 0.85em; padding: 0.2rem 0.5rem; }
   .timer-display { display: inline-flex; align-items: center; gap: 0.3rem; font-variant-numeric: tabular-nums; font-size: 1.1em; font-weight: 600; border: 1px solid #888; border-radius: 0.3rem; padding: 0.1rem 0.5rem; }
+  .timer-display[hidden] { display: none; }
   .timer-display.timer-done { color: #a4262c; border-color: #a4262c; background: #fdecea; }
 `;
 
