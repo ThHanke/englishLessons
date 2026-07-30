@@ -197,6 +197,10 @@ describe("dateContext", () => {
     expect(teaching.slotId).toBe("fix-s2");
     expect(teaching.lessonSpec).not.toBeNull();
     expect(teaching.lessonSpec!.date).toBe("2026-08-05");
+    expect(teaching.materials).toEqual([
+      { file: "materials/gap_fill-fixture.html", type: "gap_fill", title: "Fixture Gap Fill" },
+      { file: "materials/homework-fixture.html", type: "homework", title: "Fixture Homework" },
+    ]);
   });
 
   it("returns context with no artifact reference for a date with no lesson-spec yet", () => {

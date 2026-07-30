@@ -21,6 +21,7 @@ import type { CalendarDrift, Gap } from "../../coverage/types.ts";
 import { buildLedger, lastTaughtDate } from "./buildLedger.ts";
 import { artifactDir } from "./artifactPath.ts";
 import { loadCalendarForClass } from "./loadCalendar.ts";
+import { readAppointmentMaterials } from "./moduleTasks.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -38,6 +39,11 @@ export interface TeachingDayContext {
   lessonSpecPath: string | null;
   /** Parsed `lesson-spec.json` contents when one exists for this date, else null. */
   lessonSpec: LessonSpec | null;
+  /** From that date's `manifest.json`, same shape/source as `Appointment.materials`
+   * (`moduleTasks.ts`) -- empty when no manifest exists yet. Lets the chat's context-preview
+   * panel link out to the lesson-plan/homework/test pages instead of only describing the spec
+   * in text. */
+  materials: Array<{ file: string; type: string; title: string }>;
   /** The `LessonSlot.id` this context resolved to, when the class has `lesson_slots` configured
    * -- undefined for classes that can't have more than one lesson per day. */
   slotId?: string;
@@ -199,6 +205,7 @@ export function dateContext(params: {
     gaps: moduleGaps,
     lessonSpecPath,
     lessonSpec,
+    materials: readAppointmentMaterials(className, date, repoRoot, slotId),
     calendarDrift: drift.calendarDrift,
     ...(slotId ? { slotId } : {}),
   };

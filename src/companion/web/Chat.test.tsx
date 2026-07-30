@@ -33,6 +33,7 @@ const TEACHING_CTX: TeachingDayContext = {
     },
   ],
   lessonSpecPath: "plans/grade-5/artifacts/5a/2026-08-05/lesson-spec.json",
+  materials: [],
   lessonSpec: {
     class: "5a",
     date: "2026-08-05",
@@ -120,6 +121,38 @@ describe("Chat", () => {
     expect(screen.getByText(TEACHING_CTX.lessonSpec!.content_field.text)).toBeInTheDocument();
     expect(screen.getByText(TEACHING_CTX.lessonSpec!.milestone_context.next)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(TEACHING_CTX.lessonSpec!.textbook_refs[0]!.book))).toBeInTheDocument();
+  });
+
+  it("links to the lesson-plan page always, and to homework/test only when those materials exist", async () => {
+    mockLessonPreview({
+      ...TEACHING_CTX,
+      materials: [
+        { file: "materials/homework-x.html", type: "homework", title: "Homework" },
+      ],
+    });
+    render(
+      <Chat
+        classId="5a"
+        date="2026-08-05"
+        baseUrl="http://localhost:5199"
+        serverAvailable={true}
+        sessionToken="tok"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("chat-preview-context")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("link", { name: "View lesson plan" })).toHaveAttribute(
+      "href",
+      "/api/artifacts/5a/2026-08-05/lesson-plan-page.html",
+    );
+    expect(screen.getByRole("link", { name: "View homework" })).toHaveAttribute(
+      "href",
+      "/api/artifacts/5a/2026-08-05/homework-page.html",
+    );
+    expect(screen.queryByRole("link", { name: "View test" })).not.toBeInTheDocument();
   });
 
   it("shows non-teaching day in preview", async () => {

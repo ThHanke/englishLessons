@@ -78,8 +78,9 @@ export interface Appointment {
 }
 
 /** Reads `<artifactDir>/manifest.json` for the appointment-link summary (R8) -- just the fields
- * the calendar link needs, not the full manifest entry shape. */
-function readAppointmentMaterials(
+ * the calendar link needs, not the full manifest entry shape. Also used by `dateContext.ts` for
+ * the chat's context-preview panel, which needs the same hasHomework/hasTest signal. */
+export function readAppointmentMaterials(
   className: string,
   date: string,
   repoRoot: string,

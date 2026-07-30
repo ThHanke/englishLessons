@@ -7,6 +7,7 @@ import {
 } from "@assistant-ui/react";
 import { useCompanionRuntime, type ChatSession } from "./runtime.ts";
 import { fetchLessonPreview } from "./api.ts";
+import { lessonPlanPageHref, homeworkPageHref, testPageHref } from "./calendarMapping.ts";
 import type {
   DateContext,
   TeachingDayContext,
@@ -70,6 +71,9 @@ function buildSeedContent(target: PreviewTarget, ctx: DateContext): string {
         parts.push(`Textbook: ${spec.textbook_refs.map((r) => `${r.book} ${r.citation}`).join("; ")}`);
       }
       parts.push(`Upcoming milestone: ${spec.milestone_context.next} in ${spec.milestone_context.in_slots} lessons, assesses: ${spec.milestone_context.assesses.map((id) => `${competenceLabel(id)} [${id}]`).join(", ")}`);
+      if (t.materials.length > 0) {
+        parts.push(`Existing materials for this date: ${t.materials.map((m) => `${m.title} (${m.type})`).join(", ")}`);
+      }
     } else {
       parts.push("No lesson plan exists yet for this date.");
     }
@@ -461,6 +465,45 @@ export function ContextPreview({
             <dt>Text types</dt>
             <dd>{spec.text_types.join(", ")}</dd>
           </dl>
+        </section>
+      )}
+
+      {spec && (
+        <section className="companion-preview-section">
+          <h4>Materials</h4>
+          <p className="companion-preview-links">
+            <a
+              href={lessonPlanPageHref(target.classId, target.date, target.slotId)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View lesson plan
+            </a>
+            {t.materials.some((m) => m.type === "homework") && (
+              <>
+                {" · "}
+                <a
+                  href={homeworkPageHref(target.classId, target.date, target.slotId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View homework
+                </a>
+              </>
+            )}
+            {t.materials.some((m) => m.type === "test") && (
+              <>
+                {" · "}
+                <a
+                  href={testPageHref(target.classId, target.date, target.slotId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View test
+                </a>
+              </>
+            )}
+          </p>
         </section>
       )}
 
