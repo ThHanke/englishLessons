@@ -51,9 +51,54 @@ pace_factors:
 half_year_boundary: 2027-02-01
 class_schedule:
   grade-5-2026:
-    lesson_slots: []
+    lesson_slots:
+      - id: febbbcfb-72a7-41d0-8207-4c2fbee72f42
+        day: Mon
+        start: 11:00
+        end: 11:45
+        half_year: 1
+      - id: 77d40e2e-3cc4-409a-8559-5147794cae2c
+        day: Mon
+        start: 12:00
+        end: 12:45
+        half_year: 1
+      - id: 2e45a48c-4f40-4587-8a3f-7b5377b88181
+        day: Wed
+        start: 09:00
+        end: 09:45
+        half_year: 1
+      - id: 4b06a73f-2b70-4adc-bfe2-c7ffba36d233
+        day: Wed
+        start: 10:00
+        end: 10:45
+        half_year: 1
+      - id: 34ebc8fd-9422-466c-b0ab-66e63fef660b
+        day: Fri
+        start: 09:00
+        end: 09:45
+        half_year: 1
   grade-6-2027:
-    lesson_slots: []
+    lesson_slots:
+      - id: 596742a6-d420-4d4d-ad3d-3a2c91258696
+        day: Tue
+        start: 09:00
+        end: 09:45
+        half_year: 1
+      - id: 62c91403-16c5-4923-abae-a2001347e92d
+        day: Tue
+        start: 10:00
+        end: 10:45
+        half_year: 1
+      - id: 09e05be1-a957-4167-b54f-c527d70f5f34
+        day: Thu
+        start: 11:00
+        end: 11:45
+        half_year: 1
+      - id: 1692ca11-b377-440b-9ade-1173e7a71b7c
+        day: Thu
+        start: 12:00
+        end: 12:45
+        half_year: 1
   grade-7-realschule-2026:
     lesson_slots:
       - id: 6dc29a36-9be9-411d-9502-3b9a678ddc72
