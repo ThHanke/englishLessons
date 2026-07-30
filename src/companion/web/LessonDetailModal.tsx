@@ -46,10 +46,18 @@ export function LessonDetailModal({
       className="companion-modal-overlay"
     >
       <div className="companion-modal-dialog">
-        <h2 className="companion-modal-title">{appointment.moduleTitle}</h2>
+        <h2 className="companion-modal-title">
+          {appointment.lessonTopic ?? appointment.moduleTitle}
+        </h2>
         <p className="companion-modal-subtitle">
           {appointment.classLabel} &middot; {appointment.date}
+          {appointment.lessonTopic && <> &middot; {appointment.moduleTitle}</>}
         </p>
+        {appointment.lessonCompetenceTopics && appointment.lessonCompetenceTopics.length > 0 && (
+          <p className="companion-modal-subtitle">
+            Covers: {appointment.lessonCompetenceTopics.join(", ")}
+          </p>
+        )}
 
         <div className="companion-modal-links">
           <a href={lessonPlanHref} target="_blank" rel="noopener noreferrer" className="companion-button">

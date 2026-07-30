@@ -146,13 +146,29 @@ export function lastTaughtDate(
 export function listLessonSpecs(
   className: string,
   repoRoot: string = DEFAULT_REPO_ROOT,
-): Array<{ date: string; moduleId: string; slotId?: string }> {
+): Array<{
+  date: string;
+  moduleId: string;
+  slotId?: string;
+  /** `content_field.text` -- this specific lesson's topic (e.g. "Free time and media"), distinct
+   * from the module's own multi-week title. Surfaced so the calendar can show what's actually
+   * being taught that day instead of just the module name once a lesson-spec exists (R11). */
+  topic: string;
+  /** `focus_competences[].topic` -- already human-readable (not raw competence ids). */
+  competenceTopics: string[];
+}> {
   const classDir = join(repoRoot, "artifacts", className);
   if (!existsSync(classDir)) return [];
   return walkLessonSpecFiles(classDir).map((f) => {
     const spec = JSON.parse(readFileSync(f, "utf-8")) as LessonSpec;
     const parentDirName = basename(dirname(f));
     const slotId = parentDirName === spec.date ? undefined : parentDirName;
-    return { date: spec.date, moduleId: spec.module.id, slotId };
+    return {
+      date: spec.date,
+      moduleId: spec.module.id,
+      slotId,
+      topic: spec.content_field.text,
+      competenceTopics: spec.focus_competences.map((fc) => fc.topic),
+    };
   });
 }

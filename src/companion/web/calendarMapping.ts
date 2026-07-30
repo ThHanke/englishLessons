@@ -105,7 +105,7 @@ export function taskToEvent(task: ModuleTask): CalendarEvent {
     start: isoDateToLocalDate(task.startDate),
     end: isoDateToLocalDate(task.endDate, true),
     allDay: true,
-    text: task.moduleTitle,
+    text: `${task.moduleTitle} (${task.coveragePercent}%)`,
     calendarId: task.classId,
     task,
   };
@@ -162,7 +162,9 @@ export function appointmentToEvent(appointment: Appointment): CalendarEvent {
     start,
     end,
     allDay: false,
-    text: appointment.moduleTitle,
+    // Once planned, the appointment's actual topic (e.g. "Free time and media") is more useful
+    // than the module title, which is identical for every lesson in the module.
+    text: appointment.lessonTopic ?? appointment.moduleTitle,
     calendarId: appointment.classId,
     appointment,
   };

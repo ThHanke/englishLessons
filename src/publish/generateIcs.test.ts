@@ -96,4 +96,52 @@ describe("generateClassIcs", () => {
     const unfolded = ics.replace(/\r\n /g, "");
     expect(unfolded).toContain("Ein sehr langer Ferienname mit Umlauten wie äöü");
   });
+
+  it("enriches a lesson occurrence with SUMMARY topic, DESCRIPTION links, URL, and CATEGORIES when lessonInfoByDateSlot has an entry", () => {
+    const calendar = fixtureCalendar();
+    const ics = generateClassIcs({
+      calendar,
+      className: "fixture-class",
+      classLabel: "Grade 7",
+      lessonInfoByDateSlot: new Map([
+        [
+          "2026-08-03::s1",
+          {
+            topic: "Free time and media",
+            moduleTitle: "Me, my family and friends",
+            competenceTopics: ["Grammar: Passive", "Listening"],
+            hasHomework: true,
+            hasTest: false,
+          },
+        ],
+      ]),
+    });
+    const unfolded = ics.replace(/\r\n /g, "");
+    expect(unfolded).toContain("SUMMARY:Grade 7: Free time and media");
+    // RFC 5545 TEXT escaping: the literal commas inside these values are backslash-escaped so
+    // they aren't mistaken for a list delimiter.
+    expect(unfolded).toContain("Module: Me\\, my family and friends");
+    expect(unfolded).toContain("Covers: Grammar: Passive\\, Listening");
+    expect(unfolded).toContain(
+      "URL:https://thhanke.github.io/englishLeasons/classes/fixture-class/2026-08-03/s1/lesson-plan/",
+    );
+    expect(unfolded).toContain(
+      "Homework: https://thhanke.github.io/englishLeasons/classes/fixture-class/2026-08-03/s1/homework/",
+    );
+    expect(unfolded).not.toContain("Test:");
+    expect(unfolded).toContain("CATEGORIES:Grammar: Passive,Listening");
+  });
+
+  it("falls back to the plain classLabel SUMMARY with no URL/CATEGORIES for a date with no lessonInfo entry", () => {
+    const calendar = fixtureCalendar();
+    const ics = generateClassIcs({
+      calendar,
+      className: "fixture-class",
+      classLabel: "Grade 7",
+      lessonInfoByDateSlot: new Map(),
+    });
+    expect(ics).toContain("SUMMARY:Grade 7\r\n");
+    expect(ics).not.toContain("URL:");
+    expect(ics).not.toContain("CATEGORIES:");
+  });
 });

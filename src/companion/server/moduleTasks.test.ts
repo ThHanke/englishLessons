@@ -139,6 +139,7 @@ function setupDriftRepo(): { repoRoot: string; cleanup: () => void } {
       class: "drift-class",
       date: "2020-01-06",
       module: { id: "m1" },
+      content_field: { id: "c1", text: "test" },
       focus_competences: [],
       suggested_exercise_types: [],
     }),

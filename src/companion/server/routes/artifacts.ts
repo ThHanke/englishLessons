@@ -220,6 +220,9 @@ export async function handleArtifactsRequest(
       materials: filtered,
       variant,
       dueDate,
+      // Same URL directory as lesson-plan-page.html in dev (VARIANT_PAGE_FILENAMES), so a plain
+      // relative filename resolves correctly.
+      homeworkHref: variant === "lesson-plan" ? "homework-page.html" : undefined,
     });
     res.writeHead(200, { "content-type": "text/html" });
     res.end(html);

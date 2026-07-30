@@ -16,7 +16,7 @@ import { moduleTasks } from "../companion/server/moduleTasks.ts";
 import { loadCalendarForClass } from "../companion/server/loadCalendar.ts";
 import { renderLessonPage, type LessonPlan, type Manifest } from "./renderLessonPage.ts";
 import { renderInlineLessonPage, filterMaterialsForVariant } from "./renderInlineLessonPage.ts";
-import { generateClassIcs, schoolYearSlug } from "./generateIcs.ts";
+import { generateClassIcs, schoolYearSlug, type IcsLessonInfo } from "./generateIcs.ts";
 import { findNextLessonDate } from "../projection/nextLessonDate.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../", import.meta.url).pathname;
@@ -208,6 +208,10 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
   mkdirSync(outDir, { recursive: true });
 
   const publishedClasses: string[] = [];
+  // Populated per date below (already reading spec/manifest there for the HTML pages), consumed
+  // by the ICS export loop further down -- avoids re-reading the same lesson-spec.json files a
+  // second time just for the calendar export.
+  const lessonInfoByClass = new Map<string, Map<string, IcsLessonInfo>>();
 
   for (const className of listClassNames(repoRoot)) {
     const entries = findLessonEntries(className, repoRoot);
@@ -275,6 +279,9 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
           plan,
           materials: lessonPlanMaterials,
           variant: "lesson-plan",
+          // Sibling directory in the static build (classes/<class>/<date>/homework/), unlike the
+          // dev route's flat same-directory filenames.
+          homeworkHref: "../homework/",
         }),
       );
 
@@ -311,6 +318,15 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
           }),
         );
       }
+
+      if (!lessonInfoByClass.has(className)) lessonInfoByClass.set(className, new Map());
+      lessonInfoByClass.get(className)!.set(`${entry.date}::${entry.slotId ?? ""}`, {
+        topic: spec.content_field.text,
+        moduleTitle: spec.module.title,
+        competenceTopics: spec.focus_competences.map((fc) => fc.topic),
+        hasHomework: homeworkMaterials.length > 0,
+        hasTest: testMaterials.length > 0,
+      });
     }
 
     writeFileSync(join(classDir, "index.html"), renderClassIndex(className, entries));
@@ -337,7 +353,12 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
       const slug = schoolYearSlug(calendar.school_year);
       const classCalDir = join(calendarsDir, cls.id);
       mkdirSync(classCalDir, { recursive: true });
-      const ics = generateClassIcs({ calendar, className: cls.id, classLabel: cls.label });
+      const ics = generateClassIcs({
+        calendar,
+        className: cls.id,
+        classLabel: cls.label,
+        lessonInfoByDateSlot: lessonInfoByClass.get(cls.id),
+      });
       writeFileSync(join(classCalDir, `${slug}.ics`), ics);
       listings.push({
         classId: cls.id,

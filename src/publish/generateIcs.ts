@@ -4,6 +4,28 @@ import { addDaysIso } from "../schema/dates.ts";
 
 const CRLF = "\r\n";
 
+/** GH Pages base URL -- duplicated from `buildStaticCalendarBundle.ts`'s `GH_PAGES_BASE` rather
+ * than imported (that module pulls in a Vite build-time dependency this pure-string-building
+ * module shouldn't need). Same source of truth, same caveat: verify against the repo's actual
+ * Pages settings if it's ever renamed or switched to a custom domain. */
+const SITE_BASE_URL = "https://thhanke.github.io/englishLeasons";
+
+/** Per-date (or per-date+slot, for a double-period class) enrichment for a lesson occurrence's
+ * VEVENT -- absent when no `lesson-spec.json` exists yet for that date (most future occurrences,
+ * before the teacher has planned that far ahead), in which case the event falls back to the
+ * minimal classLabel-only SUMMARY it always had. */
+export interface IcsLessonInfo {
+  /** `content_field.text` -- this lesson's actual topic, distinct from the module's title. */
+  topic: string;
+  moduleTitle: string;
+  /** `focus_competences[].topic`, human-readable (not raw competence ids) -- becomes both
+   * DESCRIPTION text and RFC 5545 CATEGORIES, so a subscriber's calendar app can filter/search by
+   * topic across the whole term. */
+  competenceTopics: string[];
+  hasHomework: boolean;
+  hasTest: boolean;
+}
+
 /** RFC 5545 §3.3.11 TEXT escaping -- backslash first, so escaping the other characters doesn't
  * double-escape the backslashes it just introduced. */
 function escapeIcsText(s: string): string {
@@ -66,8 +88,11 @@ export function generateClassIcs(params: {
   calendar: CalendarFile;
   className: string;
   classLabel: string;
+  /** Keyed `${date}::${slotId ?? ""}` -- see `IcsLessonInfo`. Absent/empty is fine (every
+   * occurrence just falls back to the minimal SUMMARY-only event). */
+  lessonInfoByDateSlot?: Map<string, IcsLessonInfo>;
 }): string {
-  const { calendar, className, classLabel } = params;
+  const { calendar, className, classLabel, lessonInfoByDateSlot } = params;
   const lessonSlots = calendar.class_schedule[className]?.lesson_slots ?? [];
   const lessonSlotById = new Map(lessonSlots.map((s) => [s.id, s]));
 
@@ -82,15 +107,35 @@ export function generateClassIcs(params: {
     if (!occurrence.slotId) continue;
     const slot = lessonSlotById.get(occurrence.slotId);
     if (!slot) continue;
+    const info = lessonInfoByDateSlot?.get(`${occurrence.date}::${occurrence.slotId}`);
+    const pagePath = occurrence.slotId
+      ? `${className}/${occurrence.date}/${occurrence.slotId}`
+      : `${className}/${occurrence.date}`;
     lines.push(
       "BEGIN:VEVENT",
       `UID:lesson-${className}-${occurrence.slotId}-${occurrence.date}@englishlessons.local`,
       `DTSTAMP:${dateStamp(occurrence.date)}T000000Z`,
       `DTSTART:${floatingDateTime(occurrence.date, slot.start)}`,
       `DTEND:${floatingDateTime(occurrence.date, slot.end)}`,
-      `SUMMARY:${escapeIcsText(classLabel)}`,
-      "END:VEVENT",
+      `SUMMARY:${escapeIcsText(info ? `${classLabel}: ${info.topic}` : classLabel)}`,
     );
+    if (info) {
+      const descriptionLines = [
+        `Module: ${info.moduleTitle}`,
+        info.competenceTopics.length > 0 ? `Covers: ${info.competenceTopics.join(", ")}` : null,
+        `Lesson plan: ${SITE_BASE_URL}/classes/${pagePath}/lesson-plan/`,
+        info.hasHomework ? `Homework: ${SITE_BASE_URL}/classes/${pagePath}/homework/` : null,
+        info.hasTest ? `Test: ${SITE_BASE_URL}/classes/${pagePath}/test/` : null,
+      ].filter((l): l is string => l !== null);
+      lines.push(
+        `DESCRIPTION:${escapeIcsText(descriptionLines.join("\n"))}`,
+        `URL:${SITE_BASE_URL}/classes/${pagePath}/lesson-plan/`,
+      );
+      if (info.competenceTopics.length > 0) {
+        lines.push(`CATEGORIES:${info.competenceTopics.map(escapeIcsText).join(",")}`);
+      }
+    }
+    lines.push("END:VEVENT");
   }
 
   for (const holiday of calendar.holidays) {

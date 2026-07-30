@@ -84,8 +84,9 @@ export function EventContent({
     const gap = worstGapSeverity(task);
     return (
       <span className="companion-event-content">
-        <strong>{task.moduleTitle}</strong> · {task.classLabel}
+        <strong>{task.moduleTitle}</strong> · {task.classLabel} · {task.coveragePercent}%
         {gap && <> · {gap}</>}
+        {task.milestoneDate && <> · Test {task.milestoneDate}</>}
       </span>
     );
   }
@@ -96,7 +97,9 @@ export function EventContent({
     // Double-clicking the appointment now opens LessonDetailModal instead, which has real room
     // for them.
     return (
-      <span className="companion-event-content">{appointment.moduleTitle}</span>
+      <span className="companion-event-content">
+        {appointment.lessonTopic ?? appointment.moduleTitle}
+      </span>
     );
   }
   return null;
@@ -726,6 +729,15 @@ export function Calendar({
               Gaps: {worstGapSeverity(selectedTask) ?? "none"} (
               {selectedTask.gaps.length})
             </p>
+            <p>Coverage: {selectedTask.coveragePercent}% at required depth</p>
+            {selectedTask.milestoneType !== "none" && (
+              <p>
+                {selectedTask.milestoneType}
+                {selectedTask.milestoneDate ? ` on ${selectedTask.milestoneDate}` : " (date not yet placed)"}
+                {selectedTask.milestoneAssesses.length > 0 &&
+                  ` — assesses ${selectedTask.milestoneAssesses.join(", ")}`}
+              </p>
+            )}
             <p>
               Already planned:{" "}
               {selectedTask.plannedDates.length > 0

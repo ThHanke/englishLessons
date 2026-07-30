@@ -19,6 +19,10 @@ function task(
     endDate: "2026-08-14",
     gaps: [],
     plannedDates: [],
+    coveragePercent: 0,
+    milestoneDate: null,
+    milestoneType: "none",
+    milestoneAssesses: [],
     ...overrides,
   };
 }
@@ -101,7 +105,7 @@ describe("taskToEvent", () => {
     }
 
     expect(ev.calendarId).toBe("grade-7-realschule-2026");
-    expect(ev.text).toBe("Module One");
+    expect(ev.text).toBe("Module One (0%)");
     expect(localIso(ev.start)).toBe("2026-08-03");
     expect(localIso(ev.end)).toBe("2026-08-14");
   });

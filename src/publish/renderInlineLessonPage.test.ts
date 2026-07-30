@@ -116,6 +116,47 @@ describe("renderInlineLessonPage", () => {
     expect((html.match(/<iframe/g) ?? []).length).toBe(2);
   });
 
+  it("notes homework exists with a link on the lesson-plan variant, when a homework material is in the manifest", () => {
+    const manifest: Manifest = {
+      materials: [
+        { file: "materials/homework-x.html", type: "homework", title: "Practice Worksheet", competenceIds: [], depth: "practiced", createdAt: "" },
+      ],
+    };
+    const plan: LessonPlan = {
+      objectives: [],
+      stages: [],
+      differentiationNotes: "none",
+      exercisePlan: [],
+    };
+    const html = renderInlineLessonPage({
+      spec: lessonSpec(),
+      manifest,
+      plan,
+      materials: [],
+      variant: "lesson-plan",
+      homeworkHref: "homework-page.html",
+    });
+    expect(html).toContain('<a href="homework-page.html">Practice Worksheet</a>');
+  });
+
+  it("shows no homework note when there is no homework material, even with a homeworkHref supplied", () => {
+    const plan: LessonPlan = {
+      objectives: [],
+      stages: [],
+      differentiationNotes: "none",
+      exercisePlan: [],
+    };
+    const html = renderInlineLessonPage({
+      spec: lessonSpec(),
+      manifest: null,
+      plan,
+      materials: [],
+      variant: "lesson-plan",
+      homeworkHref: "homework-page.html",
+    });
+    expect(html).not.toContain('<p class="homework-note">');
+  });
+
   it('renders a "no detailed lesson plan saved" note when plan is absent', () => {
     const html = renderInlineLessonPage({
       spec: lessonSpec(),

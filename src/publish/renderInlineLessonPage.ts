@@ -140,14 +140,27 @@ export function renderInlineLessonPage(params: {
   /** Homework variant only -- the class's next scheduled lesson date after this one, computed
    * from the calendar (findNextLessonDate). Omitted when there's no further scheduled lesson. */
   dueDate?: string;
+  /** Lesson-plan variant only -- relative link to the homework page, when this date has a
+   * homework material (`manifest.materials` type "homework"). Homework/test materials are
+   * deliberately excluded from the lesson-plan timeline itself (they're a different, printable
+   * document with their own due date), but that meant the lesson-plan page never mentioned
+   * homework existed at all -- a teacher reviewing the lesson plan had no way to know. Caller
+   * supplies the href (relative path shape differs between the dev route and the static site). */
+  homeworkHref?: string;
 }): string {
-  const { spec, manifest, plan, materials, variant, dueDate } = params;
+  const { spec, manifest, plan, materials, variant, dueDate, homeworkHref } = params;
 
   const competencesHtml = spec.focus_competences
     .map((fc) => `<li>${escapeHtml(fc.id)} — ${escapeHtml(fc.topic)}</li>`)
     .join("\n");
 
   const isLessonPlanTimeline = variant === "lesson-plan" && !!plan;
+
+  const homeworkMaterial = manifest?.materials.find((m) => m.type === "homework");
+  const homeworkNoteHtml =
+    variant === "lesson-plan" && homeworkMaterial && homeworkHref
+      ? `<p class="homework-note"><strong>Homework:</strong> <a href="${escapeAttr(homeworkHref)}">${escapeHtml(homeworkMaterial.title)}</a></p>`
+      : "";
 
   // Homework/test pages are always called with plan: null (routes/artifacts.ts, buildSite.ts) --
   // they're a different document, not a shorter lesson page, so no "Lesson plan" section (not
@@ -156,7 +169,7 @@ export function renderInlineLessonPage(params: {
     variant !== "lesson-plan"
       ? ""
       : `<h2>Lesson plan</h2>
-${
+${homeworkNoteHtml}${
   plan
     ? isLessonPlanTimeline
       ? renderLessonPlanTimeline(plan, materials, manifest)
@@ -190,6 +203,7 @@ ${
   ul { padding-left: 1.2rem; }
   .no-materials, .no-plan { color: #666; font-style: italic; }
   .due-date { background: #fff3cd; border: 1px solid #e0c36a; border-radius: 0.3rem; padding: 0.4rem 0.7rem; display: inline-block; }
+  .homework-note { background: #eef4ff; border: 1px solid #b7cdf0; border-radius: 0.3rem; padding: 0.4rem 0.7rem; display: inline-block; }
   section.material { margin: 2rem 0; }
   section.material h4 { margin: 0 0 0.4rem; }
   iframe.material-frame { width: 100%; min-height: 200px; border: 1px solid #ccc; border-radius: 0.4rem; }

@@ -6,6 +6,7 @@ import type {
   ClassFile,
   Holiday,
   LessonSlot,
+  Milestone,
 } from "../../schema/types.ts";
 import {
   enumerateProjectionSlots,
@@ -19,6 +20,7 @@ import type { DriftReport, Gap } from "../../coverage/types.ts";
 import { buildLedger, lastTaughtDate, listLessonSpecs } from "./buildLedger.ts";
 import { artifactDir } from "./artifactPath.ts";
 import { loadCalendarForClass } from "./loadCalendar.ts";
+import { loadCurriculumBands, resolveCompetenceLabels } from "../../curriculum/resolveCompetenceLabel.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -37,6 +39,18 @@ export interface ModuleTask {
   gaps: Gap[];
   /** Dates within `[startDate, endDate]` that already have a `lesson-spec.json` (R11). */
   plannedDates: string[];
+  /** `coverageLedger().modules[].percentAtRequiredDepth` for this module -- already computed by
+   * `buildLedger()` today, just never attached to a `ModuleTask` before. 0 when the module has no
+   * `covers[]` target or no ledger entry yet. */
+  coveragePercent: number;
+  /** From `fillModules()`'s placement -- the milestone's actual calendar date (after any
+   * forward-shift off a degraded slot), or null when the module has no test/project/presentation
+   * milestone or its slots haven't been placed. */
+  milestoneDate: string | null;
+  milestoneType: Milestone["type"];
+  /** Human-readable labels (via `resolveCompetenceLabel`), not the raw competence ids
+   * `Milestone.assesses` stores. */
+  milestoneAssesses: string[];
 }
 
 /** One real teaching slot for a class+module (from the projection engine's own placement, not a
@@ -50,6 +64,12 @@ export interface Appointment {
   moduleTitle: string;
   date: string;
   hasLessonSpec: boolean;
+  /** This specific lesson's topic (`lesson-spec.json`'s `content_field.text`) once planned --
+   * distinct from `moduleTitle`, which is the same for every lesson in the module. Absent when
+   * `hasLessonSpec` is false (nothing planned yet to pull a topic from). */
+  lessonTopic?: string;
+  /** `focus_competences[].topic`, already human-readable. Same absence rule as `lessonTopic`. */
+  lessonCompetenceTopics?: string[];
   /** From that date's `manifest.json` (R8) — empty when no manifest exists yet for this date. */
   materials: Array<{ file: string; type: string; title: string }>;
   start?: string;
@@ -131,6 +151,8 @@ export function moduleTasks(params: {
   const appointments: Appointment[] = [];
   const drift: Record<string, DriftReport> = {};
   const holidaysByKey = new Map<string, Holiday>();
+  // Loaded once, shared across every class -- the curriculum grade-bands don't vary per class.
+  const curriculumBands = loadCurriculumBands(repoRoot);
 
   for (const { modulesFile, classFile } of listAllClasses(repoRoot)) {
     classes.push({ id: classFile.name, label: classLabel(classFile) });
@@ -174,9 +196,13 @@ export function moduleTasks(params: {
     const moduleTitleById = new Map(
       modulesFile.modules.map((m) => [m.id, m.title]),
     );
+    const moduleById = new Map(modulesFile.modules.map((m) => [m.id, m]));
+    const coverageByModuleId = new Map(
+      ledger.modules.map((m) => [m.moduleId, m.percentAtRequiredDepth]),
+    );
 
-    const plannedDateSlotSet = new Set(
-      specs.map((s) => `${s.date}::${s.slotId ?? ""}`),
+    const specByDateSlot = new Map(
+      specs.map((s) => [`${s.date}::${s.slotId ?? ""}`, s]),
     );
 
     for (const placement of placements) {
@@ -188,6 +214,7 @@ export function moduleTasks(params: {
         moduleTitleById.get(placement.moduleId) ?? placement.moduleId;
 
       if (endDate < params.from || startDate > params.to) continue;
+      const milestone = moduleById.get(placement.moduleId)?.milestone;
       tasks.push({
         classId: classFile.name,
         classLabel: classLabel(classFile),
@@ -204,6 +231,12 @@ export function moduleTasks(params: {
               s.date <= endDate,
           )
           .map((s) => s.date),
+        coveragePercent: coverageByModuleId.get(placement.moduleId) ?? 0,
+        milestoneDate: placement.milestoneDate,
+        milestoneType: milestone?.type ?? "none",
+        milestoneAssesses: milestone
+          ? resolveCompetenceLabels(milestone.assesses, modulesFile.curriculum, curriculumBands)
+          : [],
       });
     }
 
@@ -226,6 +259,7 @@ export function moduleTasks(params: {
         const matchingSlot = classLessonSlots.find(
           (ls: LessonSlot) => ls.id === sd.slotId,
         );
+        const matchingSpec = specByDateSlot.get(`${sd.date}::${matchingSlot?.id ?? ""}`);
         appointments.push({
           classId: classFile.name,
           classLabel: classLabel(classFile),
@@ -233,7 +267,9 @@ export function moduleTasks(params: {
           moduleTitle:
             moduleTitleById.get(mod.moduleId) ?? mod.moduleId,
           date: sd.date,
-          hasLessonSpec: plannedDateSlotSet.has(`${sd.date}::${matchingSlot?.id ?? ""}`),
+          hasLessonSpec: matchingSpec !== undefined,
+          lessonTopic: matchingSpec?.topic,
+          lessonCompetenceTopics: matchingSpec?.competenceTopics,
           materials: readAppointmentMaterials(
             classFile.name,
             sd.date,
