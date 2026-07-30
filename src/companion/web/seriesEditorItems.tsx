@@ -16,7 +16,7 @@ interface SvarFieldProps<T = unknown> {
   onChange: (update: { value: T }) => void;
 }
 
-function GradePickerField({
+export function GradePickerField({
   value,
   onChange,
   classes,
@@ -25,7 +25,14 @@ function GradePickerField({
   const items = classes ?? [];
   const selected = value || items[0]?.id || "";
   useEffect(() => {
-    if (!value && items[0]) onChange({ value: items[0].id });
+    // Only for the create-new-series flow (seriesClassName starts as "" there). When editing an
+    // existing series, `disabled` is true and `value` is already meaningfully set by
+    // openSeriesEditorFor -- but the SVAR store's `value` prop can read as empty for this
+    // component's first render tick regardless, which would otherwise make this effect silently
+    // overwrite it with items[0] (whichever class happens to sort first), breaking the conflict
+    // preview's "exclude my own class" check (it'd start comparing the real class's own slot
+    // against a *different* className, making it look like a foreign conflict).
+    if (!disabled && !value && items[0]) onChange({ value: items[0].id });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <select

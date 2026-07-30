@@ -1,10 +1,15 @@
-import { describe, it, expect, vi } from "vitest";
+// @vitest-environment jsdom
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { render, cleanup } from "@testing-library/react";
 import {
   getSeriesEditorItems,
   defaultHalfYear,
   formatTime,
   WEEKDAY_ABBR,
+  GradePickerField,
 } from "./seriesEditorItems.tsx";
+
+afterEach(cleanup);
 
 describe("seriesEditorItems", () => {
   describe("defaultHalfYear", () => {
@@ -83,6 +88,27 @@ describe("seriesEditorItems", () => {
       expect((gradePicker as Record<string, unknown>).classes).toBe(classes);
     });
 
+    it("marks the grade-picker disabled when editingExisting is true, so the edit flow can't reassign a series to a different class", () => {
+      const items = getSeriesEditorItems({
+        classes: [{ id: "g7", label: "Grade 7" }],
+        formState: {},
+        baseUrl: "http://localhost:1",
+        editingExisting: true,
+      });
+      const gradePicker = items.find((i) => i.key === "seriesClassName");
+      expect((gradePicker as Record<string, unknown>).disabled).toBe(true);
+    });
+
+    it("leaves the grade-picker enabled (disabled undefined) for the create-new-series flow", () => {
+      const items = getSeriesEditorItems({
+        classes: [{ id: "g7", label: "Grade 7" }],
+        formState: {},
+        baseUrl: "http://localhost:1",
+      });
+      const gradePicker = items.find((i) => i.key === "seriesClassName");
+      expect((gradePicker as Record<string, unknown>).disabled).toBeUndefined();
+    });
+
     it("passes formState and baseUrl to preview item", () => {
       const formState = { seriesDay: "Mon" };
       const items = getSeriesEditorItems({
@@ -94,5 +120,40 @@ describe("seriesEditorItems", () => {
       expect((preview as Record<string, unknown>).formState).toBe(formState);
       expect((preview as Record<string, unknown>).baseUrl).toBe("http://x:1");
     });
+  });
+});
+
+describe("GradePickerField", () => {
+  const classes = [
+    { id: "grade-5-2026", label: "Grade 5" },
+    { id: "grade-7-realschule-2026", label: "Grade 7 (realschulabschluss)" },
+  ];
+
+  it("auto-selects the first class when value is empty and not disabled (create-new-series flow)", () => {
+    const onChange = vi.fn();
+    render(
+      <GradePickerField value="" onChange={onChange} classes={classes} />,
+    );
+    expect(onChange).toHaveBeenCalledWith({ value: "grade-5-2026" });
+  });
+
+  it("does NOT auto-select when disabled, even if value reads empty on this render -- editing an existing series must never silently swap its class", () => {
+    const onChange = vi.fn();
+    render(
+      <GradePickerField value="" onChange={onChange} classes={classes} disabled />,
+    );
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("does not overwrite an already-set value even when not disabled", () => {
+    const onChange = vi.fn();
+    render(
+      <GradePickerField
+        value="grade-7-realschule-2026"
+        onChange={onChange}
+        classes={classes}
+      />,
+    );
+    expect(onChange).not.toHaveBeenCalled();
   });
 });
