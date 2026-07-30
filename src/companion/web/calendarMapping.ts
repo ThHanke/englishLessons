@@ -1,6 +1,44 @@
 import type { CalendarEvent } from "@svar-ui/react-calendar";
 import type { Appointment, ModuleTask } from "../server/moduleTasks.ts";
 import type { GapKind } from "../../coverage/types.ts";
+import type { Holiday } from "../../schema/types.ts";
+
+/** Synthetic `calendarId` for the holidays toggle-layer, reusing `CalendarPanel`'s existing
+ * per-`calendarId` checkbox mechanism (today used for per-class show/hide) instead of a new UI
+ * component. */
+export const HOLIDAYS_GROUP_ID = "holidays";
+
+/** `href`s point at the companion's own local artifact-preview route (KTD6) — same origin as the
+ * calendar UI, so a plain root-relative path resolves correctly without needing `baseUrl`.
+ * `slotId` mirrors `artifactPath.ts`'s on-disk shape for a double-period class. */
+/** `webcal://` is the de-facto standard scheme for calendar subscription links -- browsers/OSes
+ * hand a `webcal://` URL off to the user's default calendar app to subscribe, instead of
+ * downloading/displaying the raw `.ics` file as plain text (which is what a plain `http(s)://`
+ * link does). Same host+path, just a different scheme. */
+export function toWebcalUrl(httpUrl: string): string {
+  return httpUrl.replace(/^https?:\/\//, "webcal://");
+}
+
+export function artifactHref(classId: string, date: string, path: string, slotId?: string): string {
+  return slotId
+    ? `/api/artifacts/${classId}/${date}/${slotId}/${path}`
+    : `/api/artifacts/${classId}/${date}/${path}`;
+}
+
+/** Dev-mode href builders for the three-way artifact page split (`routes/artifacts.ts`'s
+ * `VARIANT_PAGE_FILENAMES`) -- distinct filenames from `lesson-plan.json` (the raw JSON
+ * `fetchLessonPlan` reads) so the two routes don't collide. */
+export function lessonPlanPageHref(classId: string, date: string, slotId?: string): string {
+  return artifactHref(classId, date, "lesson-plan-page.html", slotId);
+}
+
+export function homeworkPageHref(classId: string, date: string, slotId?: string): string {
+  return artifactHref(classId, date, "homework-page.html", slotId);
+}
+
+export function testPageHref(classId: string, date: string, slotId?: string): string {
+  return artifactHref(classId, date, "test-page.html", slotId);
+}
 
 /** Deterministic class -> color-slot palette (cycled by first-seen order), so each grade reads as
  * a consistent "overlaying calendar" across the month grid (R11) — a color-slot index, not a
@@ -127,6 +165,21 @@ export function appointmentToEvent(appointment: Appointment): CalendarEvent {
     text: appointment.moduleTitle,
     calendarId: appointment.classId,
     appointment,
+  };
+}
+
+/** One all-day spanning `CalendarEvent` per holiday, `calendarId: "holidays"` (the synthetic
+ * toggle group). Deliberately carries no `task`/`appointment` payload -- `Calendar.tsx`'s
+ * `taskById`/`appointmentById` lookups both miss on a holiday event's id, so a click on one
+ * silently no-ops without any extra guard code. */
+export function holidayToEvent(holiday: Holiday): CalendarEvent {
+  return {
+    id: `holiday::${holiday.name}::${holiday.from}::${holiday.to}`,
+    start: isoDateToLocalDate(holiday.from),
+    end: isoDateToLocalDate(holiday.to, true),
+    allDay: true,
+    text: holiday.name,
+    calendarId: HOLIDAYS_GROUP_ID,
   };
 }
 

@@ -93,12 +93,12 @@ describe("handleArtifactsRequest (HTTP)", () => {
     expect(body.error).toBe("invalid_path");
   });
 
-  it("rejects a request with a missing Origin header", async () => {
+  it("accepts a request with a missing Origin header -- a direct <a href target=\"_blank\"> click (real top-level navigation) commonly carries no Origin header at all, unlike fetch/XHR", async () => {
     const res = await get(
-      "/api/artifacts/fixture-class/2026-08-05/materials/gap_fill-fixture.html",
+      "/api/artifacts/fixture-class/2026-08-05/fix-s2/materials/gap_fill-fixture.html",
       null,
     );
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 
   it("rejects a request with a mismatched Origin header", async () => {
@@ -112,5 +112,38 @@ describe("handleArtifactsRequest (HTTP)", () => {
   it("returns 404 for a well-formed but nonexistent file", async () => {
     const res = await get("/api/artifacts/fixture-class/2026-08-05/materials/does-not-exist.html");
     expect(res.status).toBe(404);
+  });
+
+  describe("three-way artifact page split", () => {
+    it("renders lesson-plan-page.html with materials embedded inline, not linked", async () => {
+      const res = await get(
+        "/api/artifacts/fixture-class/2026-08-05/fix-s2/lesson-plan-page.html",
+      );
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toContain("text/html");
+      const body = await res.text();
+      expect(body).toContain("Fixture objective one");
+      expect(body).toContain("srcdoc=");
+      expect(body).toContain("Fixture Gap Fill");
+      // Homework is excluded from the lesson-plan variant.
+      expect(body).not.toContain("Fixture homework content.");
+    });
+
+    it("renders homework-page.html with only the homework material", async () => {
+      const res = await get(
+        "/api/artifacts/fixture-class/2026-08-05/fix-s2/homework-page.html",
+      );
+      expect(res.status).toBe(200);
+      const body = await res.text();
+      expect(body).toContain("Fixture homework content.");
+      expect(body).not.toContain("Fixture Gap Fill");
+    });
+
+    it("404s test-page.html when no test material exists for that date", async () => {
+      const res = await get(
+        "/api/artifacts/fixture-class/2026-08-05/fix-s2/test-page.html",
+      );
+      expect(res.status).toBe(404);
+    });
   });
 });

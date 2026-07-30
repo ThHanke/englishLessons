@@ -301,6 +301,79 @@ describe("artifactTools", () => {
       expect(existsSync(join(materialsDir, "test-test-one.html"))).toBe(true);
       expect(existsSync(join(materialsDir, "homework-hw-one.md"))).toBe(true);
     });
+
+    function manifestPath() {
+      return join(tmpDir, "artifacts", CLASS_ID, DATE, "manifest.json");
+    }
+
+    function readManifest() {
+      return JSON.parse(readFileSync(manifestPath(), "utf-8"));
+    }
+
+    it("records a manifest.json entry with type 'homework' at 'practiced' depth -- without this, the three-way artifact page split can't tell it apart from a lesson-plan exercise", async () => {
+      const handler = extractToolHandler(makeServer(), "save_material");
+
+      await handler({
+        type: "homework",
+        title: "Unit 1 Homework",
+        content: "<p>Do it</p>",
+        format: "html",
+      });
+
+      const manifest = readManifest();
+      expect(manifest.materials).toContainEqual(
+        expect.objectContaining({
+          file: "materials/homework-unit-1-homework.html",
+          type: "homework",
+          title: "Unit 1 Homework",
+          depth: "practiced",
+        }),
+      );
+    });
+
+    it("records a manifest.json entry with type 'test' at 'assessed' depth", async () => {
+      const handler = extractToolHandler(makeServer(), "save_material");
+
+      await handler({
+        type: "test",
+        title: "Unit 1 Test",
+        content: "<p>Answer these</p>",
+        format: "html",
+      });
+
+      const manifest = readManifest();
+      expect(manifest.materials).toContainEqual(
+        expect.objectContaining({
+          file: "materials/test-unit-1-test.html",
+          type: "test",
+          title: "Unit 1 Test",
+          depth: "assessed",
+        }),
+      );
+    });
+
+    it("appends to an existing manifest.json alongside generate_exercise entries, rather than overwriting it", async () => {
+      const server = makeServer();
+      await extractToolHandler(server, "generate_exercise")({
+        type: "gap_fill",
+        title: "Gap Fill",
+        competenceIds: ["fk.g.passive"],
+        items: [{ sentence: "x ___ y.", blanks: [{ answer: "is", position: 0 }] }],
+      });
+      await extractToolHandler(server, "save_material")({
+        type: "homework",
+        title: "Homework",
+        content: "<p>x</p>",
+        format: "html",
+      });
+
+      const manifest = readManifest();
+      expect(manifest.materials).toHaveLength(2);
+      expect(manifest.materials.map((m: { type: string }) => m.type).sort()).toEqual([
+        "gap_fill",
+        "homework",
+      ]);
+    });
   });
 
   describe("generate_exercise", () => {

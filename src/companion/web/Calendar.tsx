@@ -25,8 +25,9 @@ import type {
   ClassSummary,
   DriftReport,
   ModuleTask,
+  TasksRangeResponse,
 } from "./api.ts";
-import type { LessonSlot } from "../../schema/types.ts";
+import type { Holiday, LessonSlot } from "../../schema/types.ts";
 import {
   getSeriesEditorItems,
   defaultHalfYear,
@@ -39,10 +40,14 @@ import {
   appointmentEventId,
   appointmentToEvent,
   groupColorClass,
+  HOLIDAYS_GROUP_ID,
+  holidayToEvent,
   taskEventClass,
   taskToEvent,
+  toWebcalUrl,
   worstGapSeverity,
 } from "./calendarMapping.ts";
+import { LessonDetailModal } from "./LessonDetailModal.tsx";
 
 export interface CalendarProps {
   baseUrl: string;
@@ -53,18 +58,17 @@ export interface CalendarProps {
    * mount/month-navigation triggers -- lets a sibling component signal "data may have changed"
    * without Calendar needing to know why. */
   refreshKey?: number;
+  /** When set, fetches this pre-generated JSON once on mount instead of calling
+   * `fetchModuleTasks`/`/api/session-token` -- the static GH Pages bundle's data source, since
+   * there's no dev server to hit. The session-token fetch still fires and simply fails (already
+   * caught below), so `canEdit` stays false automatically with no extra static-mode gating. */
+  staticDataUrl?: string;
+  /** Which href-builder module `LessonDetailModal` uses for its artifact links -- root-relative
+   * `/api/artifacts/...` in dev, page-relative `classes/...` paths in the static bundle. Default
+   * `"dev"`. */
+  linkMode?: "dev" | "static";
 }
 
-/** `href`s point at the companion's own local artifact-preview route (KTD6) — same origin as the
- * calendar UI, so a plain root-relative path resolves correctly without needing `baseUrl` (which
- * this module-scope component can't close over anyway). `stopPropagation` keeps a link click from
- * also firing the calendar's own event-select handler (which would open a chat session). `slotId`
- * mirrors `artifactPath.ts`'s on-disk shape for a double-period class. */
-function artifactHref(classId: string, date: string, path: string, slotId?: string): string {
-  return slotId
-    ? `/api/artifacts/${classId}/${date}/${slotId}/${path}`
-    : `/api/artifacts/${classId}/${date}/${path}`;
-}
 
 export function EventContent({
   event,
@@ -86,46 +90,13 @@ export function EventContent({
     );
   }
   if (appointment) {
+    // Material/plan links used to live here, but a real event box (week/month view) is only
+    // wide enough to show the title before `.companion-event-content`'s ellipsis clips
+    // everything after it -- those links were present in the DOM but never actually reachable.
+    // Double-clicking the appointment now opens LessonDetailModal instead, which has real room
+    // for them.
     return (
-      <span className="companion-event-content">
-        {appointment.moduleTitle}
-        {appointment.hasLessonSpec && (
-          <>
-            {" · "}
-            <a
-              href={artifactHref(
-                appointment.classId,
-                appointment.date,
-                "lesson-spec.json",
-                appointment.slotId,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              plan
-            </a>
-          </>
-        )}
-        {appointment.materials.map((material) => (
-          <span key={material.file}>
-            {" · "}
-            <a
-              href={artifactHref(
-                appointment.classId,
-                appointment.date,
-                material.file,
-                appointment.slotId,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {material.title}
-            </a>
-          </span>
-        ))}
-      </span>
+      <span className="companion-event-content">{appointment.moduleTitle}</span>
     );
   }
   return null;
@@ -152,6 +123,8 @@ export function Calendar({
   onOpenChat,
   dark = false,
   refreshKey,
+  staticDataUrl,
+  linkMode = "dev",
 }: CalendarProps) {
   const [classes, setClasses] = useState<ClassSummary[]>([]);
   const [tasks, setTasks] = useState<ModuleTask[]>([]);
@@ -160,6 +133,7 @@ export function Calendar({
     {},
   );
   const [drift, setDrift] = useState<Record<string, DriftReport>>({});
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [deletingSlotId, setDeletingSlotId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeClassIds, setActiveClassIds] = useState<
@@ -170,6 +144,8 @@ export function Calendar({
     useState<Appointment | null>(null);
   const selectedAppointmentRef = useRef(selectedAppointment);
   selectedAppointmentRef.current = selectedAppointment;
+  const [detailModalAppointment, setDetailModalAppointment] =
+    useState<Appointment | null>(null);
   const [calendarApi, setCalendarApi] = useState<CalendarInstanceApi | null>(
     null,
   );
@@ -201,6 +177,30 @@ export function Calendar({
   }, [baseUrl]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    // Static bundle: the data is pre-generated for the whole school year (buildSite.ts's
+    // calendar-data.json), fetched once on mount rather than re-triggered by month navigation or
+    // refreshKey -- there's no dev server behind this to re-query.
+    if (staticDataUrl) {
+      fetch(staticDataUrl)
+        .then((r) => r.json())
+        .then((res: TasksRangeResponse) => {
+          if (!cancelled) {
+            setClasses(res.classes);
+            setTasks(res.tasks);
+            setAppointments(res.appointments);
+            setLessonSlots(res.lessonSlots ?? {});
+            setDrift(res.drift ?? {});
+            setHolidays(res.holidays ?? []);
+          }
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const [year, monthNum] = month.slice(0, 7).split("-").map(Number) as [
       number,
       number,
@@ -212,7 +212,6 @@ export function Calendar({
       .toISOString()
       .slice(0, 10);
     setViewRange({ from, to });
-    let cancelled = false;
     fetchModuleTasks({ baseUrl, from, to }).then((res) => {
       if (!cancelled) {
         setClasses(res.classes);
@@ -220,12 +219,13 @@ export function Calendar({
         setAppointments(res.appointments);
         setLessonSlots(res.lessonSlots ?? {});
         setDrift(res.drift ?? {});
+        setHolidays(res.holidays ?? []);
       }
     });
     return () => {
       cancelled = true;
     };
-  }, [baseUrl, month, refreshKey]);
+  }, [baseUrl, month, refreshKey, staticDataUrl]);
 
   const taskById = useMemo(
     () => new Map(tasks.map((t) => [`${t.classId}::${t.moduleId}`, t])),
@@ -236,19 +236,22 @@ export function Calendar({
     [appointments],
   );
   const groupOrder = useMemo(() => new Map<string, number>(), []);
-  const groups: CalendarGroup[] = useMemo(
-    () =>
-      classes.map((c) => {
-        const behindBySlots = drift[c.id]?.calendarDrift.behindBySlots ?? 0;
-        return {
-          id: c.id,
-          label: behindBySlots > 0 ? `${c.label} (${behindBySlots} behind)` : c.label,
-          css: groupColorClass(c.id, groupOrder),
-          active: true,
-        };
-      }),
-    [classes, drift, groupOrder],
-  );
+  const groups: CalendarGroup[] = useMemo(() => {
+    const classGroups = classes.map((c) => {
+      const behindBySlots = drift[c.id]?.calendarDrift.behindBySlots ?? 0;
+      return {
+        id: c.id,
+        label: behindBySlots > 0 ? `${c.label} (${behindBySlots} behind)` : c.label,
+        css: groupColorClass(c.id, groupOrder),
+        active: true,
+      };
+    });
+    if (classGroups.length === 0) return classGroups;
+    return [
+      ...classGroups,
+      { id: HOLIDAYS_GROUP_ID, label: "Holidays", css: "companion-holidays-toggle", active: true },
+    ];
+  }, [classes, drift, groupOrder]);
 
   const plannableClassesFirst = useMemo(() => {
     const plannable = new Set(tasks.map((t) => t.classId));
@@ -257,7 +260,8 @@ export function Calendar({
     );
   }, [classes, tasks]);
 
-  const effectiveActiveIds = activeClassIds ?? classes.map((c) => c.id);
+  const effectiveActiveIds =
+    activeClassIds ?? [...classes.map((c) => c.id), HOLIDAYS_GROUP_ID];
   const events = useMemo(
     () => [
       ...tasks
@@ -266,9 +270,12 @@ export function Calendar({
       ...appointments
         .filter((a) => effectiveActiveIds.includes(a.classId))
         .map(appointmentToEvent),
+      ...(effectiveActiveIds.includes(HOLIDAYS_GROUP_ID)
+        ? holidays.map(holidayToEvent)
+        : []),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tasks, appointments, activeClassIds],
+    [tasks, appointments, holidays, activeClassIds],
   );
 
   function eventCss(ctx: EventContext): string {
@@ -279,10 +286,42 @@ export function Calendar({
     if (event.task) return taskEventClass(event.task, groupOrder);
     if (event.appointment)
       return appointmentEventClass(event.appointment, groupOrder);
-    return "";
+    // No task/appointment payload -> a holiday event (holidayToEvent). Reuse the
+    // already-defined-but-otherwise-unreferenced dashed/transparent style as the holiday backdrop.
+    return "companion-non-teaching";
   }
 
   const lastClickRef = useRef<{ id: string; time: number }>({ id: "", time: 0 });
+
+  // Extracted from the old double-click handler (which used to open the series Editor directly)
+  // so the new LessonDetailModal's "Edit lesson series" button can trigger the exact same
+  // seriesFormState/editorData seeding, one click deeper than before.
+  function openSeriesEditorFor(appointment: Appointment) {
+    if (!canEdit || !calendarApi) return;
+    setSelectedAppointment(appointment);
+    const store = calendarApi.getStores().data;
+    const ed = (store.getState() as { editorData?: Record<string, unknown> }).editorData;
+    if (ed) {
+      const day = appointment.start
+        ? WEEKDAY_ABBR[new Date(`${appointment.date}T${appointment.start}:00`).getDay()]!
+        : WEEKDAY_ABBR[new Date(`${appointment.date}T00:00:00`).getDay()]!;
+      ed.seriesClassName = appointment.classId;
+      ed.seriesDay = day;
+      ed.seriesStart = appointment.start ?? "";
+      ed.seriesEnd = appointment.end ?? "";
+      ed.seriesHalfYear = defaultHalfYear(appointment.date);
+      ed.seriesRecurring = true;
+      store.setState({ editorData: { ...ed } as CalendarEvent });
+      setSeriesFormState({
+        seriesClassName: appointment.classId,
+        seriesDay: day,
+        seriesStart: appointment.start ?? "",
+        seriesEnd: appointment.end ?? "",
+        seriesHalfYear: defaultHalfYear(appointment.date) as 1 | 2,
+        seriesRecurring: true,
+      });
+    }
+  }
 
   function handleSelectEvent(ev: { id: string | number | null }) {
     if (ev.id === null) return;
@@ -300,33 +339,22 @@ export function Calendar({
     }
     const appointment = appointmentById.get(id);
     if (appointment) {
-      if (isDoubleClick && canEdit && calendarApi) {
-        setSelectedAppointment(appointment);
-        const store = calendarApi.getStores().data;
-        const ed = (store.getState() as { editorData?: Record<string, unknown> }).editorData;
-        if (ed) {
-          const day = appointment.start
-            ? WEEKDAY_ABBR[new Date(`${appointment.date}T${appointment.start}:00`).getDay()]!
-            : WEEKDAY_ABBR[new Date(`${appointment.date}T00:00:00`).getDay()]!;
-          ed.seriesClassName = appointment.classId;
-          ed.seriesDay = day;
-          ed.seriesStart = appointment.start ?? "";
-          ed.seriesEnd = appointment.end ?? "";
-          ed.seriesHalfYear = defaultHalfYear(appointment.date);
-          ed.seriesRecurring = true;
-          store.setState({ editorData: { ...ed } as CalendarEvent });
-          setSeriesFormState({
-            seriesClassName: appointment.classId,
-            seriesDay: day,
-            seriesStart: appointment.start ?? "",
-            seriesEnd: appointment.end ?? "",
-            seriesHalfYear: defaultHalfYear(appointment.date) as 1 | 2,
-            seriesRecurring: true,
-          });
-        }
-      } else {
-        onOpenChat(appointment.classId, appointment.date, appointment.slotId);
+      if (isDoubleClick) {
+        // Opens the lesson-detail modal (artifact links + "Edit lesson series" button); the
+        // series Editor itself now opens one click deeper, via openSeriesEditorFor. Clearing
+        // editorData here matters: SVAR's own event-selection handling auto-populates it on
+        // every select-event (including this one), which would otherwise pop the Editor open
+        // underneath/alongside this modal even though nothing here asked for it.
         calendarApi?.getStores().data.setState({ editorData: null });
+        setDetailModalAppointment(appointment);
+      } else {
+        // Single click only retargets the planning-panel chat -- Chat.tsx's own pendingSwitch
+        // confirmation already guards an active conversation (hasMessagesRef) from being silently
+        // swapped out from under the teacher, so clicking around the calendar mid-conversation
+        // prompts to confirm rather than losing it.
+        calendarApi?.getStores().data.setState({ editorData: null });
+        setSelectedTask(null);
+        onOpenChat(appointment.classId, appointment.date, appointment.slotId);
       }
     }
   }
@@ -421,6 +449,32 @@ export function Calendar({
     classId: string;
     slotId: string;
   } | null>(null);
+
+  const [calendarsList, setCalendarsList] = useState<
+    Array<{ classId: string; classLabel: string; schoolYear: string; icsPath: string }> | null
+  >(null);
+  const [copiedIcsUrl, setCopiedIcsUrl] = useState<string | null>(null);
+
+  function handleViewCalendars() {
+    if (calendarsList !== null) {
+      setCalendarsList(null);
+      return;
+    }
+    fetch(new URL("/api/calendars", baseUrl).toString())
+      .then((r) => r.json())
+      .then((data) => setCalendarsList(data.calendars ?? []))
+      .catch(() => setCalendarsList([]));
+  }
+
+  function handleCopyIcsUrl(url: string) {
+    navigator.clipboard
+      ?.writeText(url)
+      .then(() => {
+        setCopiedIcsUrl(url);
+        setTimeout(() => setCopiedIcsUrl((cur) => (cur === url ? null : cur)), 2000);
+      })
+      .catch(() => {});
+  }
 
   const handleEditorAction = useCallback(
     async (obj: {
@@ -544,27 +598,113 @@ export function Calendar({
 
   return (
     <Theme>
-      <div data-testid="companion-calendar" style={{ height: "600px" }}>
-        <SvarCalendar
-          events={events}
-          date={currentDate}
-          onNavigateTo={handleNavigateTo}
-          view="month"
-          views={["day", "week", "month"]}
-          toolbar={canEdit ? undefined : READONLY_TOOLBAR}
-          eventCss={eventCss}
-          eventContent={EventContent}
-          onSelectEvent={handleSelectEvent}
-          init={handleInit}
-        >
-          {groups.length > 0 && (
-            <CalendarPanel
-              open
-              calendars={groups}
-              onChange={handlePanelChange}
-            />
+      <div data-testid="companion-calendar" className="companion-calendar-root">
+        <div className="companion-calendar-toolbar-extra">
+          {linkMode === "static" ? (
+            // Static bundle: no /api/calendars route exists -- calendars/index.html is a real
+            // file written alongside this bundle by buildSite.ts, so a plain link is all that's
+            // needed (page-relative, resolves under whatever subpath the site is deployed at).
+            <a href="calendars/" target="_blank" rel="noopener noreferrer" className="companion-button">
+              View calendars
+            </a>
+          ) : (
+            <button
+              type="button"
+              className="companion-button"
+              data-testid="view-calendars-button"
+              onClick={handleViewCalendars}
+            >
+              View calendars
+            </button>
           )}
-        </SvarCalendar>
+        </div>
+
+        <div className="companion-calendar-grid">
+          <SvarCalendar
+            events={events}
+            date={currentDate}
+            onNavigateTo={handleNavigateTo}
+            view="month"
+            views={["day", "week", "month"]}
+            toolbar={canEdit ? undefined : READONLY_TOOLBAR}
+            eventCss={eventCss}
+            eventContent={EventContent}
+            onSelectEvent={handleSelectEvent}
+            init={handleInit}
+          >
+            {groups.length > 0 && (
+              <CalendarPanel
+                open
+                calendars={groups}
+                onChange={handlePanelChange}
+              />
+            )}
+          </SvarCalendar>
+        </div>
+
+        {linkMode !== "static" && calendarsList && (
+          <div
+            role="dialog"
+            aria-label="Available calendars"
+            data-testid="calendars-list"
+            className="companion-modal-overlay"
+          >
+            <div className="companion-modal-dialog">
+              <h2 className="companion-modal-title">Available calendars</h2>
+              <p className="companion-modal-subtitle">
+                Subscribe to a class's schedule in your own calendar app, or copy the link to add
+                it manually.
+              </p>
+              {calendarsList.length === 0 && <p>No calendars available yet.</p>}
+              <ul className="companion-calendars-list">
+                {calendarsList.map((c) => {
+                  const fullUrl = new URL(c.icsPath, baseUrl).toString();
+                  return (
+                    <li key={`${c.classId}::${c.schoolYear}`} className="companion-calendars-list-item">
+                      <span className="companion-calendars-list-label">
+                        {c.classLabel} ({c.schoolYear})
+                      </span>
+                      <div className="companion-calendars-list-actions">
+                        <a href={toWebcalUrl(fullUrl)} className="companion-button companion-button-primary">
+                          Subscribe
+                        </a>
+                        <button
+                          type="button"
+                          className="companion-button"
+                          onClick={() => handleCopyIcsUrl(fullUrl)}
+                        >
+                          {copiedIcsUrl === fullUrl ? "Copied!" : "Copy link"}
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="companion-modal-actions">
+                <button
+                  type="button"
+                  className="companion-button"
+                  onClick={() => setCalendarsList(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {detailModalAppointment && (
+          <LessonDetailModal
+            appointment={detailModalAppointment}
+            canEdit={canEdit}
+            linkMode={linkMode}
+            onEditSeries={() => {
+              openSeriesEditorFor(detailModalAppointment);
+              setDetailModalAppointment(null);
+            }}
+            onClose={() => setDetailModalAppointment(null)}
+          />
+        )}
 
         {selectedTask && (
           <div role="status" data-testid="task-detail">
@@ -636,22 +776,15 @@ export function Calendar({
             role="alertdialog"
             aria-label="Delete options"
             data-testid="confirm-delete-series"
-            style={{
-              position: "fixed",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(0,0,0,0.4)",
-              zIndex: 9999,
-            }}
+            className="companion-modal-overlay"
           >
-            <div style={{ background: "var(--wx-background, #fff)", padding: "1.5rem", borderRadius: "8px", maxWidth: "400px" }}>
-              <p><strong>What do you want to delete?</strong></p>
-              {deleteError && <p style={{ color: "red" }}>{deleteError}</p>}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "1rem" }}>
+            <div className="companion-modal-dialog">
+              <h2 className="companion-modal-title">What do you want to delete?</h2>
+              {deleteError && <p style={{ color: "#dc2626" }}>{deleteError}</p>}
+              <div className="companion-modal-links">
                 <button
                   type="button"
+                  className="companion-button"
                   disabled={deletingSlotId !== null}
                   onClick={async () => {
                     setConfirmDelete(null);
@@ -663,8 +796,8 @@ export function Calendar({
                 </button>
                 <button
                   type="button"
+                  className="companion-button companion-button-danger"
                   disabled={deletingSlotId !== null}
-                  style={{ color: "red" }}
                   onClick={async () => {
                     await handleDeleteSlot(confirmDelete.classId, confirmDelete.slotId);
                     setConfirmDelete(null);
@@ -674,8 +807,11 @@ export function Calendar({
                 >
                   {deletingSlotId ? "Deleting..." : "Delete entire series"}
                 </button>
+              </div>
+              <div className="companion-modal-actions">
                 <button
                   type="button"
+                  className="companion-button"
                   onClick={() => setConfirmDelete(null)}
                 >
                   Cancel

@@ -51,6 +51,22 @@ export function originMatches(
   return normalizedRequest === normalizedLoopbackOrigin(expectedOrigin);
 }
 
+/** Same-origin check for a route reached by direct browser navigation (a teacher clicking
+ * `<a href target="_blank">` to open a generated material), not by `fetch`/XHR -- a plain
+ * top-level GET navigation commonly carries no `Origin` header at all (browsers only reliably
+ * attach it to fetch/XHR and unsafe-method requests), so `originMatches`' "missing Origin ->
+ * reject" rule would 403 every legitimate click. A *present* Origin still has to match exactly
+ * (via `originMatches`) -- this only widens the missing-header case, which is the one a
+ * cross-origin `fetch`/XHR/iframe attack can't produce (those always send a real Origin), so the
+ * protection `originMatches`' doc comment describes is unchanged for the attack it's guarding
+ * against. */
+export function originMatchesOrAbsent(
+  requestOrigin: string | undefined,
+  expectedOrigin: string,
+): boolean {
+  return requestOrigin === undefined || originMatches(requestOrigin, expectedOrigin);
+}
+
 /** Reads the session token from the header first, then an optional parsed JSON body field.
  * Deliberately never reads `req.headers.cookie` - KTD9 requires the token to never travel as an
  * automatically-sent cookie. */

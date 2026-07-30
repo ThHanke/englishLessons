@@ -12,6 +12,10 @@ import { handleTasksRequest } from "./routes/tasks.ts";
 import { handleLessonPreviewRequest } from "./routes/lessonPreview.ts";
 import { handleArtifactsRequest } from "./routes/artifacts.ts";
 import {
+  handleCalendarsListRequest,
+  handleCalendarIcsRequest,
+} from "./routes/calendars.ts";
+import {
   handleSeriesPreviewRequest,
   handleCreateSeriesRequest,
   handleDeleteSeriesRequest,
@@ -98,6 +102,14 @@ export async function createCompanionServer(params?: {
     }
     if (req.method === "GET" && url.pathname.startsWith("/api/artifacts/")) {
       void handleArtifactsRequest(req, res, { repoRoot, expectedOrigin: origin });
+      return;
+    }
+    if (req.method === "GET" && url.pathname === "/api/calendars") {
+      void handleCalendarsListRequest(req, res, { repoRoot, expectedOrigin: origin });
+      return;
+    }
+    if (req.method === "GET" && url.pathname.startsWith("/api/calendars/")) {
+      void handleCalendarIcsRequest(req, res, { repoRoot, expectedOrigin: origin });
       return;
     }
     if (req.method === "GET" && url.pathname === "/api/lesson-series/preview") {

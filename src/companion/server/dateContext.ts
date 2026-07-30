@@ -4,7 +4,6 @@ import { loadYaml } from "../../schema/yaml.ts";
 import type {
   ModulesFile,
   ClassFile,
-  CalendarFile,
   LessonSpec,
 } from "../../schema/types.ts";
 import type { Phase } from "../../projection/types.ts";
@@ -21,6 +20,7 @@ import { driftReport } from "../../coverage/driftReport.ts";
 import type { CalendarDrift, Gap } from "../../coverage/types.ts";
 import { buildLedger, lastTaughtDate } from "./buildLedger.ts";
 import { artifactDir } from "./artifactPath.ts";
+import { loadCalendarForClass } from "./loadCalendar.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -74,27 +74,6 @@ function loadClassData(className: string, repoRoot: string): ClassData | null {
     if (classFile.name === className) {
       const modulesFile = loadYaml<ModulesFile>(join(dirPath, "modules.yaml"));
       return { modulesFile, classFile };
-    }
-  }
-  return null;
-}
-
-/**
- * Mirrors `src/cli/validateAll.ts`'s `calendar/*.yaml` walk, then picks the file whose
- * `class_schedule` covers `className`. Fallback when this matches more than one calendar file:
- * first match wins, in `readdirSync` order - no further ambiguity resolution is implemented,
- * since today's repo only ever has one calendar file per school year and this hasn't come up.
- */
-function loadCalendarForClass(
-  className: string,
-  repoRoot: string,
-): CalendarFile | null {
-  const calendarDir = join(repoRoot, "calendar");
-  const files = readdirSync(calendarDir).filter((f) => f.endsWith(".yaml"));
-  for (const file of files) {
-    const calendar = loadYaml<CalendarFile>(join(calendarDir, file));
-    if (calendar.class_schedule[className]) {
-      return calendar;
     }
   }
   return null;

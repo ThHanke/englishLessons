@@ -380,6 +380,25 @@ export function createLessonArtifactServer(params: {
           const filePath = join(materialsDir, fileName);
           atomicWriteFileSync(filePath, args.content);
 
+          // Without a manifest entry, the three-way artifact page split (routes/artifacts.ts's
+          // filterMaterialsForVariant) has no way to tell this material's type apart from a
+          // lesson-plan exercise -- it would silently fall into the lesson-plan bucket instead of
+          // its own homework/test page. `depth` mirrors the KTD3 convention generate_exercise
+          // uses ('practiced' for reinforcement material); 'test' gets 'assessed' since that's
+          // specifically assessment content, distinct from practice.
+          mkdirSync(baseDir, { recursive: true });
+          const manifestPath = join(baseDir, "manifest.json");
+          const manifest = readManifest(manifestPath, classId, date);
+          manifest.materials.push({
+            file: `materials/${fileName}`,
+            type: args.type,
+            title: args.title,
+            competenceIds: [],
+            depth: args.type === "test" ? "assessed" : "practiced",
+            createdAt: new Date().toISOString(),
+          });
+          atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
           const relPath = `${relDir}/materials/${fileName}`;
           return {
             content: [{ type: "text", text: `Saved material to ${relPath}` }],

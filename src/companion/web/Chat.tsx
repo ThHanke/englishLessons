@@ -26,7 +26,7 @@ export interface ChatProps {
   onTurnComplete?: () => void;
 }
 
-interface PreviewTarget {
+export interface PreviewTarget {
   classId: string;
   date: string;
   slotId?: string;
@@ -398,7 +398,7 @@ function GapBadge({ kind }: { kind: string }) {
   );
 }
 
-function ContextPreview({
+export function ContextPreview({
   target,
   context,
 }: {
@@ -579,9 +579,9 @@ function SwitchConfirmDialog({
       role="alertdialog"
       aria-label="Switch date confirmation"
       data-testid="chat-switch-confirm"
-      className="companion-chat-overlay"
+      className="companion-modal-overlay"
     >
-      <div className="companion-chat-dialog">
+      <div className="companion-modal-dialog">
         <p>
           <strong>Switch to a different lesson?</strong>
         </p>
@@ -591,11 +591,11 @@ function SwitchConfirmDialog({
           {pendingSwitch.date} will start a new conversation. Your current
           conversation will be resumable later.
         </p>
-        <div className="companion-chat-dialog-actions">
-          <button type="button" onClick={onCancel}>
+        <div className="companion-modal-actions">
+          <button type="button" className="companion-button" onClick={onCancel}>
             Stay here
           </button>
-          <button type="button" onClick={onConfirm}>
+          <button type="button" className="companion-button companion-button-primary" onClick={onConfirm}>
             Switch
           </button>
         </div>

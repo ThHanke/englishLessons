@@ -131,12 +131,12 @@
   border: 2px solid #dc2626 !important;
 }
 
-/* Appointment with existing lesson-spec -- a background tint alongside the border so "planned"
- * reads at a glance in a dense month/week grid, not just on close inspection of a thin edge. */
+/* Appointment with existing lesson-spec -- a green accent bar on top of whatever color the
+ * class already has (never override background-color here: that would repaint the class's own
+ * color, e.g. grade 7's yellow turning green, which defeats the class-legend color coding). */
 .companion-planned[class*="wx-box-event"],
 .companion-planned[class*="wx-bar-event"] {
   border-left: 4px solid #16a34a !important;
-  background-color: rgba(22, 163, 74, 0.12) !important;
 }
 
 .companion-event-content {
@@ -146,24 +146,61 @@
   white-space: nowrap;
 }
 
-/* App layout — Calendar + Chat side by side */
-.companion-app {
+/* App layout — Calendar + Chat side by side, resizable via ResizableSplit.tsx. Pane widths come
+ * from that component's inline `flexBasis` (driven by drag state), not from CSS here -- these
+ * rules just provide structure/overflow/cursor. No mobile breakpoint needed: the split only
+ * matters on the dev server (desktop), and ResizableSplit's px clamps (not a CSS media query)
+ * keep it usable on a merely smallish desktop window. */
+.companion-split-root {
   display: flex;
   height: 100vh;
   overflow: hidden;
 }
-.companion-app-calendar {
-  flex: 1 1 60%;
+.companion-split-pane {
   min-width: 0;
-  overflow: auto;
-}
-.companion-app-chat {
-  flex: 0 0 40%;
-  min-width: 320px;
-  max-width: 500px;
-  border-left: 1px solid #e2e8f0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+.companion-split-divider {
+  flex: 0 0 6px;
+  cursor: col-resize;
+  background: #e2e8f0;
+}
+.companion-split-divider:hover,
+.companion-split-divider:active {
+  background: #94a3b8;
+}
+/* SVAR's month view can expand a day cell ("+N more") into an overlay taller than the calendar's
+ * own grid div, rendered as a sibling near the top of this pane rather than nested inside
+ * `.companion-calendar-grid` -- so `.companion-calendar-grid`'s own overflow-y:auto never sees it
+ * and the base `.companion-split-pane`'s overflow:hidden clips it instead. This modifier (applied
+ * only to the calendar pane, not the chat one) lets the whole pane scroll so that content -- and
+ * anything below it, like the "View calendars" button -- stays reachable. */
+.companion-split-pane-scroll {
+  overflow-y: auto;
+}
+.companion-calendar-toolbar-extra {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.companion-calendar-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.companion-calendar-grid {
+  flex: 1 1 auto;
+  /* min-height: 0 (not a px floor) is the actual fix here: without it, a flex item's default
+   * min-height is "auto", which lets its content's intrinsic height (SVAR's week/day view wants
+   * to render a full tall hour grid) push the item past whatever space flex allotted it instead
+   * of shrinking to fit -- with `.companion-split-pane`'s overflow:hidden, that overflow would
+   * otherwise expand the pane past its allotted width. overflow-y:auto here means SVAR's own
+   * grid scrolls within its allotted space instead of expanding past it. */
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* Chat component */
@@ -400,8 +437,10 @@
   border-bottom: 1px solid #fecaca;
 }
 
-/* Switch-date confirmation overlay */
-.companion-chat-overlay {
+/* Generic centered modal -- shared by the chat's switch-date confirmation, the calendar's
+ * confirm-delete dialog, LessonDetailModal, and the calendars-list panel, so every modal in the
+ * app looks and behaves consistently instead of each one reinventing overlay/button styling. */
+.companion-modal-overlay {
   position: fixed;
   inset: 0;
   display: flex;
@@ -410,16 +449,107 @@
   background: rgba(0, 0, 0, 0.4);
   z-index: 9999;
 }
-.companion-chat-dialog {
+.companion-modal-dialog {
   background: #fff;
   padding: 1.5rem;
   border-radius: 8px;
-  max-width: 400px;
+  max-width: 420px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.companion-chat-dialog-actions {
+.companion-modal-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+.companion-modal-subtitle {
+  margin: 0 0 1rem;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+.companion-modal-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.companion-modal-actions {
   display: flex;
   gap: 0.5rem;
   margin-top: 1rem;
   justify-content: flex-end;
+}
+
+/* Generic button -- Tailwind's preflight reset strips default OS button/link chrome, so every
+ * clickable control in a modal needs this explicitly or it renders as unstyled plain text. */
+.companion-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #1e293b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.companion-button:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.companion-button-primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+.companion-button-primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.companion-button-danger {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+.companion-button-danger:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+.companion-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.companion-calendars-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.companion-calendars-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.companion-calendars-list-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.companion-calendars-list-label {
+  font-weight: 500;
+  color: #0f172a;
+}
+.companion-calendars-list-actions {
+  display: flex;
+  gap: 0.5rem;
 }

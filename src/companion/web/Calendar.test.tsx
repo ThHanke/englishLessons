@@ -51,6 +51,7 @@ function eventWithAppointment(appt: Appointment): CalendarEvent {
 function mockFetch(
   classes: TasksRangeResponse["classes"],
   tasks: ModuleTask[],
+  holidays: TasksRangeResponse["holidays"] = [],
 ) {
   const response: TasksRangeResponse = {
     from: "2026-08-01",
@@ -58,6 +59,7 @@ function mockFetch(
     classes,
     tasks,
     appointments: [],
+    holidays,
   };
   vi.spyOn(api, "fetchModuleTasks").mockResolvedValue(response);
 }
@@ -134,6 +136,22 @@ describe("Calendar", () => {
       screen.queryByText("grade-7-realschule-2026"),
     ).not.toBeInTheDocument();
   });
+
+  it("shows a Holidays entry in the legend once holiday data arrives", async () => {
+    mockFetch(
+      [{ id: "grade-7-realschule-2026", label: "grade-7-realschule-2026" }],
+      [task({ classId: "grade-7-realschule-2026", moduleId: "m1" })],
+      [{ name: "Fixture Break", from: "2026-08-17", to: "2026-08-21" }],
+    );
+    render(
+      <Calendar
+        baseUrl="http://127.0.0.1:1"
+        month="2026-08-01"
+        onOpenChat={() => {}}
+      />,
+    );
+    await waitFor(() => expect(screen.getByText("Holidays")).toBeInTheDocument());
+  });
 });
 
 // EventContent is tested directly (not through the mounted Calendar) since @svar-ui/react-calendar
@@ -141,65 +159,37 @@ describe("Calendar", () => {
 // doc comment above) -- event-cell content isn't reliably queryable through a full Calendar mount.
 // EventContent is a plain function component, so rendering it standalone sidesteps that entirely.
 describe("EventContent", () => {
-  it("renders a link to the lesson-spec preview when hasLessonSpec is true", () => {
-    render(
-      <EventContent
-        event={eventWithAppointment(appointment({ hasLessonSpec: true }))}
-        mode="month"
-      />,
-    );
-    const link = screen.getByRole("link", { name: "plan" });
-    expect(link).toHaveAttribute(
-      "href",
-      "/api/artifacts/grade-7-realschule-2026/2026-08-05/lesson-spec.json",
-    );
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    expect(link).toHaveAttribute("target", "_blank");
-  });
-
-  it("does not render a lesson-spec link when hasLessonSpec is false", () => {
-    render(
-      <EventContent
-        event={eventWithAppointment(appointment({ hasLessonSpec: false }))}
-        mode="month"
-      />,
-    );
-    expect(screen.queryByRole("link", { name: "plan" })).not.toBeInTheDocument();
-  });
-
-  it("renders one link per material, with rel=noopener noreferrer", () => {
+  // Material/plan links used to render here, but a real event box (week/month view) is only
+  // wide enough to show the title before .companion-event-content's ellipsis clips everything
+  // after it -- moved to LessonDetailModal (LessonDetailModal.test.tsx), opened by double-click,
+  // which has real room. EventContent now renders the title only, and never any link, regardless
+  // of hasLessonSpec or materials.
+  it("renders the appointment's module title as plain text, no links", () => {
     render(
       <EventContent
         event={eventWithAppointment(
           appointment({
+            hasLessonSpec: true,
             materials: [
               { file: "materials/gap_fill-x.html", type: "gap_fill", title: "Gap Fill X" },
-              { file: "materials/mcq-y.html", type: "mcq", title: "MCQ Y" },
             ],
           }),
         )}
         mode="month"
       />,
     );
-    const gapFillLink = screen.getByRole("link", { name: "Gap Fill X" });
-    expect(gapFillLink).toHaveAttribute(
-      "href",
-      "/api/artifacts/grade-7-realschule-2026/2026-08-05/materials/gap_fill-x.html",
-    );
-    expect(gapFillLink).toHaveAttribute("rel", "noopener noreferrer");
-    expect(screen.getByRole("link", { name: "MCQ Y" })).toBeInTheDocument();
+    expect(screen.getByText("Back in school")).toBeInTheDocument();
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
   });
 
-  it("still shows the lesson-spec link when hasLessonSpec is true but there are zero materials", () => {
+  it("renders the same plain title when hasLessonSpec is false", () => {
     render(
       <EventContent
-        event={eventWithAppointment(
-          appointment({ hasLessonSpec: true, materials: [] }),
-        )}
+        event={eventWithAppointment(appointment({ hasLessonSpec: false }))}
         mode="month"
       />,
     );
-    expect(screen.getByRole("link", { name: "plan" })).toBeInTheDocument();
-    expect(screen.getAllByRole("link")).toHaveLength(1);
+    expect(screen.getByText("Back in school")).toBeInTheDocument();
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
   });
 });

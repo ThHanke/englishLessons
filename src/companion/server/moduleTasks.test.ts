@@ -275,8 +275,20 @@ describe("moduleTasks", () => {
 
     expect(planned?.materials).toEqual([
       { file: "materials/gap_fill-fixture.html", type: "gap_fill", title: "Fixture Gap Fill" },
+      { file: "materials/homework-fixture.html", type: "homework", title: "Fixture Homework" },
     ]);
     expect(unplanned?.materials).toEqual([]);
+  });
+
+  it("returns the union of every distinct calendar file's holidays, deduped across classes sharing one file", () => {
+    const { holidays } = moduleTasks({
+      from: "2026-08-01",
+      to: "2026-09-04",
+      repoRoot: FIXTURE_REPO_ROOT,
+    });
+    expect(holidays).toEqual([
+      { name: "Fixture Break", from: "2026-08-17", to: "2026-08-21" },
+    ]);
   });
 
   it("only returns appointments for slots within [from, to], even for a module spanning outside it", () => {

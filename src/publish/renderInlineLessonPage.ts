@@ -25,6 +25,30 @@ function escapeAttr(s: string): string {
  * (srcdoc content is same-origin to the parent per spec, so `contentWindow.document` is
  * readable). No filesystem access here -- the caller owns discovering/reading material files.
  */
+export type LessonPageVariant = "lesson-plan" | "homework" | "test";
+
+/** Splits a lesson's materials by manifest `type` for the three-way artifact page split (dev
+ * route `routes/artifacts.ts` and static `buildSite.ts` both call this so the grouping can't
+ * drift between the two). `lesson-plan` gets everything except homework/test (exercises,
+ * vocab_intro, etc.); `homework`/`test` get only their own type. Materials with no matching
+ * manifest entry (shouldn't happen in practice, but not fatal) fall into the `lesson-plan`
+ * bucket rather than being silently dropped. */
+export function filterMaterialsForVariant(
+  materials: Array<{ file: string; html: string }>,
+  manifest: Manifest | null | undefined,
+  variant: LessonPageVariant,
+): Array<{ file: string; html: string }> {
+  const typeOf = (file: string) =>
+    manifest?.materials.find((m) => basename(m.file) === basename(file))?.type;
+  if (variant === "homework") return materials.filter((m) => typeOf(m.file) === "homework");
+  if (variant === "test") return materials.filter((m) => typeOf(m.file) === "test");
+  return materials.filter((m) => typeOf(m.file) !== "homework" && typeOf(m.file) !== "test");
+}
+
+export function hasTestMaterial(manifest: Manifest | null | undefined): boolean {
+  return manifest?.materials.some((m) => m.type === "test") ?? false;
+}
+
 export function renderInlineLessonPage(params: {
   spec: LessonSpec;
   manifest?: Manifest | null;

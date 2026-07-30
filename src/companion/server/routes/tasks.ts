@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { moduleTasks } from "../moduleTasks.ts";
 import type { Appointment, ClassSummary, ModuleTask } from "../moduleTasks.ts";
-import type { LessonSlot } from "../../../schema/types.ts";
+import type { Holiday, LessonSlot } from "../../../schema/types.ts";
 import type { DriftReport } from "../../../coverage/types.ts";
 
 export interface TasksRangeResponse {
@@ -12,6 +12,7 @@ export interface TasksRangeResponse {
   appointments: Appointment[];
   lessonSlots?: Record<string, LessonSlot[]>;
   drift?: Record<string, DriftReport>;
+  holidays?: Holiday[];
 }
 
 function sendJson(
@@ -46,7 +47,7 @@ export async function handleTasksRequest(
   }
 
   try {
-    const { classes, tasks, appointments, lessonSlots, drift } = moduleTasks({
+    const { classes, tasks, appointments, lessonSlots, drift, holidays } = moduleTasks({
       from,
       to,
       repoRoot: config.repoRoot,
@@ -59,6 +60,7 @@ export async function handleTasksRequest(
       appointments,
       lessonSlots,
       drift,
+      holidays,
     } satisfies TasksRangeResponse);
   } catch (err) {
     sendJson(res, 500, { error: (err as Error).message });

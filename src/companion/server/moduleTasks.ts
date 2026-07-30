@@ -4,7 +4,7 @@ import { loadYaml } from "../../schema/yaml.ts";
 import type {
   ModulesFile,
   ClassFile,
-  CalendarFile,
+  Holiday,
   LessonSlot,
 } from "../../schema/types.ts";
 import {
@@ -18,6 +18,7 @@ import { driftReport } from "../../coverage/driftReport.ts";
 import type { DriftReport, Gap } from "../../coverage/types.ts";
 import { buildLedger, lastTaughtDate, listLessonSpecs } from "./buildLedger.ts";
 import { artifactDir } from "./artifactPath.ts";
+import { loadCalendarForClass } from "./loadCalendar.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../../", import.meta.url).pathname;
 
@@ -100,20 +101,6 @@ function listAllClasses(
   return out;
 }
 
-function loadCalendarForClass(
-  className: string,
-  repoRoot: string,
-): CalendarFile | null {
-  const calendarDir = join(repoRoot, "calendar");
-  for (const file of readdirSync(calendarDir).filter((f) =>
-    f.endsWith(".yaml"),
-  )) {
-    const calendar = loadYaml<CalendarFile>(join(calendarDir, file));
-    if (calendar.class_schedule[className]) return calendar;
-  }
-  return null;
-}
-
 /**
  * One `ModuleTask` per module placement whose date range overlaps `[from, to]`, across every
  * class under `plans/*`\/class.yaml — the multi-grade overlay's data source (R11). A class whose
@@ -133,12 +120,17 @@ export function moduleTasks(params: {
   /** Calendar/coverage drift as of today, per class -- absent for a class whose placements
    * couldn't be computed (DRAFT `weekly_lessons`, no matching calendar). */
   drift: Record<string, DriftReport>;
+  /** Union of every distinct calendar file's `holidays[]` encountered across all classes,
+   * deduped by `name+from+to` (several classes commonly share one school-year calendar file) --
+   * the interactive calendar widget's holidays toggle-layer data source (R-holidays). */
+  holidays: Holiday[];
 } {
   const repoRoot = params.repoRoot ?? DEFAULT_REPO_ROOT;
   const classes: ClassSummary[] = [];
   const tasks: ModuleTask[] = [];
   const appointments: Appointment[] = [];
   const drift: Record<string, DriftReport> = {};
+  const holidaysByKey = new Map<string, Holiday>();
 
   for (const { modulesFile, classFile } of listAllClasses(repoRoot)) {
     classes.push({ id: classFile.name, label: classLabel(classFile) });
@@ -146,6 +138,9 @@ export function moduleTasks(params: {
     let placements;
     const calendar = loadCalendarForClass(classFile.name, repoRoot);
     if (!calendar) continue;
+    for (const holiday of calendar.holidays) {
+      holidaysByKey.set(`${holiday.name}::${holiday.from}::${holiday.to}`, holiday);
+    }
     try {
       const weeklyLessons = modulesFile.weekly_lessons;
       if (weeklyLessons === "DRAFT") continue;
@@ -263,5 +258,12 @@ export function moduleTasks(params: {
     }
   }
 
-  return { classes, tasks, appointments, lessonSlots, drift };
+  return {
+    classes,
+    tasks,
+    appointments,
+    lessonSlots,
+    drift,
+    holidays: [...holidaysByKey.values()],
+  };
 }

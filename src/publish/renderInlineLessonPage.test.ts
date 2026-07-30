@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import type { LessonSpec } from "../schema/types.ts";
-import { renderInlineLessonPage } from "./renderInlineLessonPage.ts";
+import {
+  renderInlineLessonPage,
+  filterMaterialsForVariant,
+  hasTestMaterial,
+} from "./renderInlineLessonPage.ts";
 import type { LessonPlan, Manifest } from "./renderLessonPage.ts";
 
 function lessonSpec(overrides: Partial<LessonSpec> = {}): LessonSpec {
@@ -126,5 +130,64 @@ describe("renderInlineLessonPage", () => {
     expect(html).toContain("9 min");
     expect(html).toContain("Band 1 gets a full word bank.");
     expect(html).toContain("gap_fill: 6 sentences, supported");
+  });
+});
+
+describe("filterMaterialsForVariant", () => {
+  const manifest: Manifest = {
+    materials: [
+      { file: "materials/gap_fill-x.html", type: "gap_fill", title: "Gap Fill", competenceIds: [], depth: "practiced", createdAt: "" },
+      { file: "materials/vocab_intro-x.html", type: "vocab_intro", title: "Vocab", competenceIds: [], depth: "introduced", createdAt: "" },
+      { file: "materials/homework-x.html", type: "homework", title: "Homework", competenceIds: [], depth: "practiced", createdAt: "" },
+      { file: "materials/test-x.html", type: "test", title: "Test", competenceIds: [], depth: "assessed", createdAt: "" },
+    ],
+  };
+  const materials = manifest.materials.map((m) => ({ file: m.file, html: `<html>${m.title}</html>` }));
+
+  it("lesson-plan variant excludes homework and test", () => {
+    const filtered = filterMaterialsForVariant(materials, manifest, "lesson-plan");
+    expect(filtered.map((m) => m.file)).toEqual([
+      "materials/gap_fill-x.html",
+      "materials/vocab_intro-x.html",
+    ]);
+  });
+
+  it("homework variant includes only homework", () => {
+    const filtered = filterMaterialsForVariant(materials, manifest, "homework");
+    expect(filtered.map((m) => m.file)).toEqual(["materials/homework-x.html"]);
+  });
+
+  it("test variant includes only test", () => {
+    const filtered = filterMaterialsForVariant(materials, manifest, "test");
+    expect(filtered.map((m) => m.file)).toEqual(["materials/test-x.html"]);
+  });
+
+  it("with no manifest, everything falls into the lesson-plan bucket", () => {
+    const filtered = filterMaterialsForVariant(materials, null, "lesson-plan");
+    expect(filtered.length).toBe(materials.length);
+  });
+});
+
+describe("hasTestMaterial", () => {
+  it("is true when a test-type material exists", () => {
+    const manifest: Manifest = {
+      materials: [
+        { file: "materials/test-x.html", type: "test", title: "Test", competenceIds: [], depth: "assessed", createdAt: "" },
+      ],
+    };
+    expect(hasTestMaterial(manifest)).toBe(true);
+  });
+
+  it("is false when no test-type material exists", () => {
+    const manifest: Manifest = {
+      materials: [
+        { file: "materials/homework-x.html", type: "homework", title: "Homework", competenceIds: [], depth: "practiced", createdAt: "" },
+      ],
+    };
+    expect(hasTestMaterial(manifest)).toBe(false);
+  });
+
+  it("is false for a null manifest", () => {
+    expect(hasTestMaterial(null)).toBe(false);
   });
 });

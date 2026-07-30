@@ -9,6 +9,14 @@
       "competenceIds": ["c.fixture-material"],
       "depth": "practiced",
       "createdAt": "2026-08-05T10:00:00.000Z"
+    },
+    {
+      "file": "materials/homework-fixture.html",
+      "type": "homework",
+      "title": "Fixture Homework",
+      "competenceIds": [],
+      "depth": "practiced",
+      "createdAt": "2026-08-05T10:05:00.000Z"
     }
   ]
 }

@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { useEffect, useState } from "react";
 import { Calendar } from "./Calendar.tsx";
 import { Chat } from "./Chat.tsx";
+import { ResizableSplit } from "./ResizableSplit.tsx";
 import "./index.css";
 
 function App() {
@@ -28,8 +29,13 @@ function App() {
   }, [baseUrl]);
 
   return (
-    <div className="companion-app">
-      <div className="companion-app-calendar">
+    <ResizableSplit
+      defaultLeftFraction={0.67}
+      minLeftPx={480}
+      minRightPx={280}
+      storageKey="companion-split-ratio"
+      leftClassName="companion-split-pane-scroll"
+      left={
         <Calendar
           baseUrl={baseUrl}
           month="2026-08-01"
@@ -38,8 +44,8 @@ function App() {
           }
           refreshKey={calendarRefreshKey}
         />
-      </div>
-      <div className="companion-app-chat">
+      }
+      right={
         <Chat
           classId={chatTarget?.classId ?? null}
           date={chatTarget?.date ?? null}
@@ -49,8 +55,8 @@ function App() {
           sessionToken={sessionToken}
           onTurnComplete={() => setCalendarRefreshKey((k) => k + 1)}
         />
-      </div>
-    </div>
+      }
+    />
   );
 }
 

@@ -1,5 +1,6 @@
 import type { TasksRangeResponse } from "../server/routes/tasks.ts";
 import type { DateContext } from "../server/dateContext.ts";
+import type { LessonPlan } from "../../publish/renderLessonPage.ts";
 
 export type { TasksRangeResponse } from "../server/routes/tasks.ts";
 export type {
@@ -13,6 +14,7 @@ export type {
   NonTeachingDayContext,
 } from "../server/dateContext.ts";
 export type { DriftReport } from "../../coverage/types.ts";
+export type { LessonPlan } from "../../publish/renderLessonPage.ts";
 
 /** `GET /api/tasks?from=<from>&to=<to>` — the multi-grade overlay's data source (R11). Response
  * shape is imported directly from the server route module so the two ends can never drift apart. */
@@ -156,4 +158,27 @@ export async function fetchLessonPreview(params: {
     );
   }
   return (await res.json()) as DateContext;
+}
+
+/** `GET /api/artifacts/<class>/<date>/<slotId?>/lesson-plan.json` -- the structured plan body
+ * (objectives/timed stages/differentiation notes) saved by `save_lesson_plan`. A 404 (spec saved
+ * but no plan yet) resolves to `null` rather than throwing -- that's a normal in-progress state,
+ * not an error. */
+export async function fetchLessonPlan(params: {
+  baseUrl: string;
+  className: string;
+  date: string;
+  slotId?: string;
+}): Promise<LessonPlan | null> {
+  const { baseUrl, className, date, slotId } = params;
+  const path = slotId
+    ? `/api/artifacts/${className}/${date}/${slotId}/lesson-plan.json`
+    : `/api/artifacts/${className}/${date}/lesson-plan.json`;
+
+  const res = await fetch(new URL(path, baseUrl).toString());
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new Error(`GET ${path} failed: ${res.status} ${res.statusText}`);
+  }
+  return (await res.json()) as LessonPlan;
 }

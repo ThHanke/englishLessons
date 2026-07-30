@@ -46,6 +46,61 @@ function writeClass(repoRoot: string, gradeDir: string, className: string): void
   );
 }
 
+/** `moduleTasks()`'s `listAllClasses` requires both `class.yaml` AND `modules.yaml` to exist for
+ * a class to appear in `classes[]` at all -- a minimal DRAFT modules.yaml is enough (the class
+ * still gets pushed to `classes[]` before the DRAFT check short-circuits placement computation). */
+function writeModules(repoRoot: string, gradeDir: string, className: string): void {
+  const dirPath = join(repoRoot, "plans", gradeDir);
+  mkdirSync(dirPath, { recursive: true });
+  writeFileSync(
+    join(dirPath, "modules.yaml"),
+    stringifyYaml({
+      class: className,
+      curriculum: "sa-sek-en-2019",
+      total_weeks: "DRAFT",
+      weekly_lessons: "DRAFT",
+      modules: [],
+      buffer_weeks: "DRAFT",
+    }),
+  );
+}
+
+function writeCalendar(
+  repoRoot: string,
+  fileName: string,
+  className: string,
+  overrides: Record<string, unknown> = {},
+): void {
+  const calendarDir = join(repoRoot, "calendar");
+  mkdirSync(calendarDir, { recursive: true });
+  writeFileSync(
+    join(calendarDir, fileName),
+    stringifyYaml({
+      state: "fixture-state",
+      school_year: "2026/2027",
+      first_school_day: "2026-08-03",
+      last_school_day: "2026-09-04",
+      holidays: [{ name: "Fixture Break", from: "2026-08-17", to: "2026-08-21" }],
+      events: [],
+      pace_factors: {
+        pre_holiday_days: 0,
+        pre_holiday_factor: 1,
+        post_holiday_days: 0,
+        post_holiday_factor: 1,
+      },
+      half_year_boundary: "2027-02-01",
+      class_schedule: {
+        [className]: {
+          lesson_slots: [
+            { id: "s1", day: "Mon", start: "08:00", end: "08:45", half_year: 1 },
+          ],
+        },
+      },
+      ...overrides,
+    }),
+  );
+}
+
 function writeLessonDate(
   repoRoot: string,
   className: string,
@@ -94,7 +149,7 @@ describe("buildSite", () => {
         materials: [
           {
             file: "01-gap-fill-passive-voice.html",
-            type: "exercise",
+            type: "gap_fill",
             title: "Passive Voice Gap Fill",
             competenceIds: ["fk.g.passive"],
             depth: "introduced",
@@ -225,5 +280,191 @@ describe("buildSite", () => {
     expect((secondRun.match(/2026-08-21/g) ?? []).length).toBe(
       (firstRun.match(/2026-08-21/g) ?? []).length,
     );
+  });
+
+  describe("three-way artifact page split", () => {
+    function manifestWithTypes(): unknown {
+      return {
+        materials: [
+          {
+            file: "01-gap-fill.html",
+            type: "gap_fill",
+            title: "Gap Fill",
+            competenceIds: [],
+            depth: "practiced",
+            createdAt: "2026-08-21T00:00:00Z",
+          },
+          {
+            file: "02-homework.html",
+            type: "homework",
+            title: "Homework",
+            competenceIds: [],
+            depth: "practiced",
+            createdAt: "2026-08-21T00:00:00Z",
+          },
+        ],
+      };
+    }
+
+    it("writes lesson-plan/index.html excluding homework/test materials", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21", {
+        manifest: manifestWithTypes(),
+        materialFiles: {
+          "01-gap-fill.html": "<html><body>gap fill body</body></html>",
+          "02-homework.html": "<html><body>homework body</body></html>",
+        },
+      });
+
+      buildSite({ repoRoot, outDir });
+
+      const lessonPlanPage = readFileSync(
+        join(outDir, "classes", "grade-7-2026", "2026-08-21", "lesson-plan", "index.html"),
+        "utf-8",
+      );
+      expect(lessonPlanPage).toContain("gap fill body");
+      expect(lessonPlanPage).not.toContain("homework body");
+    });
+
+    it("writes homework/index.html only when a homework material is present", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21", {
+        manifest: manifestWithTypes(),
+        materialFiles: {
+          "01-gap-fill.html": "<html><body>gap fill body</body></html>",
+          "02-homework.html": "<html><body>homework body</body></html>",
+        },
+      });
+
+      buildSite({ repoRoot, outDir });
+
+      const homeworkPage = readFileSync(
+        join(outDir, "classes", "grade-7-2026", "2026-08-21", "homework", "index.html"),
+        "utf-8",
+      );
+      expect(homeworkPage).toContain("homework body");
+      expect(homeworkPage).not.toContain("gap fill body");
+    });
+
+    it("omits test/index.html entirely (not just an empty page) when no test material exists", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21", {
+        manifest: manifestWithTypes(),
+        materialFiles: {
+          "01-gap-fill.html": "<html><body>gap fill body</body></html>",
+          "02-homework.html": "<html><body>homework body</body></html>",
+        },
+      });
+
+      buildSite({ repoRoot, outDir });
+
+      expect(
+        existsSync(join(outDir, "classes", "grade-7-2026", "2026-08-21", "test", "index.html")),
+      ).toBe(false);
+    });
+
+    it("is idempotent for the three-way pages too", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21", {
+        manifest: manifestWithTypes(),
+        materialFiles: {
+          "01-gap-fill.html": "<html><body>gap fill body</body></html>",
+          "02-homework.html": "<html><body>homework body</body></html>",
+        },
+      });
+
+      buildSite({ repoRoot, outDir });
+      const first = readFileSync(
+        join(outDir, "classes", "grade-7-2026", "2026-08-21", "lesson-plan", "index.html"),
+        "utf-8",
+      );
+      buildSite({ repoRoot, outDir });
+      const second = readFileSync(
+        join(outDir, "classes", "grade-7-2026", "2026-08-21", "lesson-plan", "index.html"),
+        "utf-8",
+      );
+      expect(second).toBe(first);
+    });
+  });
+
+  describe("slot-scoped lesson entries (double periods)", () => {
+    it("places output under classes/<class>/<date>/<slotId>/, not treating the slotId as the date", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      const dateDir = join(repoRoot, "artifacts", "grade-7-2026", "2026-08-21", "slot-abc");
+      mkdirSync(dateDir, { recursive: true });
+      writeFileSync(
+        join(dateDir, "lesson-spec.json"),
+        JSON.stringify(lessonSpec({ class: "grade-7-2026", date: "2026-08-21" }), null, 2),
+      );
+
+      buildSite({ repoRoot, outDir });
+
+      expect(
+        existsSync(
+          join(outDir, "classes", "grade-7-2026", "2026-08-21", "slot-abc", "index.html"),
+        ),
+      ).toBe(true);
+      expect(
+        existsSync(join(outDir, "classes", "grade-7-2026", "slot-abc", "index.html")),
+      ).toBe(false);
+
+      const classIndex = readFileSync(
+        join(outDir, "classes", "grade-7-2026", "index.html"),
+        "utf-8",
+      );
+      expect(classIndex).toContain("2026-08-21/slot-abc/");
+    });
+  });
+
+  describe("static calendar data + ICS export", () => {
+    it("writes data/calendar-data.json with classes/tasks/appointments/holidays", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      writeModules(repoRoot, "grade-7", "grade-7-2026");
+      writeCalendar(repoRoot, "fixture-calendar.yaml", "grade-7-2026");
+      writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21");
+
+      buildSite({ repoRoot, outDir });
+
+      const dataPath = join(outDir, "data", "calendar-data.json");
+      expect(existsSync(dataPath)).toBe(true);
+      const data = JSON.parse(readFileSync(dataPath, "utf-8"));
+      expect(Array.isArray(data.classes)).toBe(true);
+      expect(Array.isArray(data.tasks)).toBe(true);
+      expect(Array.isArray(data.appointments)).toBe(true);
+      expect(data.holidays).toEqual([
+        { name: "Fixture Break", from: "2026-08-17", to: "2026-08-21" },
+      ]);
+    });
+
+    it("writes a per-class-per-schoolyear .ics with a plausible VEVENT count, plus a calendars listing page", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      writeModules(repoRoot, "grade-7", "grade-7-2026");
+      writeCalendar(repoRoot, "fixture-calendar.yaml", "grade-7-2026");
+      writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21");
+
+      buildSite({ repoRoot, outDir });
+
+      const icsPath = join(outDir, "calendars", "grade-7-2026", "2026-2027.ics");
+      expect(existsSync(icsPath)).toBe(true);
+      const ics = readFileSync(icsPath, "utf-8");
+      expect(ics).toContain("BEGIN:VCALENDAR");
+      expect((ics.match(/UID:lesson-/g) ?? []).length).toBeGreaterThan(0);
+      expect(ics).toContain("UID:holiday-");
+
+      const listingPath = join(outDir, "calendars", "index.html");
+      expect(existsSync(listingPath)).toBe(true);
+      const listing = readFileSync(listingPath, "utf-8");
+      expect(listing).toContain("grade-7-2026/2026-2027.ics");
+    });
+
+    it("skips the calendars section entirely when no calendar/*.yaml exists", () => {
+      writeClass(repoRoot, "grade-7", "grade-7-2026");
+      writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21");
+
+      expect(() => buildSite({ repoRoot, outDir })).not.toThrow();
+
+      expect(existsSync(join(outDir, "data", "calendar-data.json"))).toBe(false);
+      expect(existsSync(join(outDir, "calendars"))).toBe(false);
+    });
   });
 });

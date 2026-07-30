@@ -5,6 +5,7 @@ import {
   extractSessionToken,
   generateSessionToken,
   originMatches,
+  originMatchesOrAbsent,
   tokenMatches,
 } from "./security.ts";
 
@@ -76,6 +77,26 @@ describe("security", () => {
 
     it("does not treat an unparseable Origin header as a match", () => {
       expect(originMatches("not-a-url", "http://127.0.0.1:5199")).toBe(false);
+    });
+  });
+
+  describe("originMatchesOrAbsent", () => {
+    it("accepts a missing Origin header (a direct <a href target=\"_blank\"> navigation)", () => {
+      expect(
+        originMatchesOrAbsent(undefined, "http://127.0.0.1:5199"),
+      ).toBe(true);
+    });
+
+    it("still accepts a present, exactly-matching Origin", () => {
+      expect(
+        originMatchesOrAbsent("http://127.0.0.1:5199", "http://127.0.0.1:5199"),
+      ).toBe(true);
+    });
+
+    it("still rejects a present, wrong Origin (a cross-origin fetch/XHR always sends one)", () => {
+      expect(
+        originMatchesOrAbsent("http://evil.example.com", "http://127.0.0.1:5199"),
+      ).toBe(false);
     });
   });
 

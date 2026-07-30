@@ -2,7 +2,10 @@ state: fixture-state
 school_year: 2026/2027
 first_school_day: 2026-08-03
 last_school_day: 2026-09-04
-holidays: []
+holidays:
+  - name: Fixture Break
+    from: 2026-08-17
+    to: 2026-08-21
 events: []
 pace_factors:
   pre_holiday_days: 0
