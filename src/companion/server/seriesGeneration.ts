@@ -180,6 +180,37 @@ export async function persistSeries(params: {
   });
 }
 
+/** Updates an existing lesson_slots entry in place -- same `id`, new day/start/end/half_year --
+ * rather than the create path's push-a-new-entry-with-a-fresh-id. Editing a recurring series
+ * (via the calendar's "Edit lesson series" flow) must preserve the slotId: already-planned
+ * lessons' artifacts live under `artifacts/<class>/<date>/<slotId>/`, keyed by that id, and
+ * `moduleTasks()` matches planned content by `date::slotId` -- replacing the id (as delete+create
+ * would) orphans every already-planned lesson from the recomputed appointment list. Returns
+ * `updated: false` if no slot with that id exists for the class, so the caller can 400 rather
+ * than silently no-op. */
+export async function updateSeriesSlot(params: {
+  calendarPath: string;
+  className: string;
+  slotId: string;
+  day: string;
+  start: string;
+  end: string;
+  halfYear: 1 | 2;
+}): Promise<{ updated: boolean }> {
+  return withYamlLock(() => {
+    const calendar = loadYaml<CalendarFile>(params.calendarPath);
+    const entry = calendar.class_schedule[params.className];
+    const slot = entry?.lesson_slots?.find((s) => s.id === params.slotId);
+    if (!slot) return { updated: false };
+    slot.day = params.day;
+    slot.start = params.start;
+    slot.end = params.end;
+    slot.half_year = params.halfYear;
+    writeYaml(params.calendarPath, calendar);
+    return { updated: true };
+  });
+}
+
 export async function deleteSeries(params: {
   calendarPath: string;
   className: string;

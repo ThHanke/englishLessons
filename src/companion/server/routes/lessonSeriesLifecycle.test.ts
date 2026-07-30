@@ -229,6 +229,84 @@ describe("lesson series lifecycle (HTTP)", () => {
     );
   });
 
+  it("create series then edit it (slotId passed) → same slot updated in place, not duplicated -- this is the Edit lesson series flow, distinct from creating a brand new series", async () => {
+    const createRes = await fetch(`${baseUrl}/api/lesson-series`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: baseUrl,
+        [SESSION_TOKEN_HEADER]: sessionToken,
+      },
+      body: JSON.stringify({
+        className: "test-class",
+        day: "Mon",
+        start: "08:00",
+        end: "08:45",
+        halfYear: 1,
+        from: "2026-08-03",
+        to: "2026-09-04",
+      }),
+    });
+    const created = (await createRes.json()) as TasksRangeResponse;
+    const originalSlotId = created.lessonSlots!["test-class"]![0]!.id;
+
+    const editRes = await fetch(`${baseUrl}/api/lesson-series`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: baseUrl,
+        [SESSION_TOKEN_HEADER]: sessionToken,
+      },
+      body: JSON.stringify({
+        className: "test-class",
+        day: "Thu",
+        start: "09:00",
+        end: "09:45",
+        halfYear: 1,
+        from: "2026-08-03",
+        to: "2026-09-04",
+        slotId: originalSlotId,
+      }),
+    });
+
+    expect(editRes.status).toBe(200);
+    const edited = (await editRes.json()) as TasksRangeResponse;
+
+    expect(edited.lessonSlots!["test-class"]).toHaveLength(1);
+    const editedSlot = edited.lessonSlots!["test-class"]![0]!;
+    expect(editedSlot.id).toBe(originalSlotId);
+    expect(editedSlot.day).toBe("Thu");
+    expect(editedSlot.start).toBe("09:00");
+
+    const calendar = loadYaml<CalendarFile>(repo.calendarPath);
+    expect(calendar.class_schedule["test-class"]!.lesson_slots).toHaveLength(1);
+  });
+
+  it("editing with an unknown slotId returns 400, makes no change", async () => {
+    const res = await fetch(`${baseUrl}/api/lesson-series`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: baseUrl,
+        [SESSION_TOKEN_HEADER]: sessionToken,
+      },
+      body: JSON.stringify({
+        className: "test-class",
+        day: "Mon",
+        start: "08:00",
+        end: "08:45",
+        halfYear: 1,
+        from: "2026-08-03",
+        to: "2026-09-04",
+        slotId: "does-not-exist",
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    const calendar = loadYaml<CalendarFile>(repo.calendarPath);
+    expect(calendar.class_schedule["test-class"]!.lesson_slots ?? []).toHaveLength(0);
+  });
+
   it("delete the only series → slot array empty, appointments gone", async () => {
     const createRes = await fetch(`${baseUrl}/api/lesson-series`, {
       method: "POST",

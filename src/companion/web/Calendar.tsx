@@ -300,27 +300,31 @@ export function Calendar({
     if (!canEdit || !calendarApi) return;
     setSelectedAppointment(appointment);
     const store = calendarApi.getStores().data;
-    const ed = (store.getState() as { editorData?: Record<string, unknown> }).editorData;
-    if (ed) {
-      const day = appointment.start
-        ? WEEKDAY_ABBR[new Date(`${appointment.date}T${appointment.start}:00`).getDay()]!
-        : WEEKDAY_ABBR[new Date(`${appointment.date}T00:00:00`).getDay()]!;
-      ed.seriesClassName = appointment.classId;
-      ed.seriesDay = day;
-      ed.seriesStart = appointment.start ?? "";
-      ed.seriesEnd = appointment.end ?? "";
-      ed.seriesHalfYear = defaultHalfYear(appointment.date);
-      ed.seriesRecurring = true;
-      store.setState({ editorData: { ...ed } as CalendarEvent });
-      setSeriesFormState({
-        seriesClassName: appointment.classId,
-        seriesDay: day,
-        seriesStart: appointment.start ?? "",
-        seriesEnd: appointment.end ?? "",
-        seriesHalfYear: defaultHalfYear(appointment.date) as 1 | 2,
-        seriesRecurring: true,
-      });
-    }
+    // The double-click handler now explicitly clears editorData (to stop SVAR's own
+    // auto-populate from popping the Editor open underneath LessonDetailModal), so by the time
+    // this button fires there's no longer a guaranteed pre-existing editorData object to mutate
+    // -- build one from the appointment itself (appointmentToEvent's shape) when the store has
+    // none, rather than silently no-op-ing.
+    const existing = (store.getState() as { editorData?: Record<string, unknown> }).editorData;
+    const ed = existing ?? ({ ...appointmentToEvent(appointment) } as Record<string, unknown>);
+    const day = appointment.start
+      ? WEEKDAY_ABBR[new Date(`${appointment.date}T${appointment.start}:00`).getDay()]!
+      : WEEKDAY_ABBR[new Date(`${appointment.date}T00:00:00`).getDay()]!;
+    ed.seriesClassName = appointment.classId;
+    ed.seriesDay = day;
+    ed.seriesStart = appointment.start ?? "";
+    ed.seriesEnd = appointment.end ?? "";
+    ed.seriesHalfYear = defaultHalfYear(appointment.date);
+    ed.seriesRecurring = true;
+    store.setState({ editorData: { ...ed } as CalendarEvent });
+    setSeriesFormState({
+      seriesClassName: appointment.classId,
+      seriesDay: day,
+      seriesStart: appointment.start ?? "",
+      seriesEnd: appointment.end ?? "",
+      seriesHalfYear: defaultHalfYear(appointment.date) as 1 | 2,
+      seriesRecurring: true,
+    });
   }
 
   function handleSelectEvent(ev: { id: string | number | null }) {
@@ -512,13 +516,18 @@ export function Calendar({
           const response = await createLessonSeries({
             baseUrl,
             sessionToken,
-            className: fv.seriesClassName,
+            // Editing an existing series keeps its original class -- the picker is disabled in
+            // that mode (seriesEditorItems.tsx), so fv.seriesClassName could only differ here if
+            // that were bypassed; using the original appointment's classId is the authoritative
+            // source either way.
+            className: selectedAppointmentRef.current?.classId ?? fv.seriesClassName,
             day: fv.seriesDay,
             start: fv.seriesStart,
             end: fv.seriesEnd,
             halfYear: fv.seriesHalfYear,
             from: viewRange.from,
             to: viewRange.to,
+            slotId: selectedAppointmentRef.current?.slotId,
           });
           setClasses(response.classes);
           setTasks(response.tasks);
@@ -563,8 +572,9 @@ export function Calendar({
         classes: plannableClassesFirst,
         formState: seriesFormState,
         baseUrl,
+        editingExisting: selectedAppointment !== null,
       }),
-    [plannableClassesFirst, seriesFormState, baseUrl],
+    [plannableClassesFirst, seriesFormState, baseUrl, selectedAppointment],
   );
 
   const seriesBottomBar = useMemo(
@@ -586,12 +596,12 @@ export function Calendar({
         {
           comp: "button" as const,
           id: "save",
-          text: "Create series",
+          text: selectedAppointment !== null ? "Save changes" : "Create series",
           type: "primary" as const,
         },
       ],
     }),
-    [],
+    [selectedAppointment],
   );
 
   const Theme = dark ? WillowDark : Willow;

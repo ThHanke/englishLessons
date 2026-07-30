@@ -16,6 +16,7 @@ import {
   validateSlotId,
   seriesPreview,
   persistSeries,
+  updateSeriesSlot,
   deleteSeries,
 } from "../seriesGeneration.ts";
 
@@ -166,6 +167,10 @@ export async function handleCreateSeriesRequest(
     typeof body.halfYear === "number" ? body.halfYear : undefined;
   const from = typeof body.from === "string" ? body.from : undefined;
   const to = typeof body.to === "string" ? body.to : undefined;
+  // When set, this is an edit of an existing series (Calendar.tsx's "Edit lesson series" flow) --
+  // update that slot in place (same id) instead of creating a new one, so already-planned
+  // lessons' artifacts (keyed by date::slotId) stay correctly associated.
+  const slotId = typeof body.slotId === "string" ? body.slotId : undefined;
 
   if (
     !className ||
@@ -194,6 +199,13 @@ export async function handleCreateSeriesRequest(
     sendJson(res, 400, { error: validation.error });
     return;
   }
+  if (slotId !== undefined) {
+    const slotIdValidation = validateSlotId(slotId);
+    if (!slotIdValidation.valid) {
+      sendJson(res, 400, { error: slotIdValidation.error });
+      return;
+    }
+  }
 
   try {
     const calResult =
@@ -204,15 +216,30 @@ export async function handleCreateSeriesRequest(
       return;
     }
 
-    const slot: LessonSlot = {
-      id: randomUUID(),
-      day,
-      start,
-      end,
-      half_year: halfYearRaw as 1 | 2,
-    };
-
-    await persistSeries({ calendarPath: calResult.path, className, slot });
+    if (slotId !== undefined) {
+      const { updated } = await updateSeriesSlot({
+        calendarPath: calResult.path,
+        className,
+        slotId,
+        day,
+        start,
+        end,
+        halfYear: halfYearRaw as 1 | 2,
+      });
+      if (!updated) {
+        sendJson(res, 400, { error: `No slot "${slotId}" found for "${className}"` });
+        return;
+      }
+    } else {
+      const slot: LessonSlot = {
+        id: randomUUID(),
+        day,
+        start,
+        end,
+        half_year: halfYearRaw as 1 | 2,
+      };
+      await persistSeries({ calendarPath: calResult.path, className, slot });
+    }
 
     const { classes, tasks, appointments, lessonSlots } = moduleTasks({
       from,

@@ -3,13 +3,14 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { CalendarFile } from "../../schema/types.ts";
-import { writeYaml } from "../../schema/yaml.ts";
+import { loadYaml, writeYaml } from "../../schema/yaml.ts";
 import {
   validateSeriesInput,
   validateSlotId,
   generateSeriesDates,
   seriesPreview,
   persistSeries,
+  updateSeriesSlot,
   deleteSeries,
 } from "./seriesGeneration.ts";
 
@@ -251,6 +252,92 @@ describe("persistSeries", () => {
       const raw = readFileSync(calPath, "utf-8");
       expect(raw).toContain("new-class");
       expect(raw).toContain("slot-2");
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("updateSeriesSlot", () => {
+  it("replaces day/start/end/half_year in place, keeping the same id -- so already-planned lessons stay associated by slotId", async () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), "series-test-"));
+    try {
+      const calPath = join(tmpDir, "calendar.yaml");
+      const calendar = makeCalendar({
+        class_schedule: {
+          "my-class": {
+            lesson_slots: [
+              { id: "keep-my-id", day: "Mon", start: "08:00", end: "08:45", half_year: 1 },
+              { id: "other-slot", day: "Wed", start: "10:00", end: "10:45", half_year: 1 },
+            ],
+          },
+        },
+      });
+      writeYaml(calPath, calendar);
+
+      const result = await updateSeriesSlot({
+        calendarPath: calPath,
+        className: "my-class",
+        slotId: "keep-my-id",
+        day: "Thu",
+        start: "09:00",
+        end: "09:45",
+        halfYear: 2,
+      });
+
+      expect(result.updated).toBe(true);
+      const updated = loadYaml<CalendarFile>(calPath);
+      const slots = updated.class_schedule["my-class"]!.lesson_slots!;
+      expect(slots).toHaveLength(2);
+      const editedSlot = slots.find((s) => s.id === "keep-my-id");
+      expect(editedSlot).toEqual({
+        id: "keep-my-id",
+        day: "Thu",
+        start: "09:00",
+        end: "09:45",
+        half_year: 2,
+      });
+      // The other slot in the same class is untouched.
+      expect(slots.find((s) => s.id === "other-slot")).toEqual({
+        id: "other-slot",
+        day: "Wed",
+        start: "10:00",
+        end: "10:45",
+        half_year: 1,
+      });
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it("returns updated: false and makes no change when the slotId doesn't exist for that class", async () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), "series-test-"));
+    try {
+      const calPath = join(tmpDir, "calendar.yaml");
+      const calendar = makeCalendar({
+        class_schedule: {
+          "my-class": {
+            lesson_slots: [{ id: "real-slot", day: "Mon", start: "08:00", end: "08:45", half_year: 1 }],
+          },
+        },
+      });
+      writeYaml(calPath, calendar);
+
+      const result = await updateSeriesSlot({
+        calendarPath: calPath,
+        className: "my-class",
+        slotId: "does-not-exist",
+        day: "Tue",
+        start: "09:00",
+        end: "09:45",
+        halfYear: 1,
+      });
+
+      expect(result.updated).toBe(false);
+      const unchanged = loadYaml<CalendarFile>(calPath);
+      expect(unchanged.class_schedule["my-class"]!.lesson_slots).toEqual([
+        { id: "real-slot", day: "Mon", start: "08:00", end: "08:45", half_year: 1 },
+      ]);
     } finally {
       rmSync(tmpDir, { recursive: true, force: true });
     }

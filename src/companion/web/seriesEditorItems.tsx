@@ -20,7 +20,8 @@ function GradePickerField({
   value,
   onChange,
   classes,
-}: SvarFieldProps<string> & { classes?: ClassSummary[] }) {
+  disabled,
+}: SvarFieldProps<string> & { classes?: ClassSummary[]; disabled?: boolean }) {
   const items = classes ?? [];
   const selected = value || items[0]?.id || "";
   useEffect(() => {
@@ -29,6 +30,7 @@ function GradePickerField({
   return (
     <select
       value={selected}
+      disabled={disabled}
       onChange={(e) => onChange({ value: e.target.value })}
     >
       {items.map((c) => (
@@ -235,6 +237,11 @@ export function getSeriesEditorItems(params: {
   classes: ClassSummary[];
   formState: Record<string, unknown>;
   baseUrl: string;
+  /** True when editing an existing series (Calendar.tsx's "Edit lesson series" flow) -- the class
+   * a series belongs to can't be changed via edit (that would orphan already-planned lessons'
+   * artifacts, which are keyed by classId+date+slotId), so the picker is disabled rather than
+   * silently ignoring a change the teacher thinks they made. */
+  editingExisting?: boolean;
 }) {
   return [
     {
@@ -242,6 +249,7 @@ export function getSeriesEditorItems(params: {
       key: "seriesClassName",
       label: "Grade",
       classes: params.classes,
+      disabled: params.editingExisting,
     },
     { comp: "weekday-select", key: "seriesDay", label: "Day" },
     { comp: "time-input", key: "seriesStart", label: "Start" },

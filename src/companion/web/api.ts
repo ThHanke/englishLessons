@@ -84,6 +84,9 @@ export async function createLessonSeries(params: {
   halfYear: 1 | 2;
   from: string;
   to: string;
+  /** When set, updates that existing slot in place (same id) instead of creating a new one --
+   * used by the "Edit lesson series" flow so already-planned lessons stay correctly associated. */
+  slotId?: string;
 }): Promise<TasksRangeResponse> {
   const res = await fetch(
     new URL("/api/lesson-series", params.baseUrl).toString(),
@@ -101,6 +104,7 @@ export async function createLessonSeries(params: {
         halfYear: params.halfYear,
         from: params.from,
         to: params.to,
+        slotId: params.slotId,
       }),
     },
   );
