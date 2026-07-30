@@ -172,7 +172,7 @@ describe("EventContent", () => {
             ],
           }),
         )}
-        mode="month"
+        mode="boxes"
       />,
     );
     expect(screen.getByText("Back in school")).toBeInTheDocument();
@@ -194,7 +194,7 @@ describe("EventContent", () => {
     render(
       <EventContent
         event={eventWithAppointment(appointment({ hasLessonSpec: true, materials: [] }))}
-        mode="month"
+        mode="boxes"
       />,
     );
     expect(screen.getByRole("link", { name: "Lesson Plan" })).toBeInTheDocument();
@@ -206,7 +206,23 @@ describe("EventContent", () => {
     render(
       <EventContent
         event={eventWithAppointment(appointment({ hasLessonSpec: false }))}
-        mode="month"
+        mode="boxes"
+      />,
+    );
+    expect(screen.getByText("Back in school")).toBeInTheDocument();
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
+  });
+
+  it("hides the inline artifact links outside 'boxes' mode (no room in a month-view bar/chip)", () => {
+    render(
+      <EventContent
+        event={eventWithAppointment(
+          appointment({
+            hasLessonSpec: true,
+            materials: [{ file: "materials/homework-x.html", type: "homework", title: "Homework X" }],
+          }),
+        )}
+        mode="bars"
       />,
     );
     expect(screen.getByText("Back in school")).toBeInTheDocument();
@@ -217,7 +233,7 @@ describe("EventContent", () => {
     render(
       <EventContent
         event={eventWithAppointment(appointment({ hasLessonSpec: true }))}
-        mode="month"
+        mode="boxes"
         linkMode="static"
       />,
     );

@@ -179,6 +179,56 @@
   white-space: nowrap;
 }
 
+/* Grade badge -- rendered on both task bars and appointment cards (EventContent), same convention
+ * as SVAR's own demos' priority badge (a plain custom field + a dedicated CSS class, not a
+ * built-in prop). Kept compact since bar-mode rows are a single line. */
+.companion-event-badge {
+  display: inline-block;
+  padding: 0 0.35rem;
+  margin-right: 0.3rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 0.7em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Compact appointment content (bars/grid/month view) -- title only, no inline links (see
+ * EventContent's mode branch: those only render in "boxes" mode, where there's room). */
+.companion-event-content-compact {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* EventPopup's card -- SVAR positions/anchors this itself (its own floating overlay wraps
+ * whatever `eventPopup` renders), so unlike `.companion-modal-dialog` this has no fixed overlay
+ * backdrop of its own, just the card's internal chrome. */
+.companion-popup-card {
+  background: #fff;
+  padding: 1.25rem;
+  border-radius: 8px;
+  max-width: 340px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.companion-tooltip {
+  padding: 0.5rem 0.65rem;
+  background: #0f172a;
+  color: #f1f5f9;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  max-width: 260px;
+}
+.companion-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+.companion-tooltip-row {
+  color: #cbd5e1;
+}
+
 /* App layout — Calendar + Chat side by side, resizable via ResizableSplit.tsx. Pane widths come
  * from that component's inline `flexBasis` (driven by drag state), not from CSS here -- these
  * rules just provide structure/overflow/cursor. No mobile breakpoint needed: the split only
@@ -471,8 +521,10 @@
 }
 
 /* Generic centered modal -- shared by the chat's switch-date confirmation, the calendar's
- * confirm-delete dialog, LessonDetailModal, and the calendars-list panel, so every modal in the
- * app looks and behaves consistently instead of each one reinventing overlay/button styling. */
+ * confirm-delete dialog, and the calendars-list panel, so every modal in the app looks and
+ * behaves consistently instead of each one reinventing overlay/button styling. EventPopup.tsx
+ * reuses the title/subtitle/links/actions/button classes below too, but not the overlay/dialog
+ * wrapper -- SVAR positions its own floating popup shell (`.companion-popup-card`). */
 .companion-modal-overlay {
   position: fixed;
   inset: 0;

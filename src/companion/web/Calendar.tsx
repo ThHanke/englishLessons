@@ -38,7 +38,6 @@ import {
 import type { SeriesFormValues } from "./seriesEditorItems.tsx";
 import {
   appointmentEventClass,
-  appointmentEventId,
   appointmentToEvent,
   groupColorClass,
   HOLIDAYS_GROUP_ID,
@@ -48,7 +47,8 @@ import {
   toWebcalUrl,
   worstGapSeverity,
 } from "./calendarMapping.ts";
-import { LessonDetailModal } from "./LessonDetailModal.tsx";
+import { EventPopup } from "./EventPopup.tsx";
+import { EventTooltip } from "./EventTooltip.tsx";
 import { staticLessonPlanHref, staticHomeworkHref, staticTestHref } from "./staticArtifactHref.ts";
 import { lessonPlanPageHref, homeworkPageHref, testPageHref } from "./calendarMapping.ts";
 
@@ -75,13 +75,14 @@ export interface CalendarProps {
 
 export function EventContent({
   event,
+  mode,
   linkMode = "dev",
 }: {
   event: CalendarEvent;
   mode: EventContentMode;
   /** Selects which href-builder module the appointment's inline links use -- root-relative
    * `/api/artifacts/...` in dev, page-relative `classes/...` paths in the static bundle. Same
-   * split as `LessonDetailModal`/`staticArtifactHref.ts`. */
+   * split as `EventPopup`/`staticArtifactHref.ts`. */
   linkMode?: "dev" | "static";
 }) {
   const task = (event as CalendarEvent & { task?: ModuleTask }).task;
@@ -93,10 +94,11 @@ export function EventContent({
     // All-day task bars get one stacked row each at a fixed height (SVAR's own layout, not ours
     // to resize per-event) -- unlike the appointment card below, there's no room for a second
     // line, so this stays single-line-ellipsis (.companion-task-content) rather than the
-    // appointment's multi-row flex layout. Milestone date lives in the click-through detail panel
+    // appointment's multi-row flex layout. Milestone date lives in the click-through popup
     // only, not here -- moduleTitle/coverage/gap is already enough to fill a narrow column.
     return (
       <span className="companion-task-content">
+        <span className="companion-event-badge">{task.classLabel}</span>
         <strong>{task.moduleTitle}</strong> · {task.coveragePercent}%
         {gap && <> · {gap}</>}
       </span>
@@ -127,8 +129,23 @@ export function EventContent({
     // bubble-phase listener regardless of where in the DOM tree it's attached (capture always
     // completes before bubble begins, for the whole tree).
     const stop = (e: ReactMouseEvent) => e.stopPropagation();
+    const badge = <span className="companion-event-badge">{appointment.classLabel}</span>;
+    // Month view / all-day bars ("bars"/"grid") have no room for the inline artifact links --
+    // those still work fine title-only, and the full breakdown is one click away via eventPopup.
+    // Only the day/week timed "boxes" mode has enough vertical space for the link row.
+    if (mode !== "boxes") {
+      return (
+        <span className="companion-event-content companion-event-content-compact">
+          {badge}
+          <span className="companion-event-title">
+            {appointment.lessonTopic ?? appointment.moduleTitle}
+          </span>
+        </span>
+      );
+    }
     return (
       <span className="companion-event-content">
+        {badge}
         <span className="companion-event-title">
           {appointment.lessonTopic ?? appointment.moduleTitle}
         </span>
@@ -213,13 +230,10 @@ export function Calendar({
   const [activeClassIds, setActiveClassIds] = useState<
     (string | number)[] | null
   >(null);
-  const [selectedTask, setSelectedTask] = useState<ModuleTask | null>(null);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const selectedAppointmentRef = useRef(selectedAppointment);
   selectedAppointmentRef.current = selectedAppointment;
-  const [detailModalAppointment, setDetailModalAppointment] =
-    useState<Appointment | null>(null);
   const [calendarApi, setCalendarApi] = useState<CalendarInstanceApi | null>(
     null,
   );
@@ -301,14 +315,6 @@ export function Calendar({
     };
   }, [baseUrl, month, refreshKey, staticDataUrl]);
 
-  const taskById = useMemo(
-    () => new Map(tasks.map((t) => [`${t.classId}::${t.moduleId}`, t])),
-    [tasks],
-  );
-  const appointmentById = useMemo(
-    () => new Map(appointments.map((a) => [appointmentEventId(a), a])),
-    [appointments],
-  );
   const groupOrder = useMemo(() => new Map<string, number>(), []);
   const groups: CalendarGroup[] = useMemo(() => {
     const classGroups = classes.map((c) => {
@@ -365,11 +371,9 @@ export function Calendar({
     return "companion-non-teaching";
   }
 
-  const lastClickRef = useRef<{ id: string; time: number }>({ id: "", time: 0 });
-
   // Extracted from the old double-click handler (which used to open the series Editor directly)
-  // so the new LessonDetailModal's "Edit lesson series" button can trigger the exact same
-  // seriesFormState/editorData seeding, one click deeper than before.
+  // so EventPopup's "Edit lesson series" button can trigger the exact same seriesFormState/
+  // editorData seeding, one click deeper (through the popup) than before.
   function openSeriesEditorFor(appointment: Appointment) {
     if (!canEdit || !calendarApi) return;
     setSelectedAppointment(appointment);
@@ -399,42 +403,6 @@ export function Calendar({
       seriesHalfYear: defaultHalfYear(appointment.date) as 1 | 2,
       seriesRecurring: true,
     });
-  }
-
-  function handleSelectEvent(ev: { id: string | number | null }) {
-    if (ev.id === null) return;
-    const id = String(ev.id);
-    const now = Date.now();
-    const last = lastClickRef.current;
-    const isDoubleClick = last.id === id && now - last.time < 400;
-    lastClickRef.current = { id, time: now };
-
-    const task = taskById.get(id);
-    if (task) {
-      setSelectedTask(task);
-      calendarApi?.getStores().data.setState({ editorData: null });
-      return;
-    }
-    const appointment = appointmentById.get(id);
-    if (appointment) {
-      if (isDoubleClick) {
-        // Opens the lesson-detail modal (artifact links + "Edit lesson series" button); the
-        // series Editor itself now opens one click deeper, via openSeriesEditorFor. Clearing
-        // editorData here matters: SVAR's own event-selection handling auto-populates it on
-        // every select-event (including this one), which would otherwise pop the Editor open
-        // underneath/alongside this modal even though nothing here asked for it.
-        calendarApi?.getStores().data.setState({ editorData: null });
-        setDetailModalAppointment(appointment);
-      } else {
-        // Single click only retargets the planning-panel chat -- Chat.tsx's own pendingSwitch
-        // confirmation already guards an active conversation (hasMessagesRef) from being silently
-        // swapped out from under the teacher, so clicking around the calendar mid-conversation
-        // prompts to confirm rather than losing it.
-        calendarApi?.getStores().data.setState({ editorData: null });
-        setSelectedTask(null);
-        onOpenChat(appointment.classId, appointment.date, appointment.slotId);
-      }
-    }
   }
 
   function handlePanelChange(ev: { value: (string | number)[] }) {
@@ -713,7 +681,23 @@ export function Calendar({
             toolbar={canEdit ? undefined : READONLY_TOOLBAR}
             eventCss={eventCss}
             eventContent={(props) => <EventContent {...props} linkMode={linkMode} />}
-            onSelectEvent={handleSelectEvent}
+            eventPopup={(props) => (
+              <EventPopup
+                {...props}
+                linkMode={linkMode}
+                canEdit={canEdit}
+                onOpenChat={onOpenChat}
+                onEditSeries={(appt) => {
+                  openSeriesEditorFor(appt);
+                  props.close();
+                }}
+                lessonSlots={lessonSlots}
+                deletingSlotId={deletingSlotId}
+                deleteError={deleteError}
+                onDeleteSlot={handleDeleteSlot}
+              />
+            )}
+            tooltip={EventTooltip}
             init={handleInit}
           >
             {groups.length > 0 && (
@@ -776,80 +760,6 @@ export function Calendar({
             </div>
           </div>
         )}
-
-        {detailModalAppointment && (
-          <LessonDetailModal
-            appointment={detailModalAppointment}
-            canEdit={canEdit}
-            linkMode={linkMode}
-            onEditSeries={() => {
-              openSeriesEditorFor(detailModalAppointment);
-              setDetailModalAppointment(null);
-            }}
-            onClose={() => setDetailModalAppointment(null)}
-          />
-        )}
-
-        {selectedTask && (
-          <div role="status" data-testid="task-detail">
-            <p>
-              {selectedTask.classLabel}: {selectedTask.moduleTitle} (
-              {selectedTask.startDate} – {selectedTask.endDate})
-            </p>
-            <p>
-              Gaps: {worstGapSeverity(selectedTask) ?? "none"} (
-              {selectedTask.gaps.length})
-            </p>
-            <p>Coverage: {selectedTask.coveragePercent}% at required depth</p>
-            {selectedTask.milestoneType !== "none" && (
-              <p>
-                {selectedTask.milestoneType}
-                {selectedTask.milestoneDate ? ` on ${selectedTask.milestoneDate}` : " (date not yet placed)"}
-                {selectedTask.milestoneAssesses.length > 0 &&
-                  ` — assesses ${selectedTask.milestoneAssesses.join(", ")}`}
-              </p>
-            )}
-            <p>
-              Already planned:{" "}
-              {selectedTask.plannedDates.length > 0
-                ? selectedTask.plannedDates.join(", ")
-                : "none yet"}
-            </p>
-
-            {canEdit && (
-              <div data-testid="manage-schedule">
-                <p>
-                  <strong>Schedule</strong>
-                </p>
-                {deleteError && <p data-testid="delete-error">{deleteError}</p>}
-                {(lessonSlots[selectedTask.classId] ?? []).length === 0 && (
-                  <p>No schedule defined</p>
-                )}
-                {(lessonSlots[selectedTask.classId] ?? []).map((slot) => (
-                  <div key={slot.id} data-testid={`slot-${slot.id}`}>
-                    <span>
-                      {slot.day} {slot.start}–{slot.end} (H{slot.half_year})
-                    </span>
-                    <button
-                      type="button"
-                      disabled={deletingSlotId === slot.id}
-                      onClick={() =>
-                        handleDeleteSlot(selectedTask.classId, slot.id)
-                      }
-                    >
-                      {deletingSlotId === slot.id ? "Removing..." : "Remove"}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <button type="button" onClick={() => setSelectedTask(null)}>
-              Close
-            </button>
-          </div>
-        )}
-
 
         {canEdit && calendarApi && (
           <Editor

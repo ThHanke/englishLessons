@@ -5,8 +5,8 @@ import "./index.css";
 /** GH Pages static bundle entry -- mounts only the read-only interactive Calendar, no Chat/
  * planning panel (there's no dev server behind this to plan against). `staticDataUrl` points at
  * `buildSite.ts`'s pre-generated `data/calendar-data.json` (page-relative, so it resolves
- * correctly under the deployed subpath); `linkMode="static"` threads through to
- * `LessonDetailModal` so its artifact links use the static page-relative href builders instead of
+ * correctly under the deployed subpath); `linkMode="static"` threads through to `EventPopup`/
+ * `EventContent` so their artifact links use the static page-relative href builders instead of
  * the dev server's `/api/artifacts/...` routes. */
 function StaticApp() {
   return (
