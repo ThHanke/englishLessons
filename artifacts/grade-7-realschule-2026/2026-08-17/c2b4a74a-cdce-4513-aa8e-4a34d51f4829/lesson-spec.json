@@ -1,0 +1,55 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-17",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Back in school — who does what",
+    "week_in_module": 1,
+    "of": 9
+  },
+  "phase": "new_input",
+  "pace_factor": 1,
+  "pace_reason": "Week 1, no pace data yet",
+  "focus_competences": [
+    {
+      "id": "fk.k.sprechen.1",
+      "topic": "Speaking: open, continue, and close conversations",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.w.open_continue_close_conversations",
+      "topic": "Conversation phrases: openers, continuers, closers",
+      "mode": [
+        "produce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.social.freizeit_medien",
+    "text": "Back in school — everyday school life and social topics"
+  },
+  "text_types": [
+    "dialogue"
+  ],
+  "milestone_context": {
+    "next": "2026-10-12",
+    "in_slots": 26,
+    "assesses": [
+      "fk.g.passive"
+    ]
+  },
+  "prior_covered": [
+    "fk.k.sprechen.1"
+  ],
+  "cefr_target": "A2",
+  "known_vocab_ref": "grade-7-realschule-2026@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill",
+    "matching"
+  ],
+  "curriculum_ref": "sa-sek-en-2019.7-8.rs"
+}

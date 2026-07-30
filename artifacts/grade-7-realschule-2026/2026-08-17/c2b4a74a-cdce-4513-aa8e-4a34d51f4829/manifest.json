@@ -1,0 +1,101 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-17",
+  "materials": [
+    {
+      "file": "materials/vocab_intro-key-words-for-talking-about-conversations.html",
+      "type": "vocab_intro",
+      "title": "Key words for talking about conversations",
+      "competenceIds": [
+        "fk.k.sprechen.1",
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "conversation das Gespräch / die Unterhaltung",
+        "phrases die Ausdrücke / die Redewendungen",
+        "topics die Themen",
+        "everyday alltäglich / Alltags-"
+      ],
+      "createdAt": "2026-07-30T16:25:28.812Z"
+    },
+    {
+      "file": "materials/grammar_intro-conversation-phrases-how-to-open-continue-and-close.html",
+      "type": "grammar_intro",
+      "title": "Conversation phrases: how to open, continue, and close",
+      "competenceIds": [
+        "fk.k.sprechen.1",
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "In English conversations, we use fixed phrases to start, keep going, and end a conversation politely. These phrases are like building blocks -- you do not invent them each time, you learn and reuse them. There are three types: openers (how you start), continuers (how you show interest and keep the conversation going), and closers (how you end politely). Note: in German you might say \"Tschuss\" to end a conversation -- in English we use fuller phrases like \"See you later!\" or \"It was nice talking to you.\" Also watch out: \"handy\" in English means useful or convenient -- it does NOT mean mobile phone (Handy).",
+        "Hey, did you have a good summer? / Hi, can I ask you something?",
+        "Excuse me, do you know when the lesson starts?",
+        "Really? Tell me more! / That sounds great!",
+        "What do you mean exactly? / Sorry, can you say that again?",
+        "OK, I have to go. See you later! / Thanks for chatting. Bye!"
+      ],
+      "createdAt": "2026-07-30T16:25:36.279Z"
+    },
+    {
+      "file": "materials/gap_fill-school-conversation-fill-in-the-phrases-band-1.html",
+      "type": "gap_fill",
+      "title": "School conversation -- fill in the phrases (Band 1)",
+      "competenceIds": [
+        "fk.k.sprechen.1",
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "___, did you have a good summer?",
+        "Hey",
+        "informal opener",
+        "Hi! Can I ___ you something?",
+        "ask",
+        "ask",
+        "___! Tell me more!",
+        "Really",
+        "showing surprise or interest",
+        "What do you ___ exactly?",
+        "mean",
+        "mean",
+        "OK, I have to go. ___ you later!",
+        "See",
+        "see"
+      ],
+      "createdAt": "2026-07-30T16:26:53.414Z"
+    },
+    {
+      "file": "materials/matching-conversation-phrases-match-phrase-to-function-band-2.html",
+      "type": "matching",
+      "title": "Conversation phrases -- match phrase to function (Band 2)",
+      "competenceIds": [
+        "fk.k.sprechen.1",
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Hey, did you have a good summer?",
+        "Opening a conversation",
+        "Really? Tell me more!",
+        "Showing interest (continuing)",
+        "What do you mean exactly?",
+        "Asking for clarification (continuing)",
+        "Sorry, can you say that again?",
+        "Asking someone to repeat (continuing)",
+        "OK, I have to go. See you later!",
+        "Closing the conversation"
+      ],
+      "createdAt": "2026-07-30T16:26:55.319Z"
+    },
+    {
+      "file": "materials/notes-role-play-situation-cards-band-3-free-speaking.html",
+      "type": "notes",
+      "title": "Role-play situation cards (Band 3 -- free speaking)",
+      "competenceIds": [],
+      "depth": "practiced",
+      "createdAt": "2026-07-30T16:27:32.892Z"
+    }
+  ]
+}

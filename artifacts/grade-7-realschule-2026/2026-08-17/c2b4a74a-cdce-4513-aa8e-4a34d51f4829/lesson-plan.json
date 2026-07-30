@@ -1,0 +1,169 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-17",
+  "objectives": [
+    "I can open a conversation in English using an appropriate phrase.",
+    "I can keep a conversation going by showing interest or asking for clarification.",
+    "I can close a conversation politely in English."
+  ],
+  "stages": [
+    {
+      "name": "Opening: Retrieval, Bridge, I can...",
+      "durationMinutes": 9,
+      "purpose": "Activate prior knowledge of school vocabulary and simple present, connect it to today's speaking focus, and state the learning intention.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Quick-fire retrieval (whole class, oral): 1) Name 5 school subjects in English -- pairs have 30 seconds. 2) Complete: 'I ___ (go) to school every day. She ___ (have) Maths on Tuesday.' 3) True or false: 'In German you say Ich gehe -- in English you also say I go, not I go-e.' 4) Give me one phrase you already know for starting a conversation in English.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "correction",
+          "text": "Teacher reveals answers on board. For item 4, take 2-3 responses. Write them up -- pupils will revisit after the input stage.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge (spoken): 'In the last lesson you heard and saw phrases for starting and ending conversations. You recognised them. Today you use them -- your voice, your words. Same phrases, new challenge.'",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Write on board and read aloud: 'I can open, continue, and close a short conversation in English about school topics.' Leave visible for the whole lesson.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/vocab_intro-key-words-for-talking-about-conversations.html"
+      ]
+    },
+    {
+      "name": "Input and Modelling",
+      "durationMinutes": 6,
+      "purpose": "Introduce the five target conversation phrase types through live demonstration and explicit reference so pupils have a clear model before they practice.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display the conversation phrases reference on screen. Read through each phrase type aloud (opener informal, opener formal, continuer -- interest, continuer -- clarification, closer). Pupils listen only.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Live demo: do a short conversation with one pupil volunteer (or read both parts aloud if no volunteer). Pause after each phrase and say which type it is: 'That was a continuer -- I showed interest.'",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils copy the five phrase types and one example each into their notebooks. Point out: 'handy' in English means useful or convenient -- NOT mobile phone.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-conversation-phrases-how-to-open-continue-and-close.html"
+      ]
+    },
+    {
+      "name": "Guided Practice -- Band 1 (Supported)",
+      "durationMinutes": 7,
+      "purpose": "Build confidence and recognition by completing a school conversation with missing phrase words -- full support, one correct answer per blank.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Hand out (or display) the gap-fill exercise. Read the instruction aloud: 'Fill in each blank with the missing word. The hint tells you what kind of word to use. The first example is done for you.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils complete the gap-fill individually.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Partner swap and check, then teacher reveals answers. Ask: 'Which blank was hardest? Why?'",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/gap_fill-school-conversation-fill-in-the-phrases-band-1.html"
+      ]
+    },
+    {
+      "name": "Guided Practice -- Band 2 (Guided)",
+      "durationMinutes": 8,
+      "purpose": "Consolidate phrase recognition by matching full phrases to their conversational function -- phrases still on screen, but pupils must identify the function themselves.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display (or hand out) the matching exercise. Remind pupils: the phrase list from the grammar reference is still on screen as support. The task is to identify what each phrase does.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils complete the matching exercise individually.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Pairs compare, then whole-class check. For any disagreement: 'What made you think that phrase was a continuer rather than a closer?' Elicit reasoning.",
+          "durationMinutes": 3
+        }
+      ],
+      "materialRefs": [
+        "materials/matching-conversation-phrases-match-phrase-to-function-band-2.html"
+      ]
+    },
+    {
+      "name": "Independent Production -- Band 3 (Free speaking)",
+      "durationMinutes": 7,
+      "purpose": "Push pupils to produce the target phrases in genuine spoken interaction -- no frames, no word bank, only a situation prompt.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Remove (or minimise) the phrase display. Hand out one situation card per pair. Read the task aloud: 'Have a real conversation. Use one opener, at least one continuer, and one closer. You have the card -- everything else comes from you.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pairs have their conversation using the situation card. Teacher circulates quietly and notes on a piece of paper: one strong phrase use per pair (for sharing in wrap-up) and one error pattern to address (for next lesson).",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Signal end. Brief pause before wrap-up.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/notes-role-play-situation-cards-band-3-free-speaking.html"
+      ]
+    },
+    {
+      "name": "Wrap-up",
+      "durationMinutes": 8,
+      "purpose": "Consolidate today's phrases through shared production and a written exit check that confirms individual recall.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Invite 2-3 pairs to share one exchange from their conversation. After each, class identifies which phrase types they heard. Write strong examples on the board.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Exit slip (on paper or in notebook): 'Write one opener, one continuer, and one closer from today. Your own words -- no copying from the board.'",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Preview: 'Next lesson -- same conversations, but we add something new: describing what happens at school from a different angle. We call it the passive voice.'",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: phrase reference stays visible during Band 2 and Band 3. Reduce Band 3 situation card to one task only (e.g. 'find out what they did in summer'). Pair with a stronger speaker. Stronger pupils: Band 3 -- must use all five phrase functions (opener, two different continuers, one clarification, closer) and may not repeat any phrase used in Bands 1 or 2. Early finishers: swap cards and repeat with a new situation.",
+  "exercisePlan": [
+    "gap_fill: School conversation -- fill in the phrases (Band 1) -- 5 items, missing key words from conversation openers/continuers/closers, full hint per blank",
+    "matching: Conversation phrases -- match phrase to function (Band 2) -- 5 pairs, full phrases matched to opener/continuer/closer labels"
+  ]
+}
