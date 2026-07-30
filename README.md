@@ -20,7 +20,7 @@ at a Sachsen-Anhalt Sekundarschule (grades 5–7).
 1. Clone the repo and install dependencies:
    ```sh
    git clone <repo-url>
-   cd englishLeasons
+   cd englishLessons
    npm install
    ```
 

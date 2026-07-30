@@ -123,10 +123,10 @@ describe("generateClassIcs", () => {
     expect(unfolded).toContain("Module: Me\\, my family and friends");
     expect(unfolded).toContain("Covers: Grammar: Passive\\, Listening");
     expect(unfolded).toContain(
-      "URL:https://thhanke.github.io/englishLeasons/classes/fixture-class/2026-08-03/s1/lesson-plan/",
+      "URL:https://thhanke.github.io/englishLessons/classes/fixture-class/2026-08-03/s1/lesson-plan/",
     );
     expect(unfolded).toContain(
-      "Homework: https://thhanke.github.io/englishLeasons/classes/fixture-class/2026-08-03/s1/homework/",
+      "Homework: https://thhanke.github.io/englishLessons/classes/fixture-class/2026-08-03/s1/homework/",
     );
     expect(unfolded).not.toContain("Test:");
     expect(unfolded).toContain("CATEGORIES:Grammar: Passive,Listening");
