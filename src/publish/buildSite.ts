@@ -17,6 +17,7 @@ import { loadCalendarForClass } from "../companion/server/loadCalendar.ts";
 import { renderLessonPage, type LessonPlan, type Manifest } from "./renderLessonPage.ts";
 import { renderInlineLessonPage, filterMaterialsForVariant } from "./renderInlineLessonPage.ts";
 import { generateClassIcs, schoolYearSlug } from "./generateIcs.ts";
+import { findNextLessonDate } from "../projection/nextLessonDate.ts";
 
 const DEFAULT_REPO_ROOT = new URL("../../", import.meta.url).pathname;
 
@@ -28,6 +29,28 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+/** Manifest order (creation order) instead of alphabetical filename order -- see the identical
+ * helper in companion/server/routes/artifacts.ts, duplicated here since this is a separate
+ * (build-time, not server-route) module. */
+function orderedMaterialFiles(materialsDir: string, manifest: Manifest | null): string[] {
+  const onDisk = new Set(readdirSync(materialsDir).filter((f) => f.endsWith(".html")));
+  const ordered: string[] = [];
+  const seen = new Set<string>();
+  if (manifest) {
+    for (const entry of manifest.materials) {
+      const bn = basename(entry.file);
+      if (onDisk.has(bn) && !seen.has(bn)) {
+        ordered.push(bn);
+        seen.add(bn);
+      }
+    }
+  }
+  for (const f of [...onDisk].sort()) {
+    if (!seen.has(f)) ordered.push(f);
+  }
+  return ordered;
 }
 
 /** Mirrors dateContext.ts's loadClassData pattern: scans the plans directory for the known class list. */
@@ -193,6 +216,14 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
     const classDir = join(outDir, "classes", className);
     mkdirSync(classDir, { recursive: true });
 
+    // Homework due dates need the calendar, but a repo can have lesson-spec artifacts without a
+    // calendar/ directory yet (e.g. tests, early authoring) -- loadCalendarForClass's
+    // readdirSync would throw ENOENT in that case, so guard it the same way
+    // fullCalendarSpan()'s null return already guards the ICS section below.
+    const calendar = existsSync(join(repoRoot, "calendar"))
+      ? loadCalendarForClass(className, repoRoot)
+      : null;
+
     for (const entry of entries) {
       const lessonDir = join(classDir, entry.date, ...(entry.slotId ? [entry.slotId] : []));
       mkdirSync(lessonDir, { recursive: true });
@@ -212,9 +243,7 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
 
       const materialsSrcDir = join(specDir, "materials");
       const materialFiles = existsSync(materialsSrcDir)
-        ? readdirSync(materialsSrcDir)
-            .filter((f) => f.endsWith(".html"))
-            .sort()
+        ? orderedMaterialFiles(materialsSrcDir, manifest)
         : [];
 
       if (materialFiles.length > 0) {
@@ -240,16 +269,30 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
       mkdirSync(lessonPlanDir, { recursive: true });
       writeFileSync(
         join(lessonPlanDir, "index.html"),
-        renderInlineLessonPage({ spec, manifest, plan, materials: lessonPlanMaterials }),
+        renderInlineLessonPage({
+          spec,
+          manifest,
+          plan,
+          materials: lessonPlanMaterials,
+          variant: "lesson-plan",
+        }),
       );
 
       const homeworkMaterials = filterMaterialsForVariant(materialsWithHtml, manifest, "homework");
       if (homeworkMaterials.length > 0) {
         const homeworkDir = join(lessonDir, "homework");
         mkdirSync(homeworkDir, { recursive: true });
+        const dueDate = calendar ? findNextLessonDate(calendar, className, entry.date) : undefined;
         writeFileSync(
           join(homeworkDir, "index.html"),
-          renderInlineLessonPage({ spec, manifest, plan: null, materials: homeworkMaterials }),
+          renderInlineLessonPage({
+            spec,
+            manifest,
+            plan: null,
+            materials: homeworkMaterials,
+            variant: "homework",
+            dueDate,
+          }),
         );
       }
 
@@ -259,7 +302,13 @@ export function buildSite(params: { repoRoot: string; outDir: string }): void {
         mkdirSync(testDir, { recursive: true });
         writeFileSync(
           join(testDir, "index.html"),
-          renderInlineLessonPage({ spec, manifest, plan: null, materials: testMaterials }),
+          renderInlineLessonPage({
+            spec,
+            manifest,
+            plan: null,
+            materials: testMaterials,
+            variant: "test",
+          }),
         );
       }
     }

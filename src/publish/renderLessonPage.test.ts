@@ -100,7 +100,14 @@ describe("renderLessonPage", () => {
   it("renders objectives, stages (with duration), differentiation notes, and the exercise plan when present", () => {
     const plan: LessonPlan = {
       objectives: ["Identify active vs passive voice"],
-      stages: [{ name: "Warm-up", durationMinutes: 9, description: "Retrieval practice" }],
+      stages: [
+        {
+          name: "Warm-up",
+          durationMinutes: 9,
+          purpose: "Retrieval practice",
+          procedure: ["Quick oral recall of last lesson's target forms."],
+        },
+      ],
       differentiationNotes: "Band 1 gets a full word bank.",
       exercisePlan: ["gap_fill: 6 sentences, supported"],
     };
@@ -110,6 +117,7 @@ describe("renderLessonPage", () => {
     expect(html).toContain("Warm-up");
     expect(html).toContain("9 min");
     expect(html).toContain("Retrieval practice");
+    expect(html).toContain("Quick oral recall of last lesson's target forms.");
     expect(html).toContain("Band 1 gets a full word bank.");
     expect(html).toContain("gap_fill: 6 sentences, supported");
     expect(html).not.toContain("No detailed lesson plan saved");
@@ -118,7 +126,14 @@ describe("renderLessonPage", () => {
   it("escapes HTML in plan fields", () => {
     const plan: LessonPlan = {
       objectives: ['<script>alert("x")</script>'],
-      stages: [{ name: "<b>Warm-up</b>", durationMinutes: 5, description: "<i>desc</i>" }],
+      stages: [
+        {
+          name: "<b>Warm-up</b>",
+          durationMinutes: 5,
+          purpose: "<i>purpose</i>",
+          procedure: ["<i>desc</i>"],
+        },
+      ],
       differentiationNotes: "<u>notes</u>",
       exercisePlan: ["<em>plan</em>"],
     };
@@ -126,6 +141,7 @@ describe("renderLessonPage", () => {
 
     expect(html).not.toContain("<script>alert");
     expect(html).not.toContain("<b>Warm-up</b>");
+    expect(html).not.toContain("<i>purpose</i>");
     expect(html).not.toContain("<i>desc</i>");
     expect(html).not.toContain("<u>notes</u>");
     expect(html).not.toContain("<em>plan</em>");

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Conversation Phrases — English &amp; German</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; color: #111; }
+  .deck { display: flex; flex-direction: column; gap: 1rem; }
+  .card { border: 1px solid #ccc; border-radius: 0.5rem; padding: 1rem; text-align: center; }
+  button.flip { width: 100%; min-height: 4rem; font: inherit; font-size: 1.1rem; cursor: pointer;
+    border: 1px solid #888; border-radius: 0.4rem; background: #fff; padding: 1rem; }
+  .face.back { display: none; color: #06c; }
+  .card[data-state="back"] .face.front { display: none; }
+  .card[data-state="back"] .face.back { display: inline; }
+  .rate { margin-top: 0.6rem; display: flex; gap: 0.5rem; justify-content: center; }
+  .rated { margin-top: 0.6rem; font-weight: bold; }
+  p#summary { font-weight: bold; margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+<h1>Conversation Phrases — English &amp; German</h1>
+<p>Click a card to reveal the answer, then rate yourself.</p>
+<div class="deck">
+    <div class="card" data-card="0" data-state="front">
+      <button type="button" class="flip" data-card="0">
+        <span class="face front">Hi! Long time no see!</span>
+        <span class="face back">Hallo! Lange nicht gesehen! (Gespräch eröffnen)</span>
+      </button>
+      <div class="rate" data-rate="0" hidden>
+        <button type="button" class="know" data-card="0">Got it</button>
+        <button type="button" class="learning" data-card="0">Still learning</button>
+      </div>
+      <p class="rated" data-rated="0" hidden></p>
+    </div>
+    <div class="card" data-card="1" data-state="front">
+      <button type="button" class="flip" data-card="1">
+        <span class="face front">How are you doing?</span>
+        <span class="face back">Wie geht's dir? (Gespräch eröffnen)</span>
+      </button>
+      <div class="rate" data-rate="1" hidden>
+        <button type="button" class="know" data-card="1">Got it</button>
+        <button type="button" class="learning" data-card="1">Still learning</button>
+      </div>
+      <p class="rated" data-rated="1" hidden></p>
+    </div>
+    <div class="card" data-card="2" data-state="front">
+      <button type="button" class="flip" data-card="2">
+        <span class="face front">What's up?</span>
+        <span class="face back">Was gibt's Neues? (Gespräch eröffnen)</span>
+      </button>
+      <div class="rate" data-rate="2" hidden>
+        <button type="button" class="know" data-card="2">Got it</button>
+        <button type="button" class="learning" data-card="2">Still learning</button>
+      </div>
+      <p class="rated" data-rated="2" hidden></p>
+    </div>
+    <div class="card" data-card="3" data-state="front">
+      <button type="button" class="flip" data-card="3">
+        <span class="face front">Really? Tell me more!</span>
+        <span class="face back">Wirklich? Erzähl mehr! (Gespräch fortsetzen)</span>
+      </button>
+      <div class="rate" data-rate="3" hidden>
+        <button type="button" class="know" data-card="3">Got it</button>
+        <button type="button" class="learning" data-card="3">Still learning</button>
+      </div>
+      <p class="rated" data-rated="3" hidden></p>
+    </div>
+    <div class="card" data-card="4" data-state="front">
+      <button type="button" class="flip" data-card="4">
+        <span class="face front">What do you think about...?</span>
+        <span class="face back">Was denkst du über...? (Gespräch fortsetzen)</span>
+      </button>
+      <div class="rate" data-rate="4" hidden>
+        <button type="button" class="know" data-card="4">Got it</button>
+        <button type="button" class="learning" data-card="4">Still learning</button>
+      </div>
+      <p class="rated" data-rated="4" hidden></p>
+    </div>
+    <div class="card" data-card="5" data-state="front">
+      <button type="button" class="flip" data-card="5">
+        <span class="face front">That's interesting!</span>
+        <span class="face back">Das ist interessant! (Gespräch fortsetzen)</span>
+      </button>
+      <div class="rate" data-rate="5" hidden>
+        <button type="button" class="know" data-card="5">Got it</button>
+        <button type="button" class="learning" data-card="5">Still learning</button>
+      </div>
+      <p class="rated" data-rated="5" hidden></p>
+    </div>
+    <div class="card" data-card="6" data-state="front">
+      <button type="button" class="flip" data-card="6">
+        <span class="face front">Anyway, I have to go.</span>
+        <span class="face back">Ich muss jetzt los. (Gespräch beenden)</span>
+      </button>
+      <div class="rate" data-rate="6" hidden>
+        <button type="button" class="know" data-card="6">Got it</button>
+        <button type="button" class="learning" data-card="6">Still learning</button>
+      </div>
+      <p class="rated" data-rated="6" hidden></p>
+    </div>
+    <div class="card" data-card="7" data-state="front">
+      <button type="button" class="flip" data-card="7">
+        <span class="face front">Talk later! See you!</span>
+        <span class="face back">Bis später! Tschüss! (Gespräch beenden)</span>
+      </button>
+      <div class="rate" data-rate="7" hidden>
+        <button type="button" class="know" data-card="7">Got it</button>
+        <button type="button" class="learning" data-card="7">Still learning</button>
+      </div>
+      <p class="rated" data-rated="7" hidden></p>
+    </div></div>
+<p id="summary"></p>
+<script>
+(function () {
+  var total = 8;
+  var rated = {};
+
+  document.querySelectorAll('button.flip').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var i = btn.getAttribute('data-card');
+      var card = document.querySelector('.card[data-card="' + i + '"]');
+      var isBack = card.getAttribute('data-state') === 'back';
+      card.setAttribute('data-state', isBack ? 'front' : 'back');
+      var rateEl = document.querySelector('.rate[data-rate="' + i + '"]');
+      if (!isBack) rateEl.hidden = false;
+    });
+  });
+
+  function updateSummary() {
+    var known = 0;
+    var seen = 0;
+    for (var k in rated) {
+      seen++;
+      if (rated[k] === 'know') known++;
+    }
+    document.getElementById('summary').textContent =
+      seen === 0 ? '' : known + ' / ' + seen + ' known so far (' + total + ' cards total)';
+  }
+
+  document.querySelectorAll('button.know, button.learning').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var i = btn.getAttribute('data-card');
+      var rating = btn.classList.contains('know') ? 'know' : 'learning';
+      rated[i] = rating;
+      var ratedEl = document.querySelector('[data-rated="' + i + '"]');
+      ratedEl.hidden = false;
+      ratedEl.textContent = rating === 'know' ? 'Marked: Got it' : 'Marked: Still learning';
+      updateSummary();
+    });
+  });
+})();
+</script>
+</body>
+</html>

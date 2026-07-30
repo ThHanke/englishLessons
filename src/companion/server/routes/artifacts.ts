@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { extname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, extname, isAbsolute, join, relative, resolve } from "node:path";
 import { loadYaml } from "../../../schema/yaml.ts";
 import type { ClassFile, LessonSpec } from "../../../schema/types.ts";
 import { renderLessonPage, type LessonPlan, type Manifest } from "../../../publish/renderLessonPage.ts";
@@ -11,6 +11,8 @@ import {
 } from "../../../publish/renderInlineLessonPage.ts";
 import { originMatchesOrAbsent } from "../security.ts";
 import { artifactDir } from "../artifactPath.ts";
+import { loadCalendarForClass } from "../loadCalendar.ts";
+import { findNextLessonDate } from "../../../projection/nextLessonDate.ts";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -26,6 +28,29 @@ const VARIANT_PAGE_FILENAMES: Record<string, LessonPageVariant> = {
   "homework-page.html": "homework",
   "test-page.html": "test",
 };
+
+/** Manifest order (creation order) instead of alphabetical filename order -- so a homework page
+ * with several materials reads in the sequence the teacher actually built it, not A-Z. Files on
+ * disk the manifest doesn't reference (shouldn't happen, but not fatal) are appended, sorted,
+ * rather than silently dropped. */
+function orderedMaterialFiles(materialsDir: string, manifest: Manifest | null): string[] {
+  const onDisk = new Set(readdirSync(materialsDir).filter((f) => f.endsWith(".html")));
+  const ordered: string[] = [];
+  const seen = new Set<string>();
+  if (manifest) {
+    for (const entry of manifest.materials) {
+      const bn = basename(entry.file);
+      if (onDisk.has(bn) && !seen.has(bn)) {
+        ordered.push(bn);
+        seen.add(bn);
+      }
+    }
+  }
+  for (const f of [...onDisk].sort()) {
+    if (!seen.has(f)) ordered.push(f);
+  }
+  return ordered;
+}
 
 function sendJson(res: ServerResponse, statusCode: number, body: unknown): void {
   res.writeHead(statusCode, { "content-type": "application/json" });
@@ -173,21 +198,28 @@ export async function handleArtifactsRequest(
       : null;
     const materialsDir = join(lessonDir, "materials");
     const materials = existsSync(materialsDir)
-      ? readdirSync(materialsDir)
-          .filter((f) => f.endsWith(".html"))
-          .sort()
-          .map((file) => ({ file, html: readFileSync(join(materialsDir, file), "utf-8") }))
+      ? orderedMaterialFiles(materialsDir, manifest).map((file) => ({
+          file,
+          html: readFileSync(join(materialsDir, file), "utf-8"),
+        }))
       : [];
     const filtered = filterMaterialsForVariant(materials, manifest, variant);
     if (variant !== "lesson-plan" && filtered.length === 0) {
       sendJson(res, 404, { error: "not_found" });
       return;
     }
+    let dueDate: string | undefined;
+    if (variant === "homework") {
+      const calendar = loadCalendarForClass(classId, config.repoRoot);
+      if (calendar) dueDate = findNextLessonDate(calendar, classId, date);
+    }
     const html = renderInlineLessonPage({
       spec,
       manifest,
       plan: variant === "lesson-plan" ? plan : null,
       materials: filtered,
+      variant,
+      dueDate,
     });
     res.writeHead(200, { "content-type": "text/html" });
     res.end(html);

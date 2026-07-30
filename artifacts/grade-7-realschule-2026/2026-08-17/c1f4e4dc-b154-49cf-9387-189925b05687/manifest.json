@@ -1,0 +1,205 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-17",
+  "materials": [
+    {
+      "file": "materials/reading_text-back-at-school.html",
+      "type": "reading_text",
+      "title": "Back at School",
+      "competenceIds": [
+        "fk.k.hoer.1",
+        "fk.k.lesen.1"
+      ],
+      "depth": "introduced",
+      "createdAt": "2026-07-30T09:00:00.000Z"
+    },
+    {
+      "file": "materials/vocab_intro-back-at-school-words.html",
+      "type": "vocab_intro",
+      "title": "Back at School — New Words",
+      "competenceIds": [
+        "fk.k.hoer.1",
+        "fk.k.lesen.1"
+      ],
+      "depth": "introduced",
+      "createdAt": "2026-07-30T09:02:00.000Z"
+    },
+    {
+      "file": "materials/grammar_intro-passive-voice.html",
+      "type": "grammar_intro",
+      "title": "Passive Voice — be + past participle",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "introduced",
+      "createdAt": "2026-07-30T09:03:00.000Z"
+    },
+    {
+      "file": "materials/vocab_intro-conversation-phrases.html",
+      "type": "vocab_intro",
+      "title": "Conversation Phrases — Pre-Teach",
+      "competenceIds": [
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "introduced",
+      "createdAt": "2026-07-30T09:01:00.000Z"
+    },
+    {
+      "file": "materials/mark_the_words-spot-the-passive-click-the-verb-phrase.html",
+      "type": "mark_the_words",
+      "title": "Spot the Passive — Click the Verb Phrase",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "The classroom is cleaned every morning. Students are given homework on Fridays. The windows are opened before class. English is taught by Mr Brown. The books are collected at the end of the lesson. New vocabulary is introduced every week."
+      ],
+      "createdAt": "2026-07-29T18:53:29.139Z"
+    },
+    {
+      "file": "materials/gap_fill-complete-the-passive-sentence.html",
+      "type": "gap_fill",
+      "title": "Complete the Passive Sentence",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "The whiteboard ___ every day.",
+        "is cleaned",
+        "clean",
+        "New books ___ to all students at the start of the year.",
+        "are given",
+        "give",
+        "The music room ___ for band practice.",
+        "is used",
+        "use",
+        "Homework ___ on Mondays.",
+        "is checked",
+        "check",
+        "Science experiments ___ in the lab.",
+        "are done",
+        "do",
+        "School rules ___ at the start of the year.",
+        "are explained",
+        "explain"
+      ],
+      "createdAt": "2026-07-29T18:53:34.002Z"
+    },
+    {
+      "file": "materials/reorder-build-the-passive-sentence.html",
+      "type": "reorder",
+      "title": "Build the Passive Sentence",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "The school",
+        "is opened",
+        "at 8 am",
+        "every day.",
+        "English books",
+        "are sold",
+        "in the school shop.",
+        "The homework",
+        "is collected",
+        "by the teacher",
+        "at the start of class.",
+        "New rules",
+        "are explained",
+        "to students",
+        "every September."
+      ],
+      "createdAt": "2026-07-29T18:53:36.378Z"
+    },
+    {
+      "file": "materials/matching-conversation-phrases-what-s-their-job.html",
+      "type": "matching",
+      "title": "Conversation Phrases — What's Their Job?",
+      "competenceIds": [
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Hi! Long time no see!",
+        "Opening a conversation",
+        "How are you doing?",
+        "Opening a conversation",
+        "Really? Tell me more!",
+        "Continuing a conversation",
+        "What do you think about that?",
+        "Continuing a conversation",
+        "Anyway, I have to go now.",
+        "Closing a conversation",
+        "Talk later! See you!",
+        "Closing a conversation"
+      ],
+      "createdAt": "2026-07-29T18:53:46.376Z"
+    },
+    {
+      "file": "materials/flashcards-conversation-phrases-english-german.html",
+      "type": "flashcards",
+      "title": "Conversation Phrases — English & German",
+      "competenceIds": [
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Hi! Long time no see!",
+        "Hallo! Lange nicht gesehen! (Gespräch eröffnen)",
+        "How are you doing?",
+        "Wie geht's dir? (Gespräch eröffnen)",
+        "What's up?",
+        "Was gibt's Neues? (Gespräch eröffnen)",
+        "Really? Tell me more!",
+        "Wirklich? Erzähl mehr! (Gespräch fortsetzen)",
+        "What do you think about...?",
+        "Was denkst du über...? (Gespräch fortsetzen)",
+        "That's interesting!",
+        "Das ist interessant! (Gespräch fortsetzen)",
+        "Anyway, I have to go.",
+        "Ich muss jetzt los. (Gespräch beenden)",
+        "Talk later! See you!",
+        "Bis später! Tschüss! (Gespräch beenden)"
+      ],
+      "createdAt": "2026-07-29T18:53:51.611Z"
+    },
+    {
+      "file": "materials/homework-passive-voice-and-conversation-phrases-homework.html",
+      "type": "homework",
+      "title": "Homework — Passive Voice & Conversation Phrases",
+      "competenceIds": [
+        "fk.g.passive",
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "practiced",
+      "createdAt": "2026-07-29T18:54:00.000Z"
+    },
+    {
+      "file": "materials/vocab_intro-conversation-phrases-pre-teach.html",
+      "type": "vocab_intro",
+      "title": "Conversation Phrases — Pre-Teach",
+      "competenceIds": [
+        "fk.g.passive",
+        "fk.k.hoer.1",
+        "fk.k.lesen.1",
+        "fk.k.sprechen.1",
+        "fk.w.open_continue_close_conversations"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "Hi! Long time no see! Hallo! Lange nicht gesehen!",
+        "How are you doing? Wie geht es dir?",
+        "What's up? Was gibt's Neues?",
+        "Really? Tell me more! Wirklich? Erzähl mehr!",
+        "What do you think about...? Was denkst du über...?",
+        "That's interesting! Das ist interessant!",
+        "Anyway, I have to go. Ich muss jetzt los.",
+        "Talk later! See you! Bis später! Tschüss!"
+      ],
+      "createdAt": "2026-07-30T09:13:31.621Z"
+    }
+  ]
+}

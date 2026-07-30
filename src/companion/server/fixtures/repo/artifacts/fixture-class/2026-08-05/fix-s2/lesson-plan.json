@@ -3,7 +3,12 @@
   "date": "2026-08-05",
   "objectives": ["Fixture objective one"],
   "stages": [
-    { "name": "Warm-up", "durationMinutes": 5, "description": "Fixture warm-up" }
+    {
+      "name": "Warm-up",
+      "durationMinutes": 5,
+      "purpose": "Fixture warm-up",
+      "procedure": ["Fixture warm-up step one."]
+    }
   ],
   "differentiationNotes": "Fixture differentiation notes.",
   "exercisePlan": ["gap_fill: fixture plan"]

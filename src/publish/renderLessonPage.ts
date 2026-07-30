@@ -21,7 +21,14 @@ export interface Manifest {
 export interface LessonPlanStage {
   name: string;
   durationMinutes: number;
-  description: string;
+  /** One-line "why this stage" -- rendered as an italic sub-heading, textbook-style. */
+  purpose: string;
+  /** Ordered steps, rendered as a numbered list instead of one prose block. */
+  procedure: string[];
+  /** manifest.json material filenames (e.g. "materials/gap_fill-....html") used or introduced
+   * in this stage -- lets the renderer embed the actual material inline instead of a
+   * disconnected Materials section (renderLessonPlanTimeline in renderInlineLessonPage.ts). */
+  materialRefs?: string[];
 }
 
 export interface LessonPlan {
@@ -30,6 +37,17 @@ export interface LessonPlan {
   differentiationNotes: string;
   exercisePlan: string[];
 }
+
+/** Shared with renderInlineLessonPage.ts so stage cards look identical on both page shapes. */
+export const STAGE_CARD_CSS = `
+  ol.stage-overview { padding-left: 1.2rem; color: #333; }
+  ol.stage-overview .duration { color: #666; font-size: 0.9em; }
+  section.stage { border: 1px solid #ddd; border-radius: 0.4rem; padding: 0.8rem 1rem; margin: 0 0 1rem; }
+  section.stage h3 { margin: 0 0 0.3rem; }
+  section.stage .duration { font-weight: normal; color: #666; font-size: 0.85em; }
+  section.stage .purpose { margin: 0 0 0.5rem; color: #444; }
+  section.stage .procedure { margin: 0; padding-left: 1.2rem; }
+`;
 
 /** Duplicated from src/widgets/gapFill.ts (not exported there) - see U5 plan note. */
 function escapeHtml(s: string): string {
@@ -40,30 +58,60 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Shared with renderInlineLessonPage.ts -- the objectives/stages/differentiation/exercise-plan
- * markup is identical in both page shapes, only the surrounding page (linked-materials list vs.
- * inline-embedded iframes) differs. */
-export function renderPlanBody(plan: LessonPlan): string {
-  const objectivesHtml = plan.objectives.map((o) => `<li>${escapeHtml(o)}</li>`).join("\n");
-  const stagesHtml = plan.stages
+/** Shared with renderInlineLessonPage.ts -- both page shapes list objectives/exercise-plan the
+ * same way; only the Stages section differs (plain cards here vs. materials embedded inline in
+ * renderLessonPlanTimeline). */
+export function renderObjectivesHtml(objectives: string[]): string {
+  return objectives.map((o) => `<li>${escapeHtml(o)}</li>`).join("\n");
+}
+
+export function renderExercisePlanHtml(exercisePlan: string[]): string {
+  return exercisePlan.map((e) => `<li>${escapeHtml(e)}</li>`).join("\n");
+}
+
+/** Short at-a-glance list (name, duration, one-line purpose) shown before the detailed Timeline
+ * -- a table of contents a teacher can scan in seconds, distinct from the full stage cards
+ * below it which spell out the actual procedure. */
+export function renderStageOverviewHtml(stages: LessonPlanStage[]): string {
+  return stages
     .map(
       (s) =>
-        `<tr><td>${escapeHtml(s.name)}</td><td>${s.durationMinutes} min</td><td>${escapeHtml(s.description)}</td></tr>`,
+        `<li><strong>${escapeHtml(s.name)}</strong> <span class="duration">(${s.durationMinutes} min)</span> — ${escapeHtml(s.purpose)}</li>`,
     )
     .join("\n");
-  const exercisePlanHtml = plan.exercisePlan.map((e) => `<li>${escapeHtml(e)}</li>`).join("\n");
+}
+
+/** One stage's heading + italic purpose + numbered procedure -- no material embedding here,
+ * this stays shared/dumb about materials so both the plain overview page and the dedicated
+ * variant pages (renderInlineLessonPage.ts) can reuse it identically. Material embedding is the
+ * dedicated lesson-plan page's job (renderLessonPlanTimeline). */
+export function renderStageCard(s: LessonPlanStage): string {
+  const procedureHtml = s.procedure.map((step) => `<li>${escapeHtml(step)}</li>`).join("\n");
+  return `<section class="stage">
+<h3>${escapeHtml(s.name)} <span class="duration">${s.durationMinutes} min</span></h3>
+<p class="purpose"><em>${escapeHtml(s.purpose)}</em></p>
+<ol class="procedure">
+${procedureHtml}
+</ol>
+</section>`;
+}
+
+export function renderPlanBody(plan: LessonPlan): string {
+  const objectivesHtml = renderObjectivesHtml(plan.objectives);
+  const overviewHtml = renderStageOverviewHtml(plan.stages);
+  const stagesHtml = plan.stages.map(renderStageCard).join("\n");
+  const exercisePlanHtml = renderExercisePlanHtml(plan.exercisePlan);
 
   return `<h3>Objectives</h3>
 <ul>
 ${objectivesHtml}
 </ul>
-<h3>Stages</h3>
-<table class="stages">
-<thead><tr><th>Stage</th><th>Duration</th><th>Description</th></tr></thead>
-<tbody>
+<h3>Stage overview</h3>
+<ol class="stage-overview">
+${overviewHtml}
+</ol>
+<h3>Timeline</h3>
 ${stagesHtml}
-</tbody>
-</table>
 <h3>Differentiation</h3>
 <p>${escapeHtml(plan.differentiationNotes)}</p>
 <h3>Planned exercises</h3>
@@ -125,9 +173,7 @@ export function renderLessonPage(params: {
   body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
   ul { padding-left: 1.2rem; }
   .no-materials, .no-plan { color: #666; font-style: italic; }
-  table.stages { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; }
-  table.stages th, table.stages td { border: 1px solid #ccc; padding: 0.3rem 0.5rem; text-align: left; }
-</style>
+${STAGE_CARD_CSS}</style>
 </head>
 <body>
 <h1>${escapeHtml(spec.module.title)}</h1>

@@ -16,6 +16,8 @@ import { renderMarkTheWordsHtml, type MarkTheWordsItem } from "../../widgets/mar
 import { renderReorderHtml, type ReorderItem } from "../../widgets/reorder.ts";
 import { renderWordSearchHtml, type WordSearchItem } from "../../widgets/wordSearch.ts";
 import { renderVocabIntroHtml } from "../../widgets/vocabIntro.ts";
+import { renderReadingTextHtml } from "../../widgets/readingText.ts";
+import { renderGrammarIntroHtml } from "../../widgets/grammarIntro.ts";
 import type { LessonSpec } from "../../schema/types.ts";
 import { resolveKnownVocabulary } from "../../vocab/resolveKnownVocabulary.ts";
 import { findNewVocabulary } from "../../vocab/findNewVocabulary.ts";
@@ -74,7 +76,9 @@ const LessonPlanSchema = {
     z.object({
       name: z.string(),
       durationMinutes: z.number().int().positive(),
-      description: z.string(),
+      purpose: z.string(),
+      procedure: z.array(z.string()).min(1),
+      materialRefs: z.array(z.string()).optional(),
     }),
   ),
   differentiationNotes: z.string(),
@@ -171,6 +175,22 @@ const GenerateExerciseSchema = {
 const GenerateVocabIntroSchema = {
   title: z.string(),
   words: z.array(z.object({ word: z.string(), translation: z.string() })),
+};
+
+const GenerateReadingTextSchema = {
+  title: z.string(),
+  text: z.string(),
+};
+
+const GenerateGrammarIntroSchema = {
+  title: z.string(),
+  // 'introduce' -- genuinely new grammar point, ledger depth 'introduced'. 'recap' -- pupils
+  // already met this point before, this stage is reinforcing it, ledger depth 'practiced'.
+  mode: z.enum(["introduce", "recap"]),
+  explanation: z.string(),
+  examples: z.array(
+    z.object({ before: z.string().optional(), after: z.string() }),
+  ),
 };
 
 /** Plain-English strings authored for a material, extracted from the already-validated
@@ -318,7 +338,10 @@ export function createLessonArtifactServer(params: {
       ),
       tool(
         "save_lesson_plan",
-        "Save the structured lesson-plan body (objectives, timed stages, differentiation notes, and the list of exercises you plan to build) for the current lesson -- this is what renders as the teacher-facing lesson-plan page, separate from the lesson-spec constraints. The 'class' and 'date' fields MUST match the current session.",
+        "Save the structured lesson-plan body (objectives, timed stages, differentiation notes, and the list of exercises you plan to build) for the current lesson -- this is what renders as the teacher-facing lesson-plan page, separate from the lesson-spec constraints. The 'class' and 'date' fields MUST match the current session. " +
+          "Each stage needs: 'purpose' (one sentence, why this stage exists / what it builds toward), 'procedure' (ordered, concrete steps -- not one paragraph; each array entry is one step), and 'materialRefs' (the manifest filenames, e.g. 'materials/gap_fill-....html', of any material this stage actually uses or introduces). " +
+          "Do not narrate content that doesn't exist as a material: if a stage reads/plays an input text, that text must be saved first via save_reading_text and its filename put in materialRefs -- never just describe a text in prose. If a stage introduces new target vocabulary or phrases, call find_new_vocabulary then generate_vocab_intro first and reference the resulting file in materialRefs -- writing new words 'on the board' in the stage description is not a substitute for the pre-taught glossary. If a stage introduces or recaps a grammar point (invoke the grammar-intro skill first), save it with save_grammar_intro and reference it in materialRefs -- a grammar rule mentioned only inside procedure text (e.g. 'mini board note: passive = be + past participle') never reaches the pupil-facing page. " +
+          "'purpose' and 'procedure' are read by the teacher at a glance -- never use an unexplained abbreviation or piece of jargon (e.g. 'SVO', 'L1') in them; either spell it out in full or don't use it.",
         LessonPlanSchema,
         async (args) => {
           if (args.class !== classId) {
@@ -594,6 +617,107 @@ export function createLessonArtifactServer(params: {
           const relPath = `${relDir}/materials/${fileName}`;
           return {
             content: [{ type: "text", text: `Saved vocabulary introduction to ${relPath}` }],
+          };
+        },
+      ),
+      tool(
+        "save_reading_text",
+        "Save an original, AI-authored input text (short story/dialogue/description, etc.) that a lesson stage reads aloud or has students read -- e.g. the passage a stage's procedure describes 'reading'. This is generated content, not a textbook excerpt (textbook content stays a citation-only reference, never generated/stored here). After saving, put the returned filename into that stage's materialRefs so the lesson-plan page embeds the text where it's actually used, instead of only being narrated in the stage description.",
+        GenerateReadingTextSchema,
+        async (args) => {
+          const slug = slugify(args.title);
+          if (!slug) {
+            return {
+              content: [{ type: "text", text: "Rejected: title produces an empty slug." }],
+              isError: true,
+            };
+          }
+
+          const html = renderReadingTextHtml(args.title, args.text);
+
+          const materialsDir = join(baseDir, "materials");
+          mkdirSync(materialsDir, { recursive: true });
+          const fileName = `reading_text-${slug}.html`;
+          const filePath = join(materialsDir, fileName);
+          atomicWriteFileSync(filePath, html);
+
+          let competenceIds: string[] = [];
+          const specPath = join(baseDir, "lesson-spec.json");
+          if (existsSync(specPath)) {
+            const spec = JSON.parse(readFileSync(specPath, "utf-8")) as LessonSpec;
+            competenceIds = spec.focus_competences.map((fc) => fc.id);
+          }
+
+          mkdirSync(baseDir, { recursive: true });
+          const manifestPath = join(baseDir, "manifest.json");
+          const manifest = readManifest(manifestPath, classId, date);
+          manifest.materials.push({
+            file: `materials/${fileName}`,
+            type: "reading_text",
+            title: args.title,
+            competenceIds,
+            // New input text, not yet practiced/assessed -- same convention generate_vocab_intro
+            // uses for a freshly introduced glossary.
+            depth: "introduced",
+            contentText: [args.text],
+            createdAt: new Date().toISOString(),
+          });
+          atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+          const relPath = `${relDir}/materials/${fileName}`;
+          return {
+            content: [{ type: "text", text: `Saved reading text to ${relPath}` }],
+          };
+        },
+      ),
+      tool(
+        "save_grammar_intro",
+        "Save a structured grammar explanation (rule + before/after examples) for a grammar point a stage introduces or recaps -- e.g. the 'passive = be + past participle' rule a stage's procedure mentions. Without this, a lesson's actual grammar focus has nowhere to live except buried inside procedure text as an aside. 'explanation' must be plain language a pupil can read, not just teacher shorthand -- no unexplained grammar jargon. After saving, put the returned filename into that stage's materialRefs.",
+        GenerateGrammarIntroSchema,
+        async (args) => {
+          const slug = slugify(args.title);
+          if (!slug) {
+            return {
+              content: [{ type: "text", text: "Rejected: title produces an empty slug." }],
+              isError: true,
+            };
+          }
+
+          const html = renderGrammarIntroHtml(args.title, args.explanation, args.examples);
+
+          const materialsDir = join(baseDir, "materials");
+          mkdirSync(materialsDir, { recursive: true });
+          const fileName = `grammar_intro-${slug}.html`;
+          const filePath = join(materialsDir, fileName);
+          atomicWriteFileSync(filePath, html);
+
+          let competenceIds: string[] = [];
+          const specPath = join(baseDir, "lesson-spec.json");
+          if (existsSync(specPath)) {
+            const spec = JSON.parse(readFileSync(specPath, "utf-8")) as LessonSpec;
+            competenceIds = spec.focus_competences.map((fc) => fc.id);
+          }
+
+          mkdirSync(baseDir, { recursive: true });
+          const manifestPath = join(baseDir, "manifest.json");
+          const manifest = readManifest(manifestPath, classId, date);
+          manifest.materials.push({
+            file: `materials/${fileName}`,
+            type: "grammar_intro",
+            title: args.title,
+            competenceIds,
+            // 'introduce' -- genuinely new, matches generate_vocab_intro/save_reading_text's
+            // 'introduced' convention. 'recap' -- pupils already met this, this stage reinforces
+            // it, so 'practiced' (same convention generate_exercise uses for reinforcement).
+            depth: args.mode === "introduce" ? "introduced" : "practiced",
+            contentText: [args.explanation, ...args.examples.map((ex) => ex.after)],
+            createdAt: new Date().toISOString(),
+          });
+          atomicWriteFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+          const relPath = `${relDir}/materials/${fileName}`;
+          return {
+            content: [{ type: "text", text: `Saved grammar intro to ${relPath}` }],
           };
         },
       ),

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spot the Passive — Click the Verb Phrase</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; color: #111; }
+  fieldset.item { border: 1px solid #ccc; border-radius: 0.4rem; margin-bottom: 1.5rem; padding: 1rem; }
+  legend { font-weight: bold; padding: 0 0.4rem; }
+  p.passage { line-height: 2.4; }
+  button.word { font: inherit; cursor: pointer; border: 1px solid transparent; border-radius: 0.25rem;
+    background: none; padding: 0.1rem 0.15rem; }
+  button.word.marked { background: #eef4ff; border-color: #06c; }
+  button.word.hit { background: #d4f7d4; border-color: #2a2; }
+  button.word.miss { background: #fff3cd; border-color: #a80; text-decoration: underline dotted; }
+  button.word.false-positive { background: #f7d4d4; border-color: #a22; }
+  button.check { margin-top: 0.8rem; }
+  p.result { font-weight: bold; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<h1>Spot the Passive — Click the Verb Phrase</h1>
+
+    <fieldset class="item" data-item="0">
+      <legend>Click on every passive verb phrase (be + past participle). Example: in the first sentence, 'is cleaned' is already marked for you.</legend>
+      <p class="passage" data-item="0"><button type="button" class="word" data-item="0" data-word="0">The</button> <button type="button" class="word" data-item="0" data-word="1">classroom</button> <button type="button" class="word" data-item="0" data-word="2">is</button> <button type="button" class="word" data-item="0" data-word="3">cleaned</button> <button type="button" class="word" data-item="0" data-word="4">every</button> <button type="button" class="word" data-item="0" data-word="5">morning.</button> <button type="button" class="word" data-item="0" data-word="6">Students</button> <button type="button" class="word" data-item="0" data-word="7">are</button> <button type="button" class="word" data-item="0" data-word="8">given</button> <button type="button" class="word" data-item="0" data-word="9">homework</button> <button type="button" class="word" data-item="0" data-word="10">on</button> <button type="button" class="word" data-item="0" data-word="11">Fridays.</button> <button type="button" class="word" data-item="0" data-word="12">The</button> <button type="button" class="word" data-item="0" data-word="13">windows</button> <button type="button" class="word" data-item="0" data-word="14">are</button> <button type="button" class="word" data-item="0" data-word="15">opened</button> <button type="button" class="word" data-item="0" data-word="16">before</button> <button type="button" class="word" data-item="0" data-word="17">class.</button> <button type="button" class="word" data-item="0" data-word="18">English</button> <button type="button" class="word" data-item="0" data-word="19">is</button> <button type="button" class="word" data-item="0" data-word="20">taught</button> <button type="button" class="word" data-item="0" data-word="21">by</button> <button type="button" class="word" data-item="0" data-word="22">Mr</button> <button type="button" class="word" data-item="0" data-word="23">Brown.</button> <button type="button" class="word" data-item="0" data-word="24">The</button> <button type="button" class="word" data-item="0" data-word="25">books</button> <button type="button" class="word" data-item="0" data-word="26">are</button> <button type="button" class="word" data-item="0" data-word="27">collected</button> <button type="button" class="word" data-item="0" data-word="28">at</button> <button type="button" class="word" data-item="0" data-word="29">the</button> <button type="button" class="word" data-item="0" data-word="30">end</button> <button type="button" class="word" data-item="0" data-word="31">of</button> <button type="button" class="word" data-item="0" data-word="32">the</button> <button type="button" class="word" data-item="0" data-word="33">lesson.</button> <button type="button" class="word" data-item="0" data-word="34">New</button> <button type="button" class="word" data-item="0" data-word="35">vocabulary</button> <button type="button" class="word" data-item="0" data-word="36">is</button> <button type="button" class="word" data-item="0" data-word="37">introduced</button> <button type="button" class="word" data-item="0" data-word="38">every</button> <button type="button" class="word" data-item="0" data-word="39">week.</button></p>
+      <button type="button" class="check" data-item="0">Check</button>
+      <p class="result" data-result="0"></p>
+    </fieldset>
+<script>
+(function () {
+  var targets = [[2,3,7,8,14,15,19,20,26,27,36,37]];
+
+  document.querySelectorAll('button.word').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.classList.toggle('marked');
+      btn.classList.remove('hit', 'miss', 'false-positive');
+    });
+  });
+
+  document.querySelectorAll('button.check').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var ii = btn.getAttribute('data-item');
+      var itemTargets = targets[ii];
+      var words = document.querySelectorAll('.passage[data-item="' + ii + '"] button.word');
+      var hits = 0;
+      var falsePositives = 0;
+      words.forEach(function (w) {
+        var wi = Number(w.getAttribute('data-word'));
+        var isTarget = itemTargets.indexOf(wi) !== -1;
+        var isMarked = w.classList.contains('marked');
+        w.classList.remove('hit', 'miss', 'false-positive');
+        if (isTarget && isMarked) { w.classList.add('hit'); hits++; }
+        else if (isTarget && !isMarked) { w.classList.add('miss'); }
+        else if (!isTarget && isMarked) { w.classList.add('false-positive'); falsePositives++; }
+      });
+      var resultEl = document.querySelector('[data-result="' + ii + '"]');
+      resultEl.textContent = hits + ' / ' + itemTargets.length + ' found' +
+        (falsePositives > 0 ? ', ' + falsePositives + ' extra word' + (falsePositives > 1 ? 's' : '') + ' marked' : '');
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-17",
+  "objectives": [
+    "Identify passive voice verb phrases in a short text [fk.g.passive]",
+    "Form simple passive sentences using be + past participle [fk.g.passive]",
+    "Understand a short spoken and written text containing passive structures [fk.k.hoer.1, fk.k.lesen.1]",
+    "Open, continue, and close a short conversation using at least 3 target phrases [fk.w.open_continue_close_conversations, fk.k.sprechen.1]"
+  ],
+  "stages": [
+    {
+      "name": "Opening: Retrieval + Bridge + I can",
+      "durationMinutes": 8,
+      "purpose": "Activate pupils' knowledge of normal English word order and past participle forms, then bridge to today's passive-voice target.",
+      "procedure": [
+        "Quick fire (2 min): 4 oral recognition items — a subject-verb-object sentence, past participle forms (cleaned/explained/given), a greeting phrase, a farewell phrase.",
+        "Think-write (2 min): students write 2 active sentences about school.",
+        "Check (1 min): partner swap.",
+        "Bridge (2 min): teacher connects normal word order to passive — 'Today we flip it: the thing that receives the action comes first.'",
+        "I can on board (1 min): I can identify passive sentences. I can change an active sentence to a passive one. I can open and close a conversation with 3 phrases."
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Input: Back at School text",
+      "durationMinutes": 12,
+      "purpose": "Give pupils a passive-heavy listening and reading model before they have to produce it themselves.",
+      "procedure": [
+        "Pre-teach 3 new words from the glossary: caretaker, form teacher, timetable.",
+        "Teacher reads 'Back at School' text aloud while students listen with books closed [fk.k.hoer.1].",
+        "Students then read the text independently [fk.k.lesen.1].",
+        "Together: underline passive verb phrases (is cleaned, are given, are explained).",
+        "Show the passive-voice explanation and compare it against the underlined phrases.",
+        "Brief Q&A: what action happens? who does it?"
+      ],
+      "materialRefs": [
+        "materials/vocab_intro-back-at-school-words.html",
+        "materials/reading_text-back-at-school.html",
+        "materials/grammar_intro-passive-voice.html"
+      ]
+    },
+    {
+      "name": "Guided practice: passive forms",
+      "durationMinutes": 12,
+      "purpose": "Move from recognition to guided production of passive forms in three escalating steps.",
+      "procedure": [
+        "(1) Mark the passive verb: click every passive verb phrase in the sentences — recognition only.",
+        "(2) Gap-fill: complete 6 passive sentences using the hint word — near-transfer.",
+        "(3) Reorder: unscramble 4 passive sentences from shuffled fragments — guided production.",
+        "Weaker pupils keep the formula card (is/are + past participle); stronger pupils must add a by-phrase. [fk.g.passive]"
+      ],
+      "materialRefs": [
+        "materials/mark_the_words-spot-the-passive-click-the-verb-phrase.html",
+        "materials/gap_fill-complete-the-passive-sentence.html",
+        "materials/reorder-build-the-passive-sentence.html"
+      ]
+    },
+    {
+      "name": "Conversation phrases + speaking",
+      "durationMinutes": 10,
+      "purpose": "Pre-teach and then practice functional phrases for opening, continuing, and closing a conversation.",
+      "procedure": [
+        "Pre-teach 8 phrases in 3 groups using the glossary (3 open, 3 continue, 2 close).",
+        "Students copy the phrases into their notebook.",
+        "Pairs match each phrase to its function (open/continue/close) using the matching exercise.",
+        "Pairs practice a scripted 6-line dialogue using one phrase from each group.",
+        "Rotate partners once. [fk.w.open_continue_close_conversations, fk.k.sprechen.1]"
+      ],
+      "materialRefs": [
+        "materials/vocab_intro-conversation-phrases-pre-teach.html",
+        "materials/matching-conversation-phrases-what-s-their-job.html",
+        "materials/flashcards-conversation-phrases-english-german.html"
+      ]
+    },
+    {
+      "name": "Wrap-up",
+      "durationMinutes": 3,
+      "purpose": "Quick formative check against today's I-can statements before dismissing.",
+      "procedure": [
+        "Return to the I-can statements — thumbs up/sideways/down per statement.",
+        "Teacher notes any thumbs-down on passive production.",
+        "Preview: exercises and flashcards posted as homework practice."
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker: formula card (is/are + past participle), word bank visible throughout practice, scripted dialogue card for speaking phase. Stronger: no word bank for transformation task, must include by + agent phrase, can improvise dialogue beyond script.",
+  "exercisePlan": [
+    "mark_the_words — click every passive verb phrase in 6 sentences [fk.g.passive]",
+    "gap_fill — complete 6 passive sentences with correct be + past participle form, hint word provided [fk.g.passive]",
+    "reorder — unscramble 4 passive sentences from shuffled fragments [fk.g.passive]",
+    "matching — match 8 conversation phrases to their function (open/continue/close) [fk.w.open_continue_close_conversations]",
+    "flashcards — 8 conversation phrase flashcards for self-study [fk.w.open_continue_close_conversations]"
+  ]
+}

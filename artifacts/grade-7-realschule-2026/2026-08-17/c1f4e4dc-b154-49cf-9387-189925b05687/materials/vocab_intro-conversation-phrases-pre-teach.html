@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Conversation Phrases — Pre-Teach</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
+  table.vocab { border-collapse: collapse; width: 100%; }
+  table.vocab th, table.vocab td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; }
+  button.speak { border: 1px solid #888; border-radius: 0.3rem; background: #fff; cursor: pointer; font-size: 1rem; }
+  button.speak:disabled { opacity: 0.4; cursor: not-allowed; }
+  .no-words { color: #666; font-style: italic; }
+  .tts-notice { background: #fff3cd; border: 1px solid #e0c36a; border-radius: 0.3rem; padding: 0.5rem 0.7rem; }
+</style>
+</head>
+<body>
+<h1>Conversation Phrases — Pre-Teach</h1>
+<p id="tts-notice" class="tts-notice" hidden></p>
+<table class="vocab">
+<thead><tr><th>Word</th><th>Translation</th><th></th></tr></thead>
+<tbody>
+<tr>
+  <td>Hi! Long time no see!</td>
+  <td>Hallo! Lange nicht gesehen!</td>
+  <td><button type="button" class="speak" data-word="Hi! Long time no see!" aria-label="Read aloud: Hi! Long time no see!">&#128266;</button></td>
+</tr>
+<tr>
+  <td>How are you doing?</td>
+  <td>Wie geht es dir?</td>
+  <td><button type="button" class="speak" data-word="How are you doing?" aria-label="Read aloud: How are you doing?">&#128266;</button></td>
+</tr>
+<tr>
+  <td>What's up?</td>
+  <td>Was gibt's Neues?</td>
+  <td><button type="button" class="speak" data-word="What's up?" aria-label="Read aloud: What's up?">&#128266;</button></td>
+</tr>
+<tr>
+  <td>Really? Tell me more!</td>
+  <td>Wirklich? Erzähl mehr!</td>
+  <td><button type="button" class="speak" data-word="Really? Tell me more!" aria-label="Read aloud: Really? Tell me more!">&#128266;</button></td>
+</tr>
+<tr>
+  <td>What do you think about...?</td>
+  <td>Was denkst du über...?</td>
+  <td><button type="button" class="speak" data-word="What do you think about...?" aria-label="Read aloud: What do you think about...?">&#128266;</button></td>
+</tr>
+<tr>
+  <td>That's interesting!</td>
+  <td>Das ist interessant!</td>
+  <td><button type="button" class="speak" data-word="That's interesting!" aria-label="Read aloud: That's interesting!">&#128266;</button></td>
+</tr>
+<tr>
+  <td>Anyway, I have to go.</td>
+  <td>Ich muss jetzt los.</td>
+  <td><button type="button" class="speak" data-word="Anyway, I have to go." aria-label="Read aloud: Anyway, I have to go.">&#128266;</button></td>
+</tr>
+<tr>
+  <td>Talk later! See you!</td>
+  <td>Bis später! Tschüss!</td>
+  <td><button type="button" class="speak" data-word="Talk later! See you!" aria-label="Read aloud: Talk later! See you!">&#128266;</button></td>
+</tr>
+</tbody>
+</table>
+<script>
+(function () {
+  var supported = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  var notice = document.getElementById('tts-notice');
+
+  function showNotice(message) {
+    if (!notice) return;
+    notice.textContent = message;
+    notice.hidden = false;
+  }
+
+  if (!supported) {
+    document.querySelectorAll('button.speak').forEach(function (btn) {
+      btn.disabled = true;
+      btn.title = 'Read-aloud not supported in this browser';
+    });
+    showNotice('Read-aloud is not supported in this browser.');
+    return;
+  }
+
+  document.querySelectorAll('button.speak').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      // Checked at click time (not on page load): voices load asynchronously in some browsers,
+      // so an upfront check risks a false negative. A genuinely empty list at click time -- most
+      // commonly no system TTS engine installed on Linux (no espeak-ng/speech-dispatcher) -- means
+      // .speak() would otherwise fail silently with no feedback at all.
+      if (window.speechSynthesis.getVoices().length === 0) {
+        showNotice(
+          'No text-to-speech voices are installed on this system. On Linux, install a system ' +
+            'TTS engine such as espeak-ng or speech-dispatcher, then reload this page.'
+        );
+        return;
+      }
+      var utterance = new SpeechSynthesisUtterance(btn.getAttribute('data-word'));
+      utterance.lang = 'en-GB';
+      window.speechSynthesis.speak(utterance);
+    });
+  });
+})();
+</script>
+</body>
+</html>

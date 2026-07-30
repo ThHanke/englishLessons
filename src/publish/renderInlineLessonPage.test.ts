@@ -50,6 +50,7 @@ describe("renderInlineLessonPage", () => {
       spec: lessonSpec(),
       manifest,
       materials: [{ file: "materials/gap_fill-x.html", html: "<html><body>Fill the gap</body></html>" }],
+      variant: "test",
     });
 
     expect(html).toContain("Passive Voice Gap Fill (gap_fill)");
@@ -64,6 +65,7 @@ describe("renderInlineLessonPage", () => {
       spec: lessonSpec(),
       manifest: null,
       materials: [{ file: "materials/x.html", html: '<html><body><input value="a" data-x=\'y\'></body></html>' }],
+      variant: "test",
     });
     // The literal double-quote from the embedded HTML must be escaped to &quot; -- an unescaped
     // one would prematurely close the srcdoc="..." attribute.
@@ -74,7 +76,7 @@ describe("renderInlineLessonPage", () => {
   });
 
   it('renders a "no materials yet" note, not broken markup, when there are zero materials', () => {
-    const html = renderInlineLessonPage({ spec: lessonSpec(), manifest: null, materials: [] });
+    const html = renderInlineLessonPage({ spec: lessonSpec(), manifest: null, materials: [], variant: "test" });
     expect(html).toContain("No materials yet.");
     expect(html).not.toContain("<iframe");
   });
@@ -84,6 +86,7 @@ describe("renderInlineLessonPage", () => {
       spec: lessonSpec(),
       manifest: null,
       materials: [{ file: "materials/unlisted.html", html: "<html><body>x</body></html>" }],
+      variant: "test",
     });
     expect(html).toContain("materials/unlisted.html");
   });
@@ -93,6 +96,7 @@ describe("renderInlineLessonPage", () => {
       spec: lessonSpec({ module: { id: "m1", title: '<script>alert("x")</script>', week_in_module: 1, of: 4 } }),
       manifest: null,
       materials: [],
+      variant: "test",
     });
     expect(html).not.toContain("<script>alert");
     expect(html).toContain("&lt;script&gt;");
@@ -106,24 +110,44 @@ describe("renderInlineLessonPage", () => {
         { file: "materials/a.html", html: "<html><body>AAA</body></html>" },
         { file: "materials/b.html", html: "<html><body>BBB</body></html>" },
       ],
+      variant: "test",
     });
     expect(html.indexOf("AAA")).toBeLessThan(html.indexOf("BBB"));
     expect((html.match(/<iframe/g) ?? []).length).toBe(2);
   });
 
   it('renders a "no detailed lesson plan saved" note when plan is absent', () => {
-    const html = renderInlineLessonPage({ spec: lessonSpec(), manifest: null, plan: null, materials: [] });
+    const html = renderInlineLessonPage({
+      spec: lessonSpec(),
+      manifest: null,
+      plan: null,
+      materials: [],
+      variant: "lesson-plan",
+    });
     expect(html).toContain("No detailed lesson plan saved for this date yet.");
   });
 
   it("renders objectives, stages, differentiation notes, and the exercise plan when present", () => {
     const plan: LessonPlan = {
       objectives: ["Identify active vs passive voice"],
-      stages: [{ name: "Warm-up", durationMinutes: 9, description: "Retrieval practice" }],
+      stages: [
+        {
+          name: "Warm-up",
+          durationMinutes: 9,
+          purpose: "Retrieval practice",
+          procedure: ["Quick oral recall of last lesson's target forms."],
+        },
+      ],
       differentiationNotes: "Band 1 gets a full word bank.",
       exercisePlan: ["gap_fill: 6 sentences, supported"],
     };
-    const html = renderInlineLessonPage({ spec: lessonSpec(), manifest: null, plan, materials: [] });
+    const html = renderInlineLessonPage({
+      spec: lessonSpec(),
+      manifest: null,
+      plan,
+      materials: [],
+      variant: "lesson-plan",
+    });
 
     expect(html).toContain("Identify active vs passive voice");
     expect(html).toContain("Warm-up");

@@ -51,14 +51,45 @@ Pipeline:
    review. All generated language stays within the controlled vocabulary (§3.6);
    genuinely new target words go into a pre-taught glossary, not silently into tasks.
 
+   **Each stage is structured, not a prose paragraph.** A stage has `name`,
+   `durationMinutes`, `purpose` (one sentence — why this stage exists), `procedure`
+   (ordered, concrete steps, one per array entry), and `materialRefs` (the manifest
+   filenames of any material this stage actually uses or introduces). This is what
+   renders as a readable, textbook-shaped stage card instead of a wall of text — see
+   `renderStageCard`/`renderLessonPlanTimeline` in `src/publish/`. The lesson page also
+   renders a short "Stage overview" (name, duration, one-line purpose per stage) before
+   the detailed "Timeline" — a table of contents a teacher can scan in seconds before
+   reading the full stage-by-stage detail.
+
+   **No unexplained abbreviations or jargon** in `purpose`/`procedure` (e.g. "SVO", "L1")
+   — a teacher skims these, don't make them decode shorthand mid-lesson. Spell it out in
+   full on first use, or don't use it at all.
+
+   **Nothing is narrated without existing as a material.** If a stage reads or plays an
+   input text (e.g. "students read a short text about..."), that text must be saved via
+   `save_reading_text` first and referenced in `materialRefs` — an original, AI-authored
+   passage is generated content like any exercise, distinct from the textbook-citation
+   path below. If a stage introduces new target vocabulary or phrases, `find_new_vocabulary`
+   → `generate_vocab_intro` must be called and the result referenced in `materialRefs` —
+   writing new words "on the board" in the stage's `procedure` is not a substitute for the
+   pre-taught glossary. If a stage introduces or recaps a grammar point (invoke the
+   `grammar-intro` skill first — almost every lesson has one), it must be saved via
+   `save_grammar_intro` (rule explanation + before/after examples) and referenced in
+   `materialRefs` — a rule mentioned only as a "mini board note" inside `procedure` never
+   reaches the pupil-facing page. The lesson-plan page renders each stage's referenced
+   materials inline, directly under that stage, instead of a disconnected Materials list
+   at the bottom — a stage that narrates a text/vocab/grammar point that was never saved
+   and referenced simply won't show it to the teacher.
+
    **Textbook reference slot (citation only, teacher-supplied).** The tool never stores
-   or generates book content. Instead, after drafting the plan the orchestrator (§4.6)
-   *asks the teacher in conversation* which textbook references to slot in, and the
-   teacher answers with a plain citation ("S. 45, Aufgabe 1.4"). That citation is
+   or generates *textbook* content. Instead, after drafting the plan the orchestrator
+   (§4.6) *asks the teacher in conversation* which textbook references to slot in, and
+   the teacher answers with a plain citation ("S. 45, Aufgabe 1.4"). That citation is
    embedded into the lesson plan as a teacher-directed step ("do S.45/1.4 from your
    book here"). A reference string is not copyrighted content, so it is safe to publish
-   (§4.7). Each material slot therefore offers two paths: a generated interactive widget,
-   or a teacher-supplied textbook citation the teacher works from their own copy.
+   (§4.7). Each material slot therefore offers three paths: a generated interactive
+   widget, an original generated input text (`save_reading_text`), or a teacher-supplied
+   textbook citation the teacher works from their own copy.
 2. **Emit exercise requests.** For each planned exercise, produce a typed request
    `{ type, competence_ids, difficulty, content, items... }` and dispatch to the
    matching exercise-type skill (H).
@@ -171,7 +202,10 @@ Agent SDK with access to pedagogical skills. Steps:
    book content (§4.2).
 5. **Generate.** Use `save_lesson_spec` to write the spec (feeds the build ledger for
    module progress tracking) → `save_material` for exercise widgets (H) → optional
-   homework.
+   homework. The homework page's due date is not authored by the LLM — it's computed at
+   render time as the class's next scheduled lesson date after this one (from the
+   calendar's `lesson_slots`, `findNextLessonDate` in `src/projection/`), since a class
+   meets on multiple weekdays and "next lesson" isn't a fixed offset.
 6. **Review the artifacts (required, distinct from step 3).** The teacher opens the
    generated worksheets, tests, and **answer keys** — not just the earlier outline — and
    approves or requests regeneration. Nothing publishes on the strength of an approved
