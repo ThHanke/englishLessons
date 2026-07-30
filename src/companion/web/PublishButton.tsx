@@ -60,7 +60,7 @@ export function PublishButton({ baseUrl, sessionToken }: PublishButtonProps) {
     <>
       <button
         type="button"
-        className="companion-button"
+        className="companion-button companion-button-primary"
         data-testid="publish-button"
         disabled={changedCount === 0}
         onClick={openDialog}

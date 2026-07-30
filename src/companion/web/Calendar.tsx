@@ -49,6 +49,7 @@ import {
 } from "./calendarMapping.ts";
 import { EventPopup } from "./EventPopup.tsx";
 import { EventTooltip } from "./EventTooltip.tsx";
+import { PublishButton } from "./PublishButton.tsx";
 import { staticLessonPlanHref, staticHomeworkHref, staticTestHref } from "./staticArtifactHref.ts";
 import { lessonPlanPageHref, homeworkPageHref, testPageHref } from "./calendarMapping.ts";
 
@@ -669,6 +670,7 @@ export function Calendar({
               View calendars
             </button>
           )}
+          <PublishButton baseUrl={baseUrl} sessionToken={sessionToken} />
         </div>
 
         <div className="companion-calendar-grid">
