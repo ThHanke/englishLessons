@@ -90,11 +90,15 @@ export function EventContent({
 
   if (task) {
     const gap = worstGapSeverity(task);
+    // All-day task bars get one stacked row each at a fixed height (SVAR's own layout, not ours
+    // to resize per-event) -- unlike the appointment card below, there's no room for a second
+    // line, so this stays single-line-ellipsis (.companion-task-content) rather than the
+    // appointment's multi-row flex layout. Milestone date lives in the click-through detail panel
+    // only, not here -- moduleTitle/coverage/gap is already enough to fill a narrow column.
     return (
-      <span className="companion-event-content">
-        <strong>{task.moduleTitle}</strong> · {task.classLabel} · {task.coveragePercent}%
+      <span className="companion-task-content">
+        <strong>{task.moduleTitle}</strong> · {task.coveragePercent}%
         {gap && <> · {gap}</>}
-        {task.milestoneDate && <> · Test {task.milestoneDate}</>}
       </span>
     );
   }

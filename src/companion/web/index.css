@@ -139,6 +139,16 @@
   border-left: 4px solid #16a34a !important;
 }
 
+/* All-day module task bars -- SVAR stacks these at a fixed row height per event, so unlike the
+ * appointment card below there's no room for a second line; stays single-line-ellipsis (the
+ * layout every event box had before appointment cards grew their own links row). */
+.companion-task-content {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .companion-event-content {
   display: flex;
   flex-direction: column;
