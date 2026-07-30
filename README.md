@@ -1,4 +1,4 @@
-# english_leasons
+# English Lessons Companion
 
 AI-assisted lesson planning for school teachers. An interactive calendar paired with a
 chat companion that knows your curriculum, tracks what you've taught, and generates
