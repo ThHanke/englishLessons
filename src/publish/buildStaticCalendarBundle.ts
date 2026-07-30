@@ -3,13 +3,7 @@ import { join } from "node:path";
 import { build as viteBuild } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-
-/** GH Pages base path -- this repo (`ThHanke/englishLessons`) is a project page (no CNAME, no
- * `<user>.github.io` naming), so GitHub serves it at `https://thhanke.github.io/englishLessons/`,
- * under a `/englishLessons/` subpath. Verify against the repo's actual Pages settings
- * (`gh api repos/ThHanke/englishLessons/pages`) if this repo is ever renamed or switched to a
- * custom domain -- getting this wrong breaks every static asset/link on deploy only, not locally. */
-const GH_PAGES_BASE = "/englishLessons/";
+import { GH_PAGES_BASE } from "./ghPagesConfig.ts";
 
 /**
  * Builds the static interactive Calendar bundle (`static-entry.tsx`/`static.html`) straight into

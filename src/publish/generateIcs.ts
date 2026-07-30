@@ -1,14 +1,9 @@
 import type { CalendarFile } from "../schema/types.ts";
 import { enumerateSlots } from "../projection/slots.ts";
 import { addDaysIso } from "../schema/dates.ts";
+import { SITE_BASE_URL } from "./ghPagesConfig.ts";
 
 const CRLF = "\r\n";
-
-/** GH Pages base URL -- duplicated from `buildStaticCalendarBundle.ts`'s `GH_PAGES_BASE` rather
- * than imported (that module pulls in a Vite build-time dependency this pure-string-building
- * module shouldn't need). Same source of truth, same caveat: verify against the repo's actual
- * Pages settings if it's ever renamed or switched to a custom domain. */
-const SITE_BASE_URL = "https://thhanke.github.io/englishLessons";
 
 /** Per-date (or per-date+slot, for a double-period class) enrichment for a lesson occurrence's
  * VEVENT -- absent when no `lesson-spec.json` exists yet for that date (most future occurrences,
