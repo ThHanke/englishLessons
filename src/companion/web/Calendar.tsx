@@ -113,9 +113,15 @@ export function EventContent({
       linkMode === "static"
         ? staticTestHref(appointment.classId, appointment.date, appointment.slotId)
         : testPageHref(appointment.classId, appointment.date, appointment.slotId);
-    // stopPropagation: clicking a link must not also trigger the calendar's own click/double-click
-    // select-event handling (Calendar.tsx's handleSelectEvent), which would retarget the chat
-    // panel or pop the detail modal underneath the new tab the link just opened.
+    // @svar-ui/react-calendar's own event-box selection isn't a React onClick at all -- it's a
+    // pair of *native* `mousedown`/`mouseup` listeners registered (bubble phase) directly on the
+    // event box's DOM node (node_modules/@svar-ui/react-calendar/dist/index.es.js: `addEventListener
+    // ("mousedown", v)` / `addEventListener("mouseup", x)`, mouseup measuring drag distance then
+    // firing `select-event`). stopPropagation() on `click`/`onDoubleClick` fires far too late --
+    // by then mouseup has already bubbled through and SVAR has already dispatched select-event.
+    // Capture-phase handlers on mousedown/mouseup are the only thing that runs before SVAR's
+    // bubble-phase listener regardless of where in the DOM tree it's attached (capture always
+    // completes before bubble begins, for the whole tree).
     const stop = (e: ReactMouseEvent) => e.stopPropagation();
     return (
       <span className="companion-event-content">
@@ -124,16 +130,37 @@ export function EventContent({
         </span>
         {appointment.hasLessonSpec && (
           <span className="companion-event-links">
-            <a href={lessonPlanHref} target="_blank" rel="noopener noreferrer" onClick={stop} onDoubleClick={stop}>
+            <a
+              href={lessonPlanHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onMouseDownCapture={stop}
+              onMouseUpCapture={stop}
+              onClick={stop}
+            >
               Lesson Plan
             </a>
             {hasHomework && (
-              <a href={homeworkHref} target="_blank" rel="noopener noreferrer" onClick={stop} onDoubleClick={stop}>
+              <a
+                href={homeworkHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseDownCapture={stop}
+                onMouseUpCapture={stop}
+                onClick={stop}
+              >
                 Homework
               </a>
             )}
             {hasTest && (
-              <a href={testHref} target="_blank" rel="noopener noreferrer" onClick={stop} onDoubleClick={stop}>
+              <a
+                href={testHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseDownCapture={stop}
+                onMouseUpCapture={stop}
+                onClick={stop}
+              >
                 Test
               </a>
             )}
