@@ -15,6 +15,20 @@ export interface Manifest {
   materials: ManifestEntry[];
 }
 
+/** Who's driving this step, and whether it gets a pupil-facing countdown timer. `pupil_work`
+ * steps with a `durationMinutes` render a Start-timer button; `teacher_intro`/`correction` never
+ * do (a teacher-led step isn't something pupils count down on their own). */
+export type LessonPlanStepKind = "teacher_intro" | "pupil_work" | "correction";
+
+export interface LessonPlanStep {
+  kind: LessonPlanStepKind;
+  text: string;
+  /** Only meaningful for `pupil_work` -- renders a Start-timer button for this step. Optional
+   * even there: a pupil_work step without one just renders as plain text, no timer (teacher
+   * times it manually) rather than being rejected. */
+  durationMinutes?: number;
+}
+
 /** §4.2 step 1's structured plan body, as saved by save_lesson_plan (lesson-plan.json) --
  * distinct from `LessonSpec` (the pre-generation constraints) and from `Manifest` (the generated
  * materials). */
@@ -24,7 +38,7 @@ export interface LessonPlanStage {
   /** One-line "why this stage" -- rendered as an italic sub-heading, textbook-style. */
   purpose: string;
   /** Ordered steps, rendered as a numbered list instead of one prose block. */
-  procedure: string[];
+  procedure: LessonPlanStep[];
   /** manifest.json material filenames (e.g. "materials/gap_fill-....html") used or introduced
    * in this stage -- lets the renderer embed the actual material inline instead of a
    * disconnected Materials section (renderLessonPlanTimeline in renderInlineLessonPage.ts). */
@@ -47,6 +61,49 @@ export const STAGE_CARD_CSS = `
   section.stage .duration { font-weight: normal; color: #666; font-size: 0.85em; }
   section.stage .purpose { margin: 0 0 0.5rem; color: #444; }
   section.stage .procedure { margin: 0; padding-left: 1.2rem; }
+  section.stage .procedure li { margin: 0.3rem 0; }
+  .step-kind { display: inline-block; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.03em; color: #666; border: 1px solid #ccc; border-radius: 0.25rem; padding: 0.05rem 0.35rem; margin-right: 0.4rem; vertical-align: middle; }
+  .step-pupil_work .step-kind { border-color: #7aa87a; color: #2f6b2f; }
+  .step-correction .step-kind { border-color: #d8b060; color: #8a6416; }
+  .timer { display: block; margin: 0.3rem 0 0 0; }
+  button.timer-start { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid #888; border-radius: 0.3rem; background: #fff; cursor: pointer; font-size: 0.85em; padding: 0.2rem 0.5rem; }
+  .timer-display { display: inline-block; font-variant-numeric: tabular-nums; font-size: 1.1em; font-weight: 600; border: 1px solid #888; border-radius: 0.3rem; padding: 0.1rem 0.5rem; }
+  .timer-display.timer-done { color: #a4262c; border-color: #a4262c; background: #fdecea; }
+`;
+
+/** Countdown timer for `pupil_work` procedure steps -- plain setInterval, no library. Visual
+ * only at zero (turns red) -- deliberately no sound: autoplay-audio reliability varies across
+ * devices/browsers, and a silent cue is less disruptive across multiple pupil screens in one
+ * room than several unsynced beeps. Delegated listener (not one per button) so it works
+ * regardless of how many stage cards/timers a page renders. */
+export const STAGE_TIMER_JS = `
+(function () {
+  function formatTime(totalSeconds) {
+    var m = Math.floor(totalSeconds / 60);
+    var s = totalSeconds % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  document.addEventListener('click', function (event) {
+    var btn = event.target.closest('button.timer-start');
+    if (!btn) return;
+    var wrapper = btn.closest('.timer');
+    var display = wrapper.querySelector('.timer-display');
+    var remaining = parseInt(wrapper.getAttribute('data-minutes'), 10) * 60;
+    btn.hidden = true;
+    display.hidden = false;
+    display.textContent = formatTime(remaining);
+    var interval = setInterval(function () {
+      remaining -= 1;
+      if (remaining <= 0) {
+        display.textContent = '0:00';
+        display.classList.add('timer-done');
+        clearInterval(interval);
+        return;
+      }
+      display.textContent = formatTime(remaining);
+    }, 1000);
+  });
+})();
 `;
 
 /** Duplicated from src/widgets/gapFill.ts (not exported there) - see U5 plan note. */
@@ -81,12 +138,39 @@ export function renderStageOverviewHtml(stages: LessonPlanStage[]): string {
     .join("\n");
 }
 
+const STEP_KIND_LABEL: Record<LessonPlanStepKind, string> = {
+  teacher_intro: "Teacher",
+  pupil_work: "Pupils",
+  correction: "Correction",
+};
+
+/** Minimal inline clock icon -- self-contained (no icon font/CDN), matching this repo's
+ * single-file-widget convention. */
+const TIMER_ICON_SVG =
+  '<svg class="timer-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+
+function renderProcedureStep(step: LessonPlanStep): string {
+  const kindLabel = STEP_KIND_LABEL[step.kind];
+  const timerHtml =
+    step.kind === "pupil_work" && step.durationMinutes
+      ? `<span class="timer" data-minutes="${step.durationMinutes}">
+<button type="button" class="timer-start">${TIMER_ICON_SVG} Start ${step.durationMinutes} min timer</button>
+<span class="timer-display" hidden></span>
+</span>`
+      : "";
+  return `<li class="step step-${step.kind}">
+<span class="step-kind">${escapeHtml(kindLabel)}</span>
+<span class="step-text">${escapeHtml(step.text)}</span>
+${timerHtml}
+</li>`;
+}
+
 /** One stage's heading + italic purpose + numbered procedure -- no material embedding here,
  * this stays shared/dumb about materials so both the plain overview page and the dedicated
  * variant pages (renderInlineLessonPage.ts) can reuse it identically. Material embedding is the
  * dedicated lesson-plan page's job (renderLessonPlanTimeline). */
 export function renderStageCard(s: LessonPlanStage): string {
-  const procedureHtml = s.procedure.map((step) => `<li>${escapeHtml(step)}</li>`).join("\n");
+  const procedureHtml = s.procedure.map(renderProcedureStep).join("\n");
   return `<section class="stage">
 <h3>${escapeHtml(s.name)} <span class="duration">${s.durationMinutes} min</span></h3>
 <p class="purpose"><em>${escapeHtml(s.purpose)}</em></p>
@@ -186,6 +270,7 @@ ${competencesHtml}
 ${planHtml}
 <h2>Materials</h2>
 ${materialsHtml}
+<script>${STAGE_TIMER_JS}</script>
 </body>
 </html>
 `;

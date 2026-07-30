@@ -53,13 +53,22 @@ Pipeline:
 
    **Each stage is structured, not a prose paragraph.** A stage has `name`,
    `durationMinutes`, `purpose` (one sentence — why this stage exists), `procedure`
-   (ordered, concrete steps, one per array entry), and `materialRefs` (the manifest
+   (ordered steps, one per array entry), and `materialRefs` (the manifest
    filenames of any material this stage actually uses or introduces). This is what
    renders as a readable, textbook-shaped stage card instead of a wall of text — see
    `renderStageCard`/`renderLessonPlanTimeline` in `src/publish/`. The lesson page also
    renders a short "Stage overview" (name, duration, one-line purpose per stage) before
    the detailed "Timeline" — a table of contents a teacher can scan in seconds before
    reading the full stage-by-stage detail.
+
+   **Each procedure step names who's driving it.** A step is `{ kind, text,
+   durationMinutes? }`, `kind` one of `teacher_intro` (teacher explains/models),
+   `pupil_work` (pupils work alone/in pairs — genuinely autonomous, not teacher talk),
+   or `correction` (reviewing answers together). A `pupil_work` step with
+   `durationMinutes` renders a Start-timer button pupils can click and count down
+   (`STAGE_TIMER_JS`, plain client-side `setInterval` — visual-only at zero, no sound,
+   since autoplay-audio reliability varies across devices in a classroom). Step
+   durations for a stage should roughly sum to that stage's own `durationMinutes`.
 
    **No unexplained abbreviations or jargon** in `purpose`/`procedure` (e.g. "SVO", "L1")
    — a teacher skims these, don't make them decode shorthand mid-lesson. Spell it out in

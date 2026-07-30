@@ -233,7 +233,7 @@ describe("buildSite", () => {
     writeLessonDate(repoRoot, "grade-7-2026", "2026-08-21", {
       plan: {
         objectives: ["Identify active vs passive voice"],
-        stages: [{ name: "Warm-up", durationMinutes: 9, purpose: "Retrieval practice", procedure: ["Quick oral recall."] }],
+        stages: [{ name: "Warm-up", durationMinutes: 9, purpose: "Retrieval practice", procedure: [{ kind: "teacher_intro", text: "Quick oral recall." }] }],
         differentiationNotes: "Band 1 gets a full word bank.",
         exercisePlan: ["gap_fill: 6 sentences, supported"],
       },

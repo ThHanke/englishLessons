@@ -77,7 +77,15 @@ const LessonPlanSchema = {
       name: z.string(),
       durationMinutes: z.number().int().positive(),
       purpose: z.string(),
-      procedure: z.array(z.string()).min(1),
+      procedure: z
+        .array(
+          z.object({
+            kind: z.enum(["teacher_intro", "pupil_work", "correction"]),
+            text: z.string(),
+            durationMinutes: z.number().int().positive().optional(),
+          }),
+        )
+        .min(1),
       materialRefs: z.array(z.string()).optional(),
     }),
   ),
@@ -339,7 +347,8 @@ export function createLessonArtifactServer(params: {
       tool(
         "save_lesson_plan",
         "Save the structured lesson-plan body (objectives, timed stages, differentiation notes, and the list of exercises you plan to build) for the current lesson -- this is what renders as the teacher-facing lesson-plan page, separate from the lesson-spec constraints. The 'class' and 'date' fields MUST match the current session. " +
-          "Each stage needs: 'purpose' (one sentence, why this stage exists / what it builds toward), 'procedure' (ordered, concrete steps -- not one paragraph; each array entry is one step), and 'materialRefs' (the manifest filenames, e.g. 'materials/gap_fill-....html', of any material this stage actually uses or introduces). " +
+          "Each stage needs: 'purpose' (one sentence, why this stage exists / what it builds toward), 'procedure' (ordered steps -- not one paragraph; each array entry is one step), and 'materialRefs' (the manifest filenames, e.g. 'materials/gap_fill-....html', of any material this stage actually uses or introduces). " +
+          "Each procedure step is { kind, text, durationMinutes? }. 'kind' is 'teacher_intro' (you're explaining/modelling), 'pupil_work' (pupils work on their own or in pairs -- give this a durationMinutes and the lesson page renders a Start-timer button pupils can click and count down), or 'correction' (reviewing answers together). Give pupil_work steps a realistic durationMinutes; the step durations for a stage should roughly sum to that stage's own durationMinutes. Don't mark a step pupil_work if it's actually you demonstrating -- the timer is meant for genuinely autonomous work, not teacher talk. " +
           "Do not narrate content that doesn't exist as a material: if a stage reads/plays an input text, that text must be saved first via save_reading_text and its filename put in materialRefs -- never just describe a text in prose. If a stage introduces new target vocabulary or phrases, call find_new_vocabulary then generate_vocab_intro first and reference the resulting file in materialRefs -- writing new words 'on the board' in the stage description is not a substitute for the pre-taught glossary. If a stage introduces or recaps a grammar point (invoke the grammar-intro skill first), save it with save_grammar_intro and reference it in materialRefs -- a grammar rule mentioned only inside procedure text (e.g. 'mini board note: passive = be + past participle') never reaches the pupil-facing page. " +
           "'purpose' and 'procedure' are read by the teacher at a glance -- never use an unexplained abbreviation or piece of jargon (e.g. 'SVO', 'L1') in them; either spell it out in full or don't use it.",
         LessonPlanSchema,

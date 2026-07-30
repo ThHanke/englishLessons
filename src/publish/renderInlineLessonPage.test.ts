@@ -135,7 +135,7 @@ describe("renderInlineLessonPage", () => {
           name: "Warm-up",
           durationMinutes: 9,
           purpose: "Retrieval practice",
-          procedure: ["Quick oral recall of last lesson's target forms."],
+          procedure: [{ kind: "teacher_intro", text: "Quick oral recall of last lesson's target forms." }],
         },
       ],
       differentiationNotes: "Band 1 gets a full word bank.",

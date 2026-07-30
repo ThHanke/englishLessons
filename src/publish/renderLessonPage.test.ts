@@ -105,7 +105,7 @@ describe("renderLessonPage", () => {
           name: "Warm-up",
           durationMinutes: 9,
           purpose: "Retrieval practice",
-          procedure: ["Quick oral recall of last lesson's target forms."],
+          procedure: [{ kind: "teacher_intro", text: "Quick oral recall of last lesson's target forms." }],
         },
       ],
       differentiationNotes: "Band 1 gets a full word bank.",
@@ -123,6 +123,36 @@ describe("renderLessonPage", () => {
     expect(html).not.toContain("No detailed lesson plan saved");
   });
 
+  it("renders a Start-timer button for a pupil_work step with a duration, but not for teacher_intro/correction steps", () => {
+    const plan: LessonPlan = {
+      objectives: ["x"],
+      stages: [
+        {
+          name: "Guided practice",
+          durationMinutes: 12,
+          purpose: "Practice the form.",
+          procedure: [
+            { kind: "teacher_intro", text: "Explain the frame." },
+            { kind: "pupil_work", text: "Complete the worksheet in pairs.", durationMinutes: 6 },
+            { kind: "correction", text: "Check answers together." },
+          ],
+        },
+      ],
+      differentiationNotes: "none",
+      exercisePlan: [],
+    };
+    const html = renderLessonPage({ spec: lessonSpec(), manifest: null, plan, materialFiles: [] });
+
+    expect(html).toContain('data-minutes="6"');
+    expect(html).toContain("Start 6 min timer");
+    expect(html).toContain('<button type="button" class="timer-start">');
+    expect(html).toContain("setInterval"); // STAGE_TIMER_JS is inlined into the page
+    // teacher_intro/correction steps never get a timer wrapper of their own
+    const procedureStart = html.indexOf('<ol class="procedure">');
+    const stepsHtml = html.slice(procedureStart, html.indexOf("</ol>", procedureStart));
+    expect((stepsHtml.match(/class="timer"/g) ?? []).length).toBe(1);
+  });
+
   it("escapes HTML in plan fields", () => {
     const plan: LessonPlan = {
       objectives: ['<script>alert("x")</script>'],
@@ -131,7 +161,7 @@ describe("renderLessonPage", () => {
           name: "<b>Warm-up</b>",
           durationMinutes: 5,
           purpose: "<i>purpose</i>",
-          procedure: ["<i>desc</i>"],
+          procedure: [{ kind: "teacher_intro", text: "<i>desc</i>" }],
         },
       ],
       differentiationNotes: "<u>notes</u>",

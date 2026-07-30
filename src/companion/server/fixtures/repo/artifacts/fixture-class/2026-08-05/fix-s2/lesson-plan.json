@@ -7,7 +7,7 @@
       "name": "Warm-up",
       "durationMinutes": 5,
       "purpose": "Fixture warm-up",
-      "procedure": ["Fixture warm-up step one."]
+      "procedure": [{ "kind": "teacher_intro", "text": "Fixture warm-up step one." }]
     }
   ],
   "differentiationNotes": "Fixture differentiation notes.",

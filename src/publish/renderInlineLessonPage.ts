@@ -7,6 +7,7 @@ import {
   renderExercisePlanHtml,
   renderStageOverviewHtml,
   STAGE_CARD_CSS,
+  STAGE_TIMER_JS,
   type LessonPlan,
   type Manifest,
 } from "./renderLessonPage.ts";
@@ -198,6 +199,7 @@ ${competencesHtml}
 <h2>Lesson plan</h2>
 ${planHtml}
 ${materialsSectionHtml}
+<script>${STAGE_TIMER_JS}</script>
 </body>
 </html>
 `;
