@@ -32,9 +32,14 @@ conversation persists across sessions.
 spec feeds the build ledger to track module progress. After `git push`, artifacts are
 served statically via GitHub Pages at stable per-date URLs.
 
-**Projection independence.** The projection engine uses `weekly_lessons` from
-`modules.yaml` to map modules to weeks. It does not read `lesson_slots`. Lesson
-scheduling (which specific days/times) and module projection are separate concerns.
+**Projection and scheduling.** Once a class has real `lesson_slots` (set via the
+calendar's drag-create), projection places modules against that actual schedule, not a
+guess — see 02-projection.md §1. `weekly_lessons` from `modules.yaml` still drives
+budget math (`module.weeks * weekly_lessons`) and phase bucketing, but the *dates*
+always come from the real schedule once one exists, so the chat's teaching-day
+classification and the calendar's appointments can never disagree. Before a schedule
+exists, projection falls back to a coarse week-count preview for the calendar's module
+bars only — never for the chat's per-date context.
 
 ## 4.2 Lesson generator (G)
 

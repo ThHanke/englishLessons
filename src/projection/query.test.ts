@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { loadYaml } from "../schema/yaml.ts";
 import type { CalendarFile, ModulesFile } from "../schema/types.ts";
-import { enumerateProjectionSlots, weightSlots } from "./slots.ts";
+import { enumerateSlots, weightSlots } from "./slots.ts";
 import { fillModules } from "./fillModules.ts";
 import { whichModule, weekTable } from "./query.ts";
 
@@ -16,10 +16,7 @@ const realModulesPath = new URL(
 const realCalendar = loadYaml<CalendarFile>(realCalendarPath);
 const realModules = loadYaml<ModulesFile>(realModulesPath);
 const className = "grade-7-realschule-2026";
-const realSlots = weightSlots(
-  enumerateProjectionSlots(realCalendar, realModules.weekly_lessons as number),
-  realCalendar,
-);
+const realSlots = weightSlots(enumerateSlots(realCalendar, className), realCalendar);
 const realPlacements = fillModules(realSlots, realModules);
 
 describe("whichModule", () => {

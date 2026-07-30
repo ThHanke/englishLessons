@@ -131,6 +131,12 @@ export function EventPopup({
         <p className="companion-modal-subtitle">
           {task.classLabel} &middot; {task.startDate} – {task.endDate}
         </p>
+        {task.estimated && (
+          <p className="companion-modal-subtitle">
+            Estimated -- no lesson schedule set up yet for this class, so these dates are a
+            rough weekly guess, not final.
+          </p>
+        )}
         <p>
           Gaps: {gap ?? "none"} ({task.gaps.length})
         </p>

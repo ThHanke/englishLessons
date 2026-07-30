@@ -123,7 +123,15 @@ function setupDriftRepo(): { repoRoot: string; cleanup: () => void } {
       post_holiday_factor: 1,
     },
     half_year_boundary: "2020-02-01",
-    class_schedule: { "drift-class": {} },
+    // 2020-01-06 is a Monday -- a single weekly Monday slot reproduces the same weekly
+    // cadence this fixture relied on before projection was driven by real lesson_slots.
+    class_schedule: {
+      "drift-class": {
+        lesson_slots: [
+          { id: "drift-s1", day: "Mon", start: "08:00", end: "08:45", half_year: 1 },
+        ],
+      },
+    },
   };
   writeYaml(join(repoRoot, "calendar", "drift-calendar.yaml"), calendar);
 
@@ -204,10 +212,12 @@ describe("dateContext", () => {
   });
 
   it("returns context with no artifact reference for a date with no lesson-spec yet", () => {
-    // 2026-08-04 is a Tuesday — the 2nd of 3 projection slots in this week (Mon/Tue/Wed).
+    // 2026-08-07 is a Friday -- fixture-class's real lesson_slots are Mon/Wed/Fri, so this
+    // is its 3rd teaching day of the week (and has no fixture artifact on disk, unlike
+    // 2026-08-05's Wednesday slot).
     const ctx = dateContext({
       className: "fixture-class",
-      date: "2026-08-04",
+      date: "2026-08-07",
       repoRoot: FIXTURE_REPO_ROOT,
     });
     expect(ctx.isTeachingDay).toBe(true);

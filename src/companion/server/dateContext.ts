@@ -7,11 +7,7 @@ import type {
   LessonSpec,
 } from "../../schema/types.ts";
 import type { Phase } from "../../projection/types.ts";
-import {
-  enumerateProjectionSlots,
-  isoWeekday,
-  weightSlots,
-} from "../../projection/slots.ts";
+import { enumerateSlots, isoWeekday, weightSlots } from "../../projection/slots.ts";
 import { deriveHalfYearBoundary, dateHalfYear } from "../../projection/halfYear.ts";
 import { fillModules } from "../../projection/fillModules.ts";
 import { whichModule } from "../../projection/query.ts";
@@ -147,8 +143,7 @@ export function dateContext(params: {
     }
   }
 
-  const weeklyLessons = modulesFile.weekly_lessons;
-  if (weeklyLessons === "DRAFT") {
+  if (modulesFile.weekly_lessons === "DRAFT") {
     return {
       isTeachingDay: false,
       className,
@@ -156,7 +151,7 @@ export function dateContext(params: {
       reason: "Curriculum not finalized (DRAFT weekly_lessons)",
     };
   }
-  const rawSlots = enumerateProjectionSlots(calendar, weeklyLessons);
+  const rawSlots = enumerateSlots(calendar, className);
   const weighted = weightSlots(rawSlots, calendar);
   const placements = fillModules(weighted, modulesFile);
   const which = whichModule(placements, date);

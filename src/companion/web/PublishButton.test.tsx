@@ -34,6 +34,36 @@ describe("PublishButton", () => {
     expect(button).toBeDisabled();
   });
 
+  it("re-fetches status when refreshKey changes (a chat turn completing must not leave the button stale)", async () => {
+    const fetchStatus = vi
+      .spyOn(api, "fetchGitStatus")
+      .mockResolvedValueOnce({
+        branch: "main",
+        changedFiles: [],
+        ahead: 0,
+        behind: 0,
+        hasUpstream: true,
+      })
+      .mockResolvedValueOnce({
+        branch: "main",
+        changedFiles: ["artifacts/foo/lesson-plan.json"],
+        ahead: 0,
+        behind: 0,
+        hasUpstream: true,
+      });
+
+    const { rerender } = render(
+      <PublishButton baseUrl="http://127.0.0.1:1" sessionToken="tok" refreshKey={0} />,
+    );
+    await waitFor(() => expect(fetchStatus).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId("publish-button")).toBeDisabled();
+
+    rerender(<PublishButton baseUrl="http://127.0.0.1:1" sessionToken="tok" refreshKey={1} />);
+    await waitFor(() => expect(fetchStatus).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.getByTestId("publish-button")).not.toBeDisabled());
+    expect(screen.getByTestId("publish-button")).toHaveTextContent("Publish changes (1)");
+  });
+
   it("opens a confirmation dialog listing changed files, and publishes on confirm", async () => {
     vi.spyOn(api, "fetchGitStatus").mockResolvedValue({
       branch: "main",

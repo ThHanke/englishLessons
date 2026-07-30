@@ -8,11 +8,7 @@ import type {
   LessonSlot,
   Milestone,
 } from "../../schema/types.ts";
-import {
-  enumerateProjectionSlots,
-  enumerateSlots,
-  weightSlots,
-} from "../../projection/slots.ts";
+import { enumerateSlots, estimateWeeklySlots, weightSlots } from "../../projection/slots.ts";
 import { fillModules } from "../../projection/fillModules.ts";
 import { gapReport } from "../../coverage/gapReport.ts";
 import { driftReport } from "../../coverage/driftReport.ts";
@@ -51,6 +47,10 @@ export interface ModuleTask {
   /** Human-readable labels (via `resolveCompetenceLabel`), not the raw competence ids
    * `Milestone.assesses` stores. */
   milestoneAssesses: string[];
+  /** True when this task's dates come from `estimateWeeklySlots` (no real `lesson_slots`
+   * exist for this class yet) rather than the class's actual schedule -- a coarse
+   * week-count preview, not a placement the teacher can plan a lesson against yet. */
+  estimated: boolean;
 }
 
 /** One real teaching slot for a class+module (from the projection engine's own placement, not a
@@ -164,13 +164,18 @@ export function moduleTasks(params: {
     for (const holiday of calendar.holidays) {
       holidaysByKey.set(`${holiday.name}::${holiday.from}::${holiday.to}`, holiday);
     }
+    const classLessonSlots =
+      calendar.class_schedule[classFile.name]?.lesson_slots ?? [];
+    const hasLessonSlots = classLessonSlots.length > 0;
     try {
-      const weeklyLessons = modulesFile.weekly_lessons;
-      if (weeklyLessons === "DRAFT") continue;
-      const weighted = weightSlots(
-        enumerateProjectionSlots(calendar, weeklyLessons),
-        calendar,
-      );
+      if (modulesFile.weekly_lessons === "DRAFT") continue;
+      // Real schedule once lesson_slots exist (exact dates); until then, a coarse
+      // week-count estimate just to give the teacher an early module-bar preview -- see
+      // estimateWeeklySlots' doc comment for why this never feeds dateContext.ts/appointments.
+      const rawSlots = hasLessonSlots
+        ? enumerateSlots(calendar, classFile.name)
+        : estimateWeeklySlots(calendar, modulesFile.weekly_lessons);
+      const weighted = weightSlots(rawSlots, calendar);
       placements = fillModules(weighted, modulesFile);
     } catch {
       // DRAFT time fields (KTD7) or no matching calendar - this class has no computable
@@ -238,12 +243,9 @@ export function moduleTasks(params: {
         milestoneAssesses: milestone
           ? resolveCompetenceLabels(milestone.assesses, modulesFile.curriculum, curriculumBands)
           : [],
+        estimated: !hasLessonSlots,
       });
     }
-
-    const classLessonSlots =
-      calendar.class_schedule[classFile.name]?.lesson_slots ?? [];
-    const hasLessonSlots = classLessonSlots.length > 0;
 
     if (hasLessonSlots) {
       const scheduledDates = enumerateSlots(calendar, classFile.name);

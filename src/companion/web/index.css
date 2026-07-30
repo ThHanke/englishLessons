@@ -117,6 +117,16 @@
   color: var(--companion-event-text) !important;
 }
 
+/* No lesson_slots yet for this class -- module dates are estimateWeeklySlots' coarse
+   week-count guess, not a real schedule. Dashed border (keeps the class's own color, unlike
+   .companion-non-teaching's transparent bg) signals "provisional" without hiding which grade
+   it belongs to. */
+.companion-task-estimated[class*="wx-bar-event"],
+.companion-task-estimated[class*="wx-box-event"] {
+  border-style: dashed !important;
+  opacity: 0.8;
+}
+
 /* Gap severity accents */
 .companion-gap-uncovered[class*="wx-bar-event"],
 .companion-gap-uncovered[class*="wx-box-event"] {

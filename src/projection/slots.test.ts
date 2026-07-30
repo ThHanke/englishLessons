@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { loadYaml } from "../schema/yaml.ts";
 import type { CalendarFile } from "../schema/types.ts";
-import { enumerateSlots, weightSlots } from "./slots.ts";
+import { enumerateSlots, estimateWeeklySlots, weightSlots } from "./slots.ts";
 
 const smallCalendar = loadYaml<CalendarFile>(
   new URL("./fixtures/calendar-small.yaml", import.meta.url).pathname,
@@ -32,6 +32,40 @@ describe("enumerateSlots", () => {
       capacity: 0.5,
       slotId: "s3",
     });
+  });
+});
+
+describe("estimateWeeklySlots", () => {
+  it("picks the first available school day of each week, skipping a holiday week entirely", () => {
+    // first_school_day 2026-09-01 is a Tuesday -- "first available," not "Monday" specifically.
+    // Week of 09-14..09-18 is fully inside Test Holiday, so it contributes no slot at all.
+    const slots = estimateWeeklySlots(smallCalendar, 1);
+    expect(slots.map((s) => s.date)).toEqual([
+      "2026-09-01",
+      "2026-09-07",
+      "2026-09-21",
+      "2026-09-28",
+    ]);
+  });
+
+  it("caps at weeklyLessons per week and still drops a capacity:0 blocked day", () => {
+    const slots = estimateWeeklySlots(smallCalendar, 2);
+    expect(slots.map((s) => s.date)).toEqual([
+      "2026-09-01",
+      "2026-09-03", // 09-02 is capacity:0 -- skipped, not just reduced
+      "2026-09-07",
+      "2026-09-08",
+      "2026-09-21",
+      "2026-09-22",
+      "2026-09-28",
+      "2026-09-29",
+    ]);
+    expect(slots.some((s) => s.date >= "2026-09-14" && s.date <= "2026-09-18")).toBe(false);
+  });
+
+  it("never sets slotId -- unlike enumerateSlots, it isn't matched against a real lesson_slots entry", () => {
+    const slots = estimateWeeklySlots(smallCalendar, 1);
+    expect(slots.every((s) => s.slotId === undefined)).toBe(true);
   });
 });
 

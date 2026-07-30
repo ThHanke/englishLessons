@@ -100,6 +100,7 @@ export function EventContent({
     return (
       <span className="companion-task-content">
         <span className="companion-event-badge">{task.classLabel}</span>
+        {task.estimated && "~ "}
         <strong>{task.moduleTitle}</strong> · {task.coveragePercent}%
         {gap && <> · {gap}</>}
       </span>
@@ -670,7 +671,7 @@ export function Calendar({
               View calendars
             </button>
           )}
-          <PublishButton baseUrl={baseUrl} sessionToken={sessionToken} />
+          <PublishButton baseUrl={baseUrl} sessionToken={sessionToken} refreshKey={refreshKey} />
         </div>
 
         <div className="companion-calendar-grid">

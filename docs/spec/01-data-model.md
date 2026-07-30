@@ -220,10 +220,12 @@ Constraint checks (deterministic, run on save):
 - Every productive grammar competence marked `produce` in curriculum is covered by
   at least one module before its assessing milestone (coverage lint).
 - `sum(module.weeks) + buffer_weeks == total_weeks` (± tolerance).
-- `weekly_lessons` in modules.yaml is the canonical weekly lesson count for projection.
-  The projection uses this value directly — it does not depend on `lesson_slots` in the
-  calendar. `lesson_slots` define the concrete day/time schedule for the companion
-  calendar UI and are managed independently.
+- `weekly_lessons` in modules.yaml is the canonical weekly lesson count, used for budget
+  math (`module.weeks * weekly_lessons`) and phase bucketing. Once a class has real
+  `lesson_slots` in the calendar, projection places modules against those actual
+  dates (`enumerateSlots`) rather than guessing which weekdays; before a schedule
+  exists it falls back to a coarse `weekly_lessons`-per-week estimate for the
+  calendar's module-bar preview only (see 02-projection.md §1).
 
 ## 3.3 School-year calendar (Component C)
 

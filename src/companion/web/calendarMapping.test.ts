@@ -23,6 +23,7 @@ function task(
     milestoneDate: null,
     milestoneType: "none",
     milestoneAssesses: [],
+    estimated: false,
     ...overrides,
   };
 }

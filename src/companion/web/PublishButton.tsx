@@ -7,6 +7,10 @@ export interface PublishButtonProps {
   /** Only rendered when set -- same read-only-until-authenticated gate every other write action
    * in the app already uses (Calendar.tsx's `canEdit`). */
   sessionToken: string | null;
+  /** Bumped by `main.tsx` after a chat turn completes (same signal Calendar.tsx's own refetch
+   * uses) -- without this, newly generated materials never flip the button on until an unrelated
+   * remount, since the status fetch below only ever ran once on mount. */
+  refreshKey?: number;
 }
 
 type DialogResult = PublishResult | { status: "error"; error: string };
@@ -14,7 +18,7 @@ type DialogResult = PublishResult | { status: "error"; error: string };
 /** Publishing is entirely human-click-initiated: the planning-chat agent has no tool that reaches
  * this, and there is no path from a chat message to `publishGitChanges` -- the confirmation
  * dialog below is the only way this fires, structurally, not by trusting an LLM to ask first. */
-export function PublishButton({ baseUrl, sessionToken }: PublishButtonProps) {
+export function PublishButton({ baseUrl, sessionToken, refreshKey }: PublishButtonProps) {
   const [status, setStatus] = useState<GitStatusSummary | null>(null);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -26,7 +30,7 @@ export function PublishButton({ baseUrl, sessionToken }: PublishButtonProps) {
     fetchGitStatus({ baseUrl })
       .then(setStatus)
       .catch(() => {});
-  }, [baseUrl, sessionToken]);
+  }, [baseUrl, sessionToken, refreshKey]);
 
   if (!sessionToken) return null;
 

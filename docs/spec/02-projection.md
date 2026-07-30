@@ -11,13 +11,27 @@ on date X, and are we on track".
 
 ## Algorithm
 
-1. **Enumerate teaching slots.** Walk `first_school_day..last_school_day` by school
-   week. For each week, emit `weekly_lessons` slots (from `modules.yaml`) distributed
-   across available school days (Mon–Fri minus holidays and `capacity: 0` events).
-   Events with fractional capacity keep the slot but tag it with a reduced `capacity`.
-   Projection depends only on `weekly_lessons` — it does not read `lesson_slots` from
-   the calendar. Lesson scheduling (which specific days/times) is a separate concern
-   handled by the companion calendar UI.
+1. **Enumerate teaching slots.** Once a class has real `lesson_slots` in
+   `class_schedule` (set via the companion calendar UI's drag-create), projection reads
+   them directly (`enumerateSlots`) — walking `first_school_day..last_school_day` and
+   matching each class's actual weekday/time/half-year pattern, minus holidays and
+   `capacity: 0` events (fractional-capacity events reduce, not drop, the slot). This is
+   the same enumeration the calendar's own appointments are built from, so "which dates
+   does this class teach" can never disagree between the two. `weekly_lessons` is a
+   count only at this point, used for budget math (step 3) and phase bucketing (step 5),
+   not for picking days.
+
+   Before a class has any `lesson_slots` yet, there is nothing exact to enumerate —
+   projection falls back to a coarse week-count estimate (`estimateWeeklySlots`):
+   `weekly_lessons` slots per week, distributed across the *first* available school days
+   (Mon–Fri minus holidays/blackouts), with no claim about which specific weekdays the
+   class will actually meet. This exists purely so a brand-new class gets an early
+   module task-bar preview instead of showing nothing; it is never used to answer an
+   exact per-date question (chat's teaching/non-teaching classification, appointment
+   generation) — those require a real schedule and show nothing until one exists. The
+   switch from estimated to real is automatic and un-cached: projection is recomputed
+   from the calendar file on every read, so the moment a series is created the very next
+   read reflects it.
 
 2. **Assign a learning weight to each slot.**
    `weight = capacity * pace_factor(slot)` where `pace_factor` degrades slots within

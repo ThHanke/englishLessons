@@ -118,6 +118,7 @@ export function taskEventClass(
   const classes = [groupColorClass(task.classId, order)];
   const gap = worstGapSeverity(task);
   if (gap) classes.push(GAP_CLASS[gap]);
+  if (task.estimated) classes.push("companion-task-estimated");
   return classes.join(" ");
 }
 

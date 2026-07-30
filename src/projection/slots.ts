@@ -6,10 +6,9 @@ import { deriveHalfYearBoundary, dateHalfYear } from "./halfYear.ts";
 export interface RawSlot {
   date: string;
   capacity: number;
-  /** The matched `LessonSlot.id` -- only ever set by `enumerateSlots` (the `lesson_slots`-based
-   * path), which is also the only path that can emit more than one slot for the same date (e.g.
-   * double periods). `enumerateProjectionSlots` never sets this since it's structurally
-   * incapable of emitting two slots on the same date. */
+  /** The matched `LessonSlot.id` -- set whenever `enumerateSlots` matches a `lesson_slots`
+   * entry, which is also how it can emit more than one slot for the same date (e.g. double
+   * periods). */
   slotId?: string;
 }
 
@@ -31,13 +30,88 @@ export function matchesEvent(dateIso: string, event: CalendarEvent): boolean {
   return false;
 }
 
+
 /**
- * Projection-only slot enumeration: distributes `weeklyLessons` slots per school week
- * across available school days (Mon–Fri minus holidays and capacity:0 events). No
- * dependency on `class_schedule` or `lesson_slots` — projection uses `weekly_lessons`
- * from `modules.yaml`.
+ * Lesson-slot-based enumeration -- the single source of truth for "which dates does this
+ * class actually teach," used both for the companion calendar's appointments and (since
+ * this replaced the old `weekly_lessons`-guessing `enumerateProjectionSlots`) for
+ * curriculum pacing/module placement. Walks first..last school day, matches `lesson_slots`
+ * by weekday and half-year. Returns `[]` for a class with no `lesson_slots` defined yet --
+ * not an error, just nothing to place (same tier as still-DRAFT `weekly_lessons`).
  */
-export function enumerateProjectionSlots(
+export function enumerateSlots(
+  calendar: CalendarFile,
+  className: string,
+): RawSlot[] {
+  const schedule = calendar.class_schedule[className];
+  if (!schedule) {
+    throw new Error(`No class_schedule entry for "${className}" in calendar`);
+  }
+  const slots: RawSlot[] = [];
+
+  const lessonSlots = schedule.lesson_slots ?? [];
+  if (lessonSlots.length === 0) return slots;
+
+  let boundary: string | null = null;
+  try {
+    boundary = deriveHalfYearBoundary(calendar);
+  } catch {
+    console.warn(
+      "Could not derive half-year boundary; treating all lesson_slots as active",
+    );
+  }
+
+  let cursor = calendar.first_school_day;
+  while (cursor <= calendar.last_school_day) {
+    if (!isHoliday(cursor, calendar.holidays)) {
+      const weekday = isoWeekday(cursor);
+      const cursorHalfYear = boundary ? dateHalfYear(cursor, boundary) : null;
+      const matchingSlots = lessonSlots.filter(
+        (slot) =>
+          slot.day === weekday &&
+          (cursorHalfYear === null || slot.half_year === cursorHalfYear),
+      );
+
+      for (const slot of matchingSlots) {
+        const matchingEvents = calendar.events.filter((e) =>
+          matchesEvent(cursor, e),
+        );
+        const isBlocked = matchingEvents.some((e) => e.capacity === 0);
+        if (!isBlocked) {
+          const reducing = matchingEvents.find(
+            (e) => e.capacity > 0 && e.capacity < 1,
+          );
+          slots.push({
+            date: cursor,
+            capacity: reducing ? reducing.capacity : 1,
+            slotId: slot.id,
+          });
+        }
+      }
+    }
+    cursor = addDaysIso(cursor, 1);
+  }
+
+  return slots;
+}
+
+/**
+ * Coarse week-count estimate for a class with no `lesson_slots` defined yet -- distributes
+ * `weeklyLessons` slots per school week across the first available school days (Mon-Fri
+ * minus holidays and capacity:0 events), same holiday-degradation as any other slot set via
+ * `weightSlots`. Deliberately does NOT guess which weekday(s) the class actually meets --
+ * that was the old `enumerateProjectionSlots` bug (a guessed Mon/Tue/Wed-style pattern that
+ * silently disagreed with the class's real schedule once one existed, misclassifying real
+ * teaching days as non-teaching).
+ *
+ * Feeds `moduleTasks.ts`'s early module-bar preview ONLY -- never `dateContext.ts` (which
+ * needs an exact per-date answer for "is this a teaching day," not an estimate) and never
+ * appointment generation (there's no UI path to plan a lesson before `lesson_slots` exists
+ * at all, so there's nothing concrete to schedule yet). Once a class gets a real schedule,
+ * `moduleTasks.ts` switches to `enumerateSlots` and this estimate stops being used for it --
+ * automatically, since projection is recomputed fresh on every request, never cached.
+ */
+export function estimateWeeklySlots(
   calendar: CalendarFile,
   weeklyLessons: number,
 ): RawSlot[] {
@@ -97,66 +171,6 @@ function emitWeekSlots(
   for (let i = 0; i < Math.min(weeklyLessons, weekDays.length); i++) {
     out.push({ date: weekDays[i]!.date, capacity: weekDays[i]!.capacity });
   }
-}
-
-/**
- * Lesson-slot-based enumeration for the companion calendar appointment view.
- * Walks first..last school day, matches `lesson_slots` by weekday and half-year.
- */
-export function enumerateSlots(
-  calendar: CalendarFile,
-  className: string,
-): RawSlot[] {
-  const schedule = calendar.class_schedule[className];
-  if (!schedule) {
-    throw new Error(`No class_schedule entry for "${className}" in calendar`);
-  }
-  const slots: RawSlot[] = [];
-
-  const lessonSlots = schedule.lesson_slots ?? [];
-  if (lessonSlots.length === 0) return slots;
-
-  let boundary: string | null = null;
-  try {
-    boundary = deriveHalfYearBoundary(calendar);
-  } catch {
-    console.warn(
-      "Could not derive half-year boundary; treating all lesson_slots as active",
-    );
-  }
-
-  let cursor = calendar.first_school_day;
-  while (cursor <= calendar.last_school_day) {
-    if (!isHoliday(cursor, calendar.holidays)) {
-      const weekday = isoWeekday(cursor);
-      const cursorHalfYear = boundary ? dateHalfYear(cursor, boundary) : null;
-      const matchingSlots = lessonSlots.filter(
-        (slot) =>
-          slot.day === weekday &&
-          (cursorHalfYear === null || slot.half_year === cursorHalfYear),
-      );
-
-      for (const slot of matchingSlots) {
-        const matchingEvents = calendar.events.filter((e) =>
-          matchesEvent(cursor, e),
-        );
-        const isBlocked = matchingEvents.some((e) => e.capacity === 0);
-        if (!isBlocked) {
-          const reducing = matchingEvents.find(
-            (e) => e.capacity > 0 && e.capacity < 1,
-          );
-          slots.push({
-            date: cursor,
-            capacity: reducing ? reducing.capacity : 1,
-            slotId: slot.id,
-          });
-        }
-      }
-    }
-    cursor = addDaysIso(cursor, 1);
-  }
-
-  return slots;
 }
 
 /**

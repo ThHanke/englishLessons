@@ -75,6 +75,67 @@ function setupDoublePeriodRepo(): { repoRoot: string; cleanup: () => void } {
   };
 }
 
+/** A class with no `lesson_slots` at all yet -- `class_schedule` lists it (empty) but the
+ * teacher hasn't dragged to create a series. `estimateWeeklySlots` should still produce a
+ * coarse week-count preview for it (`estimated: true`), never `enumerateSlots` (which would
+ * return `[]` and produce no tasks at all). */
+function setupNoScheduleRepo(): { repoRoot: string; cleanup: () => void } {
+  const repoRoot = mkdtempSync(join(tmpdir(), "module-tasks-no-schedule-"));
+
+  const classDir = join(repoRoot, "plans", "no-schedule-grade");
+  mkdirSync(classDir, { recursive: true });
+  const classFile: ClassFile = {
+    name: "no-schedule-class",
+    grade: 7,
+    curriculum: "fixture-curriculum",
+  };
+  writeYaml(join(classDir, "class.yaml"), classFile);
+  const modulesFile: ModulesFile = {
+    class: "no-schedule-class",
+    curriculum: "fixture-curriculum",
+    total_weeks: 4,
+    weekly_lessons: 2,
+    buffer_weeks: 0,
+    modules: [
+      {
+        id: "m1",
+        title: "Module One",
+        weeks: 4,
+        content_fields: [],
+        goals: [],
+        covers: [],
+        milestone: { type: "none", assesses: [] },
+        pedagogy: { new_grammar: [] },
+      },
+    ],
+  };
+  writeYaml(join(classDir, "modules.yaml"), modulesFile);
+
+  mkdirSync(join(repoRoot, "calendar"), { recursive: true });
+  const calendar: CalendarFile = {
+    state: "fixture-state",
+    school_year: "2026/2027",
+    first_school_day: "2026-08-03",
+    last_school_day: "2026-08-31",
+    holidays: [],
+    events: [],
+    pace_factors: {
+      pre_holiday_days: 0,
+      pre_holiday_factor: 1,
+      post_holiday_days: 0,
+      post_holiday_factor: 1,
+    },
+    half_year_boundary: "2027-02-01",
+    class_schedule: { "no-schedule-class": {} },
+  };
+  writeYaml(join(repoRoot, "calendar", "no-schedule-calendar.yaml"), calendar);
+
+  return {
+    repoRoot,
+    cleanup: () => rmSync(repoRoot, { recursive: true, force: true }),
+  };
+}
+
 /** A school year entirely in the past (2020) so "today" (real wall-clock, whenever this test
  * runs) is always past `last_school_day` -- `plannedSlotIndex` is deterministically the full
  * projection, regardless of what day the test actually runs on. One `lesson-spec.json` saved at
@@ -127,7 +188,15 @@ function setupDriftRepo(): { repoRoot: string; cleanup: () => void } {
       post_holiday_factor: 1,
     },
     half_year_boundary: "2020-02-01",
-    class_schedule: { "drift-class": {} },
+    // 2020-01-06 is a Monday -- a single weekly Monday slot reproduces the same weekly
+    // cadence this fixture relied on before projection was driven by real lesson_slots.
+    class_schedule: {
+      "drift-class": {
+        lesson_slots: [
+          { id: "drift-s1", day: "Mon", start: "08:00", end: "08:45", half_year: 1 },
+        ],
+      },
+    },
   };
   writeYaml(join(repoRoot, "calendar", "drift-calendar.yaml"), calendar);
 
@@ -225,6 +294,35 @@ describe("moduleTasks", () => {
       (t) => t.classId === "fixture-class-no-artifacts",
     )!;
     expect(noArtifacts.plannedDates).toEqual([]);
+  });
+
+  it("marks fixture-class's real-schedule task as not estimated", () => {
+    const { tasks } = moduleTasks({
+      from: "2026-08-01",
+      to: "2026-09-30",
+      repoRoot: FIXTURE_REPO_ROOT,
+    });
+    const task = tasks.find((t) => t.classId === "fixture-class")!;
+    expect(task.estimated).toBe(false);
+  });
+
+  it("still produces a coarse estimated task bar for a class with no lesson_slots yet", () => {
+    const { repoRoot, cleanup } = setupNoScheduleRepo();
+    try {
+      const { tasks, appointments } = moduleTasks({
+        from: "2026-08-01",
+        to: "2026-09-30",
+        repoRoot,
+      });
+      const task = tasks.find((t) => t.classId === "no-schedule-class");
+      expect(task).toBeDefined();
+      expect(task!.estimated).toBe(true);
+      expect(task!.startDate).toBeTruthy();
+      // No real schedule -> no appointments, even though a coarse task-bar estimate exists.
+      expect(appointments.some((a) => a.classId === "no-schedule-class")).toBe(false);
+    } finally {
+      cleanup();
+    }
   });
 
   it("returns one appointment per real teaching slot, each already carrying its own class + date", () => {
