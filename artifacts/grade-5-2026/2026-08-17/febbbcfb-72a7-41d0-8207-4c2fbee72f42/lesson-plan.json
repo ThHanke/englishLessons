@@ -1,0 +1,157 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-17",
+  "objectives": [
+    "I can say my name, age, and where I am from in English.",
+    "I can use 'am', 'is', and 'are' correctly in statements and questions.",
+    "I can say numbers 1-20 in English.",
+    "I can ask a classmate: What is your name? How old are you? Where are you from?",
+    "I can listen to a short self-introduction and note the name, age, and country."
+  ],
+  "stages": [
+    {
+      "name": "Opening — Prerequisite Activation",
+      "durationMinutes": 10,
+      "purpose": "Activate English words pupils already know from primary school, reducing anxiety before new input and bridging to today's self-introduction topic.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Write 'English?' on the board. Ask: 'What English words do you already know?' Collect responses and group them on the board under three headings: Greetings / Numbers / Other.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils call out English words they know. Count together how many the class has collected.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge: 'In primary school you already learned some English words. Today we use them to introduce ourselves — to say who you are in English.' Write the 'I can' statement on the board: 'I can say my name, age, and where I am from in English.'",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Choral warm-up: count from 1 to 10 together as a class.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Phrase and Numbers Input",
+      "durationMinutes": 10,
+      "purpose": "Introduce the six key self-introduction phrases and establish number names 1-20 before pupils are asked to produce them.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Pupils open the vocabulary glossary (Key Phrases — Introducing Yourself). Read your own self-introduction aloud slowly, pointing to each phrase: 'Hello! My name is [Teacher]. I am [age] years old. I am from Germany.'",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Choral repetition: say each of the six phrases, pupils repeat twice.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Numbers cognate focus: point out that many numbers sound similar in German and English. Highlight: six/sechs, seven/sieben, eight/acht, nine/neun, ten/zehn. Write both on the board.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Quick number drill: call a number in German, pupils say it in English, then swap directions. Cover numbers 1-20.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/vocab_intro-key-phrases-introducing-yourself.html"
+      ]
+    },
+    {
+      "name": "Grammar — Simple Present of 'be'",
+      "durationMinutes": 8,
+      "purpose": "Formalise the verb 'be' pattern pupils heard in context, linking it explicitly to the parallel German question structure to reduce transfer errors.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Pupils open the grammar explanation (Simple Present of 'be'). Read it together. Draw a three-column table on the board: Statement | Question | Negative — with rows for I / You / He-She. Fill in with the class.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils copy the table into exercise books.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Quick transformation drill: say a statement, pupils call out the question form. Example: 'I am Anna.' → class says 'Are you Anna?' Repeat with four examples.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-simple-present-of-be-am-is-are.html"
+      ]
+    },
+    {
+      "name": "Guided Speaking Practice",
+      "durationMinutes": 10,
+      "purpose": "First productive use of target phrases in a real communicative context — pupils interview a partner using the sentence frames.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Model the interview with a confident pupil. You ask: 'What is your name? How old are you? Where are you from?' The pupil answers using the phrase glossary. Then the pupil asks you. Point out that the frames are still visible on the vocab glossary.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pairs: Pupil A interviews Pupil B using the three questions, B answers. Then swap. After two minutes, find a new partner and repeat.",
+          "durationMinutes": 6
+        },
+        {
+          "kind": "correction",
+          "text": "Ask 3-4 pupils to introduce themselves to the class. Correct verb form errors only — 'He are' → 'He is' — not pronunciation at this stage.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/vocab_intro-key-phrases-introducing-yourself.html"
+      ]
+    },
+    {
+      "name": "Listening and Wrap-up",
+      "durationMinutes": 7,
+      "purpose": "Consolidate listening comprehension by extracting key facts from short introductions, then exit with individual spoken production.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Draw a three-column table on the board: Name | Age | Country. Pupils draw the same table in exercise books.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Read each of the three introductions from 'Three New Friends' aloud twice. Pupils fill in the table as they listen.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "correction",
+          "text": "Check answers whole-class. Read the text on screen together if needed.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Exit activity: each pupil says one sentence about themselves before leaving. ('My name is ___.' or 'I am ___ years old.' etc.)",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/reading_text-three-new-friends.html"
+      ]
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: keep the phrase glossary open during all speaking activities; reduce the partner interview to two questions only (name + age); accept single-word answers in the exit activity. Stronger pupils: during partner work, add a fourth question — 'Do you have a brother or sister?' — and attempt to introduce a partner to the class in the third person ('This is my friend ___. She is ___ years old.').",
+  "exercisePlan": [
+    "Gap-fill (Band 1 — Supported): complete five self-introduction sentences with a full word bank [fk.g.simple_present, fk.w.introduce_self]",
+    "Reorder (Band 2 — Guided): unscramble five personal question and answer sentences [fk.g.sentence_forms, fk.w.personal_questions]",
+    "Flashcards (Band 3 — Independent): self-study deck with English phrases on front, German translation on back [fk.w.introduce_self, fk.w.personal_questions]"
+  ]
+}

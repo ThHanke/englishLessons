@@ -1,0 +1,172 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-17",
+  "materials": [
+    {
+      "file": "materials/grammar_intro-simple-present-of-be-am-is-are.html",
+      "type": "grammar_intro",
+      "title": "Simple Present of 'be' — am, is, are",
+      "competenceIds": [
+        "fk.g.sentence_forms",
+        "fk.g.simple_present",
+        "fk.g.numbers",
+        "fk.w.introduce_self",
+        "fk.w.personal_questions",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "In English, the verb \"be\" changes depending on who you talk about. Use \"am\" with \"I\", \"are\" with \"you\", and \"is\" with \"he\", \"she\", or a name.\n\nGood news: just like in German (\"Bist du?\"), English questions swap the verb and the subject — \"Are you?\" It works the same way!\n\nTo say something is not true, add \"not\" after the verb: \"I am not from France.\"\n\nOne important difference from German: in English, only names of people and places start with a capital letter. The word \"name\" stays lowercase: \"My name is Anna.\" not \"My Name is Anna.\"",
+        "I am ten years old.",
+        "You are Anna.",
+        "He is Max.",
+        "Are you Anna?",
+        "I am not from France."
+      ],
+      "createdAt": "2026-07-30T10:15:30.796Z"
+    },
+    {
+      "file": "materials/reading_text-three-new-friends.html",
+      "type": "reading_text",
+      "title": "Three New Friends",
+      "competenceIds": [
+        "fk.g.sentence_forms",
+        "fk.g.simple_present",
+        "fk.g.numbers",
+        "fk.w.introduce_self",
+        "fk.w.personal_questions",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "Hello! My name is Emma. I am ten years old. I am from London.\n\nHi! My name is Max. I am eleven years old. I am from Berlin.\n\nHello! I am Sofia. I am ten years old. I am from Madrid."
+      ],
+      "createdAt": "2026-07-30T10:15:31.253Z"
+    },
+    {
+      "file": "materials/vocab_intro-key-phrases-introducing-yourself.html",
+      "type": "vocab_intro",
+      "title": "Key Phrases — Introducing Yourself",
+      "competenceIds": [
+        "fk.g.sentence_forms",
+        "fk.g.simple_present",
+        "fk.g.numbers",
+        "fk.w.introduce_self",
+        "fk.w.personal_questions",
+        "fk.k.hoer.1",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "My name is ___. Ich heiße ___.",
+        "I am ___ years old. Ich bin ___ Jahre alt.",
+        "I am from ___. Ich komme aus ___.",
+        "What is your name? Wie heißt du?",
+        "How old are you? Wie alt bist du?",
+        "Where are you from? Woher kommst du?"
+      ],
+      "createdAt": "2026-07-30T10:16:14.281Z"
+    },
+    {
+      "file": "materials/gap_fill-introduce-yourself-gap-fill.html",
+      "type": "gap_fill",
+      "title": "Introduce Yourself — Gap Fill",
+      "competenceIds": [
+        "fk.g.simple_present",
+        "fk.w.introduce_self"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Hello! My ___ is Anna.",
+        "name",
+        "name",
+        "I ___ twelve years old.",
+        "am",
+        "be",
+        "I am ___ Germany.",
+        "from",
+        "from",
+        "She ___ my best friend.",
+        "is",
+        "be",
+        "___ old are you?",
+        "How",
+        "How"
+      ],
+      "createdAt": "2026-07-30T10:17:56.057Z"
+    },
+    {
+      "file": "materials/reorder-personal-questions-reorder.html",
+      "type": "reorder",
+      "title": "Personal Questions — Reorder",
+      "competenceIds": [
+        "fk.g.sentence_forms",
+        "fk.w.personal_questions"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "What",
+        "is",
+        "your",
+        "name?",
+        "How",
+        "old",
+        "are",
+        "you?",
+        "Where",
+        "are",
+        "you",
+        "from?",
+        "My",
+        "name",
+        "is",
+        "Lena.",
+        "I",
+        "am",
+        "eleven",
+        "years",
+        "old."
+      ],
+      "createdAt": "2026-07-30T10:17:57.694Z"
+    },
+    {
+      "file": "materials/flashcards-key-phrases-english-german.html",
+      "type": "flashcards",
+      "title": "Key Phrases — English / German",
+      "competenceIds": [
+        "fk.w.introduce_self",
+        "fk.w.personal_questions"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "My name is ___.",
+        "Ich heiße ___.",
+        "I am ___ years old.",
+        "Ich bin ___ Jahre alt.",
+        "I am from ___.",
+        "Ich komme aus ___.",
+        "What is your name?",
+        "Wie heißt du?",
+        "How old are you?",
+        "Wie alt bist du?",
+        "Where are you from?",
+        "Woher kommst du?",
+        "Hello!",
+        "Hallo!",
+        "Goodbye!",
+        "Tschüss!"
+      ],
+      "createdAt": "2026-07-30T10:18:01.990Z"
+    },
+    {
+      "file": "materials/homework-my-id-card.html",
+      "type": "homework",
+      "title": "My ID Card",
+      "competenceIds": [],
+      "depth": "practiced",
+      "createdAt": "2026-07-30T10:18:04.469Z"
+    }
+  ]
+}
