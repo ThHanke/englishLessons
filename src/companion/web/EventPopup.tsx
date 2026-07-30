@@ -68,6 +68,7 @@ export function EventPopup({
         </h2>
         <p className="companion-modal-subtitle">
           {appointment.classLabel} &middot; {appointment.date}
+          {appointment.start && <> &middot; {appointment.start}–{appointment.end}</>}
           {appointment.lessonTopic && <> &middot; {appointment.moduleTitle}</>}
         </p>
         {appointment.lessonCompetenceTopics && appointment.lessonCompetenceTopics.length > 0 && (

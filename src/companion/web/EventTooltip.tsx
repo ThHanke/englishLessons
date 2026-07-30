@@ -29,6 +29,11 @@ export function EventTooltip({ event }: { event: CalendarEvent }) {
   if (appointment) {
     const hasHomework = appointment.materials.some((m) => m.type === "homework");
     const hasTest = appointment.materials.some((m) => m.type === "test");
+    const materialLabels = [
+      appointment.hasLessonSpec && "Lesson plan",
+      hasHomework && "Homework",
+      hasTest && "Test",
+    ].filter(Boolean) as string[];
     return (
       <div className="companion-tooltip">
         <div className="companion-tooltip-title">
@@ -36,13 +41,10 @@ export function EventTooltip({ event }: { event: CalendarEvent }) {
         </div>
         <div className="companion-tooltip-row">
           {appointment.classLabel} · {appointment.date}
+          {appointment.start && <> · {appointment.start}–{appointment.end}</>}
         </div>
-        {(hasHomework || hasTest) && (
-          <div className="companion-tooltip-row">
-            {hasHomework && "Homework"}
-            {hasHomework && hasTest && " · "}
-            {hasTest && "Test"}
-          </div>
+        {materialLabels.length > 0 && (
+          <div className="companion-tooltip-row">{materialLabels.join(" · ")}</div>
         )}
       </div>
     );

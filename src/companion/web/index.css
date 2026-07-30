@@ -181,7 +181,9 @@
 
 /* Grade badge -- rendered on both task bars and appointment cards (EventContent), same convention
  * as SVAR's own demos' priority badge (a plain custom field + a dedicated CSS class, not a
- * built-in prop). Kept compact since bar-mode rows are a single line. */
+ * built-in prop). Some class labels are long ("Grade 7 (realschulabschluss)") and a narrow
+ * single-day appointment chip has very little width -- own max-width/ellipsis (not just relying
+ * on the parent row's overflow:hidden) so it truncates cleanly instead of hard-clipping mid-word. */
 .companion-event-badge {
   display: inline-block;
   padding: 0 0.35rem;
@@ -191,6 +193,12 @@
   font-size: 0.7em;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 6em;
+  flex-shrink: 1;
+  min-width: 0;
+  vertical-align: bottom;
 }
 
 /* Compact appointment content (bars/grid/month view) -- title only, no inline links (see
@@ -198,6 +206,16 @@
 .companion-event-content-compact {
   flex-direction: row;
   align-items: center;
+}
+/* Flex children default to a min-width equal to their own content size, which defeats the
+ * badge's ellipsis above and starves the title of space in a narrow chip -- min-width: 0 lets
+ * both actually shrink instead of overflowing the chip's own boundary. */
+.companion-event-content-compact .companion-event-badge,
+.companion-event-content-compact .companion-event-title {
+  min-width: 0;
+}
+.companion-event-content-compact .companion-event-title {
+  flex: 1 1 auto;
 }
 
 /* EventPopup's card -- SVAR positions/anchors this itself (its own floating overlay wraps
