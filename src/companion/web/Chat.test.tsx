@@ -113,12 +113,17 @@ describe("Chat", () => {
     });
 
     expect(screen.getAllByText(/5a · 2026-08-05/).length).toBeGreaterThan(0);
-    expect(screen.getByText(new RegExp(TEACHING_CTX.moduleTitle))).toBeInTheDocument();
+    // The heading now prefers the lesson's actual topic (content_field.text) over the module
+    // title -- module title still appears in the subtitle and the "Existing materials"/gap text.
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(
+      TEACHING_CTX.lessonSpec!.content_field.text,
+    );
+    expect(screen.getAllByText(new RegExp(TEACHING_CTX.moduleTitle)).length).toBeGreaterThan(0);
     expect(screen.getByText(new RegExp(TEACHING_CTX.moduleGoals[0]!))).toBeInTheDocument();
     const gap = TEACHING_CTX.gaps[0]!;
     expect(screen.getByText(GAP_KIND_LABELS[gap.kind]!)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(competenceLabel(gap.competenceId)))).toBeInTheDocument();
-    expect(screen.getByText(TEACHING_CTX.lessonSpec!.content_field.text)).toBeInTheDocument();
+    expect(screen.getAllByText(TEACHING_CTX.lessonSpec!.content_field.text).length).toBeGreaterThan(0);
     expect(screen.getByText(TEACHING_CTX.lessonSpec!.milestone_context.next)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(TEACHING_CTX.lessonSpec!.textbook_refs[0]!.book))).toBeInTheDocument();
   });

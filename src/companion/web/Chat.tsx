@@ -424,10 +424,14 @@ export function ContextPreview({
 
   return (
     <div className="companion-preview-detail">
-      <h3>{t.moduleTitle ?? t.moduleId}</h3>
+      {/* Once planned, this lesson's actual topic (content_field.text) is more useful as the
+          heading than the module title, which is the same for every lesson in the module --
+          same preference as the calendar's appointment cards (calendarMapping.ts). */}
+      <h3>{spec?.content_field.text ?? t.moduleTitle ?? t.moduleId}</h3>
       <p className="companion-preview-subtitle">
         {target.classId} · {target.date} · Week {t.weekInModule}
         {spec ? ` of ${spec.module.of}` : ""} · {PHASE_LABELS[t.phase] ?? t.phase}
+        {spec && <> · {t.moduleTitle}</>}
       </p>
 
       {t.calendarDrift?.behindBySlots > 0 && (
