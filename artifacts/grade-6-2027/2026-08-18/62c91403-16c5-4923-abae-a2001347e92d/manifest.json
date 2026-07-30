@@ -40,6 +40,102 @@
         "at half past nine — at school — on Friday — in the evening"
       ],
       "createdAt": "2026-07-30T21:29:07.712Z"
+    },
+    {
+      "file": "materials/homework-daily-routines-prepositions-at-in-on.md",
+      "type": "homework",
+      "title": "Daily Routines — Prepositions at/in/on",
+      "competenceIds": [],
+      "depth": "practiced",
+      "createdAt": "2026-07-30T21:33:05.280Z"
+    },
+    {
+      "file": "materials/gap_fill-prepositions-at-in-on-band-1-word-bank.html",
+      "type": "gap_fill",
+      "title": "Prepositions at/in/on — Band 1 (word bank)",
+      "competenceIds": [
+        "fk.g.prepositions"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Ben gets up ___ seven o'clock.",
+        "at",
+        "clock time",
+        "___ the morning, he eats breakfast.",
+        "In",
+        "part of day",
+        "___ Monday, he plays football.",
+        "On",
+        "day of week",
+        "He goes to school ___ half past seven.",
+        "at",
+        "clock time",
+        "Ben has lunch ___ twelve o'clock.",
+        "at",
+        "clock time",
+        "___ the afternoon, he plays with his friends.",
+        "In",
+        "part of day"
+      ],
+      "createdAt": "2026-07-30T21:33:52.795Z"
+    },
+    {
+      "file": "materials/gap_fill-prepositions-at-in-on-band-2-no-word-bank.html",
+      "type": "gap_fill",
+      "title": "Prepositions at/in/on — Band 2 (no word bank)",
+      "competenceIds": [
+        "fk.g.prepositions"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Ben does his homework ___ six o'clock.",
+        "at",
+        "clock time",
+        "___ the evening, he watches TV.",
+        "In",
+        "part of day",
+        "He goes to bed ___ half past nine.",
+        "at",
+        "clock time",
+        "___ Friday, I eat pizza for dinner.",
+        "On",
+        "day of week",
+        "I play football ___ the afternoon.",
+        "in",
+        "part of day",
+        "We go to school ___ eight o'clock.",
+        "at",
+        "clock time"
+      ],
+      "createdAt": "2026-07-30T21:33:56.428Z"
+    },
+    {
+      "file": "materials/matching-match-the-time-expression-to-the-preposition-phrase.html",
+      "type": "matching",
+      "title": "Match the time expression to the preposition phrase",
+      "competenceIds": [
+        "fk.g.prepositions"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "seven o'clock",
+        "at seven o'clock",
+        "Monday",
+        "on Monday",
+        "the morning",
+        "in the morning",
+        "half past seven",
+        "at half past seven",
+        "the evening",
+        "in the evening",
+        "Friday",
+        "on Friday",
+        "twelve o'clock",
+        "at twelve o'clock",
+        "the afternoon",
+        "in the afternoon"
+      ],
+      "createdAt": "2026-07-30T21:33:57.589Z"
     }
   ]
 }

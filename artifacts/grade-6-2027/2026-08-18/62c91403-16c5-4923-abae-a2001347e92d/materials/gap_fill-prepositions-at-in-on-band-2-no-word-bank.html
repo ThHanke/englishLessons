@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Prepositions at/in/on — Band 2 (no word bank)</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
+  input { border: 1px solid #888; padding: 0.2rem 0.4rem; }
+  input.correct { background: #d4f7d4; border-color: #2a2; }
+  input.incorrect { background: #f7d4d4; border-color: #a22; }
+  .hint { color: #666; font-style: italic; }
+  button { margin-top: 1rem; }
+</style>
+</head>
+<body>
+<h1>Prepositions at/in/on — Band 2 (no word bank)</h1>
+<p class="sentence" data-item="0">Ben does his homework <input type="text" data-item="0" data-blank="0" autocomplete="off"> <span class="hint">(clock time)</span> six o'clock.</p>
+<p class="sentence" data-item="1"><input type="text" data-item="1" data-blank="0" autocomplete="off"> <span class="hint">(part of day)</span> the evening, he watches TV.</p>
+<p class="sentence" data-item="2">He goes to bed <input type="text" data-item="2" data-blank="0" autocomplete="off"> <span class="hint">(clock time)</span> half past nine.</p>
+<p class="sentence" data-item="3"><input type="text" data-item="3" data-blank="0" autocomplete="off"> <span class="hint">(day of week)</span> Friday, I eat pizza for dinner.</p>
+<p class="sentence" data-item="4">I play football <input type="text" data-item="4" data-blank="0" autocomplete="off"> <span class="hint">(part of day)</span> the afternoon.</p>
+<p class="sentence" data-item="5">We go to school <input type="text" data-item="5" data-blank="0" autocomplete="off"> <span class="hint">(clock time)</span> eight o'clock.</p>
+<button id="check">Check</button>
+<script>
+(function () {
+  var answers = [["at"],["In"],["at"],["On"],["in"],["at"]];
+  function normalize(s) { return s.trim().toLowerCase(); }
+  document.getElementById('check').addEventListener('click', function () {
+    var inputs = document.querySelectorAll('input[data-item]');
+    inputs.forEach(function (input) {
+      var ii = Number(input.getAttribute('data-item'));
+      var bi = Number(input.getAttribute('data-blank'));
+      var value = input.value.trim();
+      input.classList.remove('correct', 'incorrect');
+      if (value.length === 0) return;
+      if (normalize(value) === normalize(answers[ii][bi])) {
+        input.classList.add('correct');
+      } else {
+        input.classList.add('incorrect');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

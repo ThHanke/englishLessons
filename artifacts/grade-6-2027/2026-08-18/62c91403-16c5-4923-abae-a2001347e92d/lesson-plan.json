@@ -1,0 +1,193 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-18",
+  "objectives": [
+    "Read a short text about daily routines and answer comprehension questions [fk.k.lesen.2]",
+    "Identify and use at, in, and on with clock times, parts of the day, and days of the week [fk.g.prepositions]",
+    "Ask and answer questions about daily routines with a partner [fk.k.sprechen.3]",
+    "Write 3 sentences about their own routine using at, in, and on [fk.k.schreiben.2]"
+  ],
+  "stages": [
+    {
+      "name": "Opening: Retrieval + Bridge",
+      "durationMinutes": 8,
+      "purpose": "Activate prior knowledge of daily routine vocabulary before introducing the prepositions grammar focus.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Show 4 picture cards (wake up, eat breakfast, go to school, go to bed). Pupils call out English phrase for each.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Write on board: 'He ___ up at 7. He ___ breakfast. He ___ to school.' Pupils call out missing verbs (wakes / eats / goes).",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Silent write: Write 2 sentences about YOUR morning. Start with I...",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "2-3 pupils share aloud. Note errors with routine vocabulary.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge: 'You can say what you do every day. But when do these things happen? At seven o'clock? In the morning? On Monday? Today we learn the small words that tell us exactly when.' Write I can... on board: I can read about someone's daily routine and understand when things happen. I can use at, in, and on to say when I do things.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Reading input",
+      "durationMinutes": 8,
+      "purpose": "Provide reading comprehension input for Reading: 2 and expose pupils to at/in/on in natural context.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Introduce two new words: routine (Tagesablauf) and gets up (steht auf). Say each, pupils repeat.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Read A Day in Ben's Life aloud while pupils follow on their copy.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils re-read the text silently.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Comprehension check, oral: What time does Ben get up? / What does Ben do in the afternoon?",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils circle every at, in, and on in the text and count how many of each.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/reading_text-a-day-in-ben-s-life.html"
+      ]
+    },
+    {
+      "name": "Grammar spotlight: at, in, on",
+      "durationMinutes": 7,
+      "purpose": "Introduce the at/in/on rule for time expressions with explicit German contrast to prevent transfer errors.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display grammar explanation. Rule: at + clock times, in + parts of the day, on + days of the week. Point to examples pupils just circled in the text.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "German contrast on board: am Morgen = in the morning (not at the morning); am Montag = on Monday; um 7 Uhr = at 7 o'clock. Pupils repeat each correct English version.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Oral drill: teacher says time expression, pupils give preposition. Examples: seven o'clock (at), the afternoon (in), Friday (on), the morning (in), Tuesday (on).",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-prepositions-for-time-at-in-on.html"
+      ]
+    },
+    {
+      "name": "Guided practice",
+      "durationMinutes": 8,
+      "purpose": "Controlled practice with at/in/on moving from fully supported to guided before free production.",
+      "procedure": [
+        {
+          "kind": "pupil_work",
+          "text": "Band 1 — gap-fill with word bank [at / in / on]: (1) Ben gets up ___ seven o'clock. (2) ___ the morning, he eats breakfast. (3) ___ Monday, he plays football.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Band 2 — gap-fill, no word bank: (4) Ben does his homework ___ six o'clock. (5) ___ the evening, he watches TV. (6) He goes to school ___ half past seven.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "correction",
+          "text": "Pupils swap books and mark. Teacher reveals on board: at / In / On / at / In / at.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Speaking production: pair interview",
+      "durationMinutes": 8,
+      "purpose": "Move speaking from introduced to produced via structured task requiring at/in/on in genuine communicative use.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display frames on board. To ask: What time do you get up? / What do you do in the morning? / What do you do on [day]? To answer: I get up at ___. / In the morning, I ___. / On ___, I ___.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pair interview: Partner A asks 3 questions, Partner B answers using frames. Then swap roles.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "correction",
+          "text": "2-3 pairs share with class. Teacher notes preposition errors on board for quick correction.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Written production: exit ticket",
+      "durationMinutes": 4,
+      "purpose": "Move writing from introduced to produced with short independent task checking at/in/on in written form.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Task on board: Write 3 sentences about your day. Use at, in, and on — one each. Support frame for weaker pupils: ___ [time/day/part of day], I ___.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils write 3 sentences independently.",
+          "durationMinutes": 3
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Wrap-up",
+      "durationMinutes": 2,
+      "purpose": "Close with retrieval loop and self-assessment to consolidate learning.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Revisit I can... statement. Pupils thumbs up/sideways/down for each objective.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Quick pair oral: Tell your partner one thing Ben does in the afternoon. Collect exit tickets. Preview homework.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker: sentence frames on desk (not just board) during speaking; Band 1 answers as reference during Band 2; support frame for exit ticket. Stronger: remove frames in speaking task, ask follow-up questions; extend exit ticket to 5 sentences without frames.",
+  "exercisePlan": [
+    "Gap-fill Band 1 [fk.g.prepositions] — 6 items, full at/in/on word bank, Ben text context",
+    "Gap-fill Band 2 [fk.g.prepositions] — 6 items, no word bank, daily routine sentences",
+    "Matching [fk.g.prepositions] — 8 pairs: time expression matched to at/in/on"
+  ]
+}
