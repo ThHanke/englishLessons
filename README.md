@@ -46,34 +46,70 @@ at a Sachsen-Anhalt Sekundarschule (grades 5–7).
 
 ## How it works
 
-### 1. Set up your lesson schedule
+### 1. Extract the curriculum (one-time, per curriculum)
 
-The calendar shows all your grades as overlay layers. To define when you teach each
-grade:
+If your state/school-type/subject curriculum isn't already extracted under
+`curriculum/<id>/grade-bands/`, run the `curriculum-decompose` skill against your
+source Lehrplan document — see [Adapting to another curriculum](#adapting-to-another-curriculum)
+below. Already done for Sachsen-Anhalt Sekundarschule English (grades 5–7) — you only
+need this step again for a new curriculum, not per school year.
+
+### 2. Map the curriculum onto this school year
+
+For each grade you teach, `plans/<grade>/modules.yaml` sequences your curriculum's
+competences into teaching modules (topic, goals, weeks, milestone). The
+`module-derive` skill drafts this from your curriculum extraction; you review and
+adjust weeks/pacing to fit the actual school year. Also one-time per grade — done
+once, reused every year unless your module sequence changes. Vocabulary
+(`vocabulary/<grade>.yaml`, chain-ordered so each grade excludes words already taught)
+is generated the same way, via `vocab-generate`.
+
+### 3. Set up lesson series in the calendar
+
+The calendar shows all your grades as overlay layers, starting from the first school
+week. To define when you teach each grade:
 
 - **Drag** in day or week view, or click the **+** button
-- Pick the grade and half-year (auto-detected from the school calendar)
+- Pick the grade, weekday(s)/time(s), and half-year (auto-detected from the school
+  calendar)
 - Appointments are created for every school day in that half-year, automatically
   skipping holidays, weekends, and blocked days
+- A class with more than one lesson on the same day (double periods) just gets a
+  second series for that slot — both appear as separate appointments on the same date
 
-Schedules are saved to the calendar YAML file in the repo. To change a schedule,
-delete the series and recreate it.
+Schedules are saved to the calendar YAML file in the repo. **If your schedule
+changes mid-year** (new timetable, room swap, whatever), edit the series directly —
+open the appointment, "Edit lesson series," adjust — it updates that slot in place
+rather than duplicating it. Past lesson dates and their generated content are
+untouched by a reschedule.
 
-### 2. Plan a lesson
+### 4. Plan a lesson
 
 - **Click an appointment** on the calendar — a context panel shows which curriculum
-  module is active for that date, where you are in the module, and what coverage gaps
-  remain
-- **Click "Plan lesson"** — a chat session opens, pre-loaded with all the context for
-  that date
-- The chat can:
-  - Draft a lesson plan and ask you to confirm or adjust
-  - Ask which textbook pages to reference (citations only, no book content stored)
-  - Write a **lesson spec** that tracks which competences the lesson covers
-  - Generate **exercise materials** (interactive HTML widgets)
-- Review the generated worksheets and answer keys before accepting
+  module is active for that date, where you are in it, and what coverage gaps remain
+  (see [What the companion knows](#what-the-companion-knows-and-generates) below)
+- **Click "Plan lesson"** — a chat session opens, pre-loaded with all of that context
+- The chat drafts objectives, a timed stage-by-stage plan, and the exercises/materials
+  it intends to build, and asks you to confirm or adjust **before generating anything**
+- **This is where you give additional input the companion can't infer on its own:**
+  - Which textbook pages to reference (a plain citation like "S. 45, Aufgabe 1.4" —
+    the tool never stores or generates actual book content, only the citation as a
+    teacher-directed step)
+  - Anything about the specific class (a pupil's IEP/accommodation, a topic to avoid,
+    an activity that worked well or fell flat last time) — the companion only knows
+    what's in the repo (specs, coverage ledger, vocabulary), not classroom context
+  - Corrections to the draft plan's pacing, difficulty, or activity choices
+- Once you approve, it saves the lesson spec, the structured plan, and generates each
+  exercise/material file
 
-### 3. Publish
+### 5. Review before you publish
+
+**Required, not optional.** Open the generated lesson-plan page and check the
+worksheets and **answer keys** — not just the earlier chat outline. Nothing catches an
+incorrect answer key or an ungrammatical item except you, before it's pushed to a
+public URL pupils will use.
+
+### 6. Publish
 
 Generated materials live in the repo as self-contained HTML files. Push to publish:
 ```sh
@@ -87,12 +123,89 @@ repo's **Actions** tab. Once deployed, Pages serves each lesson at a stable
 `/classes/<class>/<date>/` URL. The files also work offline (`file://`, e.g. from the
 companion's local artifact preview) and print cleanly.
 
-### Module progress
+### 7. Subscribing to the calendar
 
-Each lesson spec you accept feeds the **build ledger** — it tracks which curriculum
-competences have been introduced, practiced, or assessed across the school year. The
-coverage gaps shown when you click an appointment come from this ledger, so each new
-lesson is guided toward what still needs teaching.
+Each class has a downloadable/subscribable `.ics` file (click **View calendars**,
+then **Subscribe** next to a class — or `calendars/<class>/<school-year>.ics` directly)
+— share the `webcal://` link with pupils or parents so lessons show up in their own
+calendar app (Google/Outlook/Apple Calendar).
+Each entry includes:
+- The lesson's actual topic once planned (not just the module name)
+- A link to the lesson-plan page, and to homework/test pages when they exist
+- The competences it covers, both in the description text and as RFC 5545
+  `CATEGORIES` — most calendar apps let you filter/search by category, so a pupil can
+  find every lesson that covered e.g. "Passive Voice" across the term
+- Unplanned future dates still show up (so the schedule itself is visible), just
+  without topic/links until you plan that lesson
+
+One caveat: times are floating (no timezone attached) — correct for a subscriber in
+the same timezone as the school, which is every real case so far, but not something
+to rely on for a subscriber traveling abroad.
+
+### Replanning a lesson
+
+Click "Plan lesson" on an already-planned date the same way — the chat sees the
+existing spec/plan and can revise it (different pacing, swap an activity, regenerate
+an exercise) rather than starting over. Saving overwrites the previous spec/plan/
+materials at that date; nothing is versioned beyond git history, so commit before a
+big revision if you want an easy way back.
+
+---
+
+## What the companion knows and generates
+
+**What it remembers between sessions.** Nothing lives only in chat history — every
+planned lesson writes a `lesson-spec.json` (constraints: module, phase, focus
+competences, pace) and a `manifest.json` (a **coverage ledger** entry: which
+competences this lesson touched, at what depth — introduced, practiced, or assessed).
+Every future "Plan lesson" session is pre-seeded from that ledger, not from memory of
+the conversation, so it's biased toward what's genuinely uncovered or under-depth
+rather than repeating or contradicting an earlier lesson.
+
+**Module progression.** The calendar's module bars show real coverage — the percentage
+of that module's target competences already met at the required depth — plus, once
+`fillModules()` places it, the module's actual **milestone/test date** (shifted forward
+off a degraded slot if needed, never earlier than planned) and which competences it
+assesses. Clicking a module bar shows the same detail, plus any gaps (uncovered,
+under-depth, or at-risk competences) driving the next lesson's focus.
+
+**How it plans a lesson.** A plan is objectives, a short **stage overview** (name,
+duration, one-line purpose per stage — scannable in seconds), then a detailed
+**timeline**: each stage broken into steps tagged `teacher_intro` (you explaining/
+modelling), `pupil_work` (genuinely autonomous — gets a click-to-start countdown timer
+pupils can see), or `correction` (reviewing together). Anything a stage narrates —
+an input text, new vocabulary, a grammar point — has to exist as an actual material
+linked to that stage, not just described in prose; the lesson-plan page renders each
+stage's materials inline, right where they're used.
+
+**Exercise types it can build** (self-contained, self-checking, offline/print-ready):
+gap-fill, multiple choice, matching, error correction, crossword, flashcards, reorder,
+mark-the-words, word search. Plus three non-exercise material types: a **reading
+text** (original, controlled-vocabulary input text with a read-aloud button), a
+**vocabulary glossary** (pre-taught new words, translation + read-aloud, before
+they're needed elsewhere), and a **grammar explanation** (plain-language rule +
+before/after examples, flagging German L1 transfer risk where relevant). Homework and
+tests are saved separately from the lesson-plan timeline — homework gets an automatic
+due date (the class's actual next scheduled lesson, not a fixed "+1 day"), and the
+lesson-plan page shows a link to it so it isn't invisible from there.
+
+**Pedagogical skills it invokes** while planning (not just generic prompting — each
+encodes a specific method):
+
+| Skill | What it does |
+|-------|--------------|
+| `lesson-opening` | 8–12 min opening: retrieval starter + prior-knowledge bridge + "I can..." |
+| `retrieval-warm-up` | Structured 5–8 min retrieval practice, calibrated to time-since-taught |
+| `eal-scaffold` | Scaffolds any exercise for German L1 learners without lowering cognitive demand |
+| `difficulty-progression` | Sequences a set from supported → guided → independent |
+| `vocab-teaching` | Beck's Tier 1/2/3 selection — which words are worth explicit teaching time |
+| `grammar-intro` | Plain-language rule + contrastive German L1 transfer-risk note |
+| `error-correction-design` | Realistic German→English transfer errors, one per sentence, find→explain→correct |
+| `sentence-frames` | CEFR-graded sentence starters for dialogue/writing/mediation |
+| `assessment-design` | Blueprint-before-items test/quiz design, competence × depth matrix |
+
+Every generated item is tagged with the competence IDs it targets, so it feeds
+straight back into the coverage ledger once you approve it.
 
 ---
 
