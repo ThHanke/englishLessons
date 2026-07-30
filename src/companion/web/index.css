@@ -140,9 +140,32 @@
 }
 
 .companion-event-content {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  overflow: hidden;
+}
+
+.companion-event-title {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Direct links on the appointment card itself (Lesson Plan/Homework/Test) -- the card is the
+ * primary click target for the calendar's own select/double-click handling, so these need their
+ * own visible affordance (underline) and stopPropagation (Calendar.tsx) so clicking one opens the
+ * material instead of re-triggering card selection underneath it. */
+.companion-event-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.75em;
+}
+
+.companion-event-links a {
+  color: inherit;
+  text-decoration: underline;
   white-space: nowrap;
 }
 

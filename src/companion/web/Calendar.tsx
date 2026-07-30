@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import {
   Calendar as SvarCalendar,
   CalendarPanel,
@@ -48,6 +49,8 @@ import {
   worstGapSeverity,
 } from "./calendarMapping.ts";
 import { LessonDetailModal } from "./LessonDetailModal.tsx";
+import { staticLessonPlanHref, staticHomeworkHref, staticTestHref } from "./staticArtifactHref.ts";
+import { lessonPlanPageHref, homeworkPageHref, testPageHref } from "./calendarMapping.ts";
 
 export interface CalendarProps {
   baseUrl: string;
@@ -72,9 +75,14 @@ export interface CalendarProps {
 
 export function EventContent({
   event,
+  linkMode = "dev",
 }: {
   event: CalendarEvent;
   mode: EventContentMode;
+  /** Selects which href-builder module the appointment's inline links use -- root-relative
+   * `/api/artifacts/...` in dev, page-relative `classes/...` paths in the static bundle. Same
+   * split as `LessonDetailModal`/`staticArtifactHref.ts`. */
+  linkMode?: "dev" | "static";
 }) {
   const task = (event as CalendarEvent & { task?: ModuleTask }).task;
   const appointment = (event as CalendarEvent & { appointment?: Appointment })
@@ -91,14 +99,46 @@ export function EventContent({
     );
   }
   if (appointment) {
-    // Material/plan links used to live here, but a real event box (week/month view) is only
-    // wide enough to show the title before `.companion-event-content`'s ellipsis clips
-    // everything after it -- those links were present in the DOM but never actually reachable.
-    // Double-clicking the appointment now opens LessonDetailModal instead, which has real room
-    // for them.
+    const hasHomework = appointment.materials.some((m) => m.type === "homework");
+    const hasTest = appointment.materials.some((m) => m.type === "test");
+    const lessonPlanHref =
+      linkMode === "static"
+        ? staticLessonPlanHref(appointment.classId, appointment.date, appointment.slotId)
+        : lessonPlanPageHref(appointment.classId, appointment.date, appointment.slotId);
+    const homeworkHref =
+      linkMode === "static"
+        ? staticHomeworkHref(appointment.classId, appointment.date, appointment.slotId)
+        : homeworkPageHref(appointment.classId, appointment.date, appointment.slotId);
+    const testHref =
+      linkMode === "static"
+        ? staticTestHref(appointment.classId, appointment.date, appointment.slotId)
+        : testPageHref(appointment.classId, appointment.date, appointment.slotId);
+    // stopPropagation: clicking a link must not also trigger the calendar's own click/double-click
+    // select-event handling (Calendar.tsx's handleSelectEvent), which would retarget the chat
+    // panel or pop the detail modal underneath the new tab the link just opened.
+    const stop = (e: ReactMouseEvent) => e.stopPropagation();
     return (
       <span className="companion-event-content">
-        {appointment.lessonTopic ?? appointment.moduleTitle}
+        <span className="companion-event-title">
+          {appointment.lessonTopic ?? appointment.moduleTitle}
+        </span>
+        {appointment.hasLessonSpec && (
+          <span className="companion-event-links">
+            <a href={lessonPlanHref} target="_blank" rel="noopener noreferrer" onClick={stop} onDoubleClick={stop}>
+              Lesson Plan
+            </a>
+            {hasHomework && (
+              <a href={homeworkHref} target="_blank" rel="noopener noreferrer" onClick={stop} onDoubleClick={stop}>
+                Homework
+              </a>
+            )}
+            {hasTest && (
+              <a href={testHref} target="_blank" rel="noopener noreferrer" onClick={stop} onDoubleClick={stop}>
+                Test
+              </a>
+            )}
+          </span>
+        )}
       </span>
     );
   }
@@ -641,7 +681,7 @@ export function Calendar({
             views={["day", "week", "month"]}
             toolbar={canEdit ? undefined : READONLY_TOOLBAR}
             eventCss={eventCss}
-            eventContent={EventContent}
+            eventContent={(props) => <EventContent {...props} linkMode={linkMode} />}
             onSelectEvent={handleSelectEvent}
             init={handleInit}
           >

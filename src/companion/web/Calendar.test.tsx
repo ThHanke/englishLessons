@@ -159,12 +159,7 @@ describe("Calendar", () => {
 // doc comment above) -- event-cell content isn't reliably queryable through a full Calendar mount.
 // EventContent is a plain function component, so rendering it standalone sidesteps that entirely.
 describe("EventContent", () => {
-  // Material/plan links used to render here, but a real event box (week/month view) is only
-  // wide enough to show the title before .companion-event-content's ellipsis clips everything
-  // after it -- moved to LessonDetailModal (LessonDetailModal.test.tsx), opened by double-click,
-  // which has real room. EventContent now renders the title only, and never any link, regardless
-  // of hasLessonSpec or materials.
-  it("renders the appointment's module title as plain text, no links", () => {
+  it("shows Lesson Plan, Homework, and Test links, named like the material, when a lesson-spec and those materials exist", () => {
     render(
       <EventContent
         event={eventWithAppointment(
@@ -172,6 +167,8 @@ describe("EventContent", () => {
             hasLessonSpec: true,
             materials: [
               { file: "materials/gap_fill-x.html", type: "gap_fill", title: "Gap Fill X" },
+              { file: "materials/homework-x.html", type: "homework", title: "Homework X" },
+              { file: "materials/test-x.html", type: "test", title: "Test X" },
             ],
           }),
         )}
@@ -179,10 +176,33 @@ describe("EventContent", () => {
       />,
     );
     expect(screen.getByText("Back in school")).toBeInTheDocument();
-    expect(screen.queryAllByRole("link")).toHaveLength(0);
+    expect(screen.getByRole("link", { name: "Lesson Plan" })).toHaveAttribute(
+      "href",
+      "/api/artifacts/grade-7-realschule-2026/2026-08-05/lesson-plan-page.html",
+    );
+    expect(screen.getByRole("link", { name: "Homework" })).toHaveAttribute(
+      "href",
+      "/api/artifacts/grade-7-realschule-2026/2026-08-05/homework-page.html",
+    );
+    expect(screen.getByRole("link", { name: "Test" })).toHaveAttribute(
+      "href",
+      "/api/artifacts/grade-7-realschule-2026/2026-08-05/test-page.html",
+    );
   });
 
-  it("renders the same plain title when hasLessonSpec is false", () => {
+  it("shows only the Lesson Plan link when no homework/test material exists", () => {
+    render(
+      <EventContent
+        event={eventWithAppointment(appointment({ hasLessonSpec: true, materials: [] }))}
+        mode="month"
+      />,
+    );
+    expect(screen.getByRole("link", { name: "Lesson Plan" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Homework" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Test" })).not.toBeInTheDocument();
+  });
+
+  it("shows no links at all when there's no lesson-spec yet for this appointment", () => {
     render(
       <EventContent
         event={eventWithAppointment(appointment({ hasLessonSpec: false }))}
@@ -191,5 +211,19 @@ describe("EventContent", () => {
     );
     expect(screen.getByText("Back in school")).toBeInTheDocument();
     expect(screen.queryAllByRole("link")).toHaveLength(0);
+  });
+
+  it("uses page-relative static hrefs in linkMode=\"static\"", () => {
+    render(
+      <EventContent
+        event={eventWithAppointment(appointment({ hasLessonSpec: true }))}
+        mode="month"
+        linkMode="static"
+      />,
+    );
+    expect(screen.getByRole("link", { name: "Lesson Plan" })).toHaveAttribute(
+      "href",
+      "classes/grade-7-realschule-2026/2026-08-05/lesson-plan/",
+    );
   });
 });
