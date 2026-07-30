@@ -1,0 +1,156 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-21",
+  "objectives": [
+    "Pupils can ask simple questions about a family member using he/she: How old is she? What is his name? Is he your brother?",
+    "Pupils can answer questions about a family member with short statements using he/she",
+    "Pupils can hold a short partner interview about a family member in English without notes"
+  ],
+  "stages": [
+    {
+      "name": "Opening and retrieval",
+      "durationMinutes": 8,
+      "purpose": "Activate Aug 19 family descriptions at free-recall level and create a felt need to ask about family members, bridging into today's new input.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Place 4 picture-word cards on the board: mother, father, sister, brother. Quick oral drill -- point to each card and ask 'Who is this?' Pupils answer as a class.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Write 2 sentences about a family member (real or imaginary) using he or she. Include name and age. Example structure: 'This is my [relation]. His/Her name is [name]. He/She is [age] years old.'",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Ask 2-3 pupils to share. Write one strong example on the board: 'This is my brother. His name is Max. He is 9 years old.' Leave this on the board for reference.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge: 'You can now tell me about your family. But what if I want to ask you about them? Today you learn how to ask.' Point to the example on the board and mime questioning -- 'How old is he?'",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Grammar input: Asking about someone else",
+      "durationMinutes": 8,
+      "purpose": "Introduce question inversion with he/she -- swapping 'is' and the person word -- using before/after examples and German L1 comparison to build confidence.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display the grammar intro material. Read the rule aloud. Walk through each before/after example: 'She is my sister' becomes 'Is she your sister?' Point out: 'is' jumps to the front. Then show the German parallel: 'Wie alt ist sie?' = 'How old is she?' -- same flip in both languages.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Echo practice in pairs: Teacher says a statement, pupils say the matching question. Three rounds -- 'He is 8.' / 'She is from London.' / 'His name is Ben.'",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Write question starters on board -- pupils copy into their notebooks: How old is...? / What is...? / Where is...? / Is he...? / Is she...?",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-asking-about-someone-else-is-she-how-old-is-he.html"
+      ]
+    },
+    {
+      "name": "Guided practice",
+      "durationMinutes": 14,
+      "purpose": "Consolidate he/she statement and question forms through two progressive exercises: Band 1 gap-fill with full word bank, then Band 2 sentence reorder without a word bank.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Hand out or display the gap-fill exercise. Show the word bank: is, How old, Where, What. Read item 1 aloud as a model. Remind pupils: 'Use the word bank -- every word there is used at least once.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Complete the gap-fill individually.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "correction",
+          "text": "Read answers aloud. Pupils self-check. For each question item, ask: 'Which word came first? Why?' -- brief oral explanation reinforces the inversion rule.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Display the reorder exercise. Explain: 'The words are scrambled. Put them in the right order to make a question or sentence. No word bank this time -- use what you remember.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Reorder the scrambled sentences individually.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Pairs swap and check each other's answers. Then whole-class confirm item 2 ('Is he your brother?') -- common point of confusion: 'Is' must come first.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/gap_fill-family-descriptions-fill-in-is-how-old-where-what.html",
+        "materials/reorder-build-the-question-he-and-she.html"
+      ]
+    },
+    {
+      "name": "Oral pair work: Family interview",
+      "durationMinutes": 12,
+      "purpose": "Produce questions and short answers about a family member in free oral interaction, building fk.k.sprechen.1 at produce depth.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Model the task with one pupil. Teacher is Partner B (questioner). Pupil describes a family member; teacher asks at least 2 questions using the board starters. Then swap roles briefly. Keep the question starters visible on the board throughout.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "In pairs: Partner A describes one family member (real or imaginary -- name, age, and one more fact). Partner B asks at least 2 questions. Then switch. Sentence frames stay on the board. Stronger pupils: cover the board with their hand when speaking.",
+          "durationMinutes": 8
+        },
+        {
+          "kind": "correction",
+          "text": "2-3 pairs share one exchange with the class. After each, ask: 'Was the question correct? What did they say?' Light whole-class error check -- focus on word order only.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Wrap-up",
+      "durationMinutes": 3,
+      "purpose": "Close with a learning intention check so pupils leave with a clear sense of what they can now do.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Read the 'I can...' statement on the board together: 'I can ask and answer simple questions about a family member in English.' Ask: thumbs up (yes, confident), thumbs sideways (almost), thumbs down (need more practice).",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils show their thumb. Mentally note any thumbs-down -- those pupils get priority support in the next lesson's review.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Announce homework: 'Write 3 sentences about a family member at home. Use the sheet.' Preview the task quickly -- 30 seconds.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: sentence frames stay on the board for the full oral stage; they may also refer to the gap-fill answer key during pair work. Stronger pupils: cover the board during oral production; as an extension, ask a third question not on the board (e.g. 'Does he/she have a pet?'). For pupils who showed thumbs-down in the Aug 19 wrap-up: seat them near the board and prompt with the question starters before the oral stage begins.",
+  "exercisePlan": [
+    "Band 1 gap-fill: fill in is / How old / Where / What in family descriptions and questions, full word bank provided",
+    "Band 2 reorder: reconstruct scrambled he/she questions from fragments, no word bank"
+  ]
+}

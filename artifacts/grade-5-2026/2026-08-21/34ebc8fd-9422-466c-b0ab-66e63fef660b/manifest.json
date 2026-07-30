@@ -1,0 +1,104 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-21",
+  "materials": [
+    {
+      "file": "materials/grammar_intro-asking-about-someone-else-is-she-how-old-is-he.html",
+      "type": "grammar_intro",
+      "title": "Asking about someone else: Is she...? / How old is he?",
+      "competenceIds": [
+        "fk.g.simple_present",
+        "fk.w.introduce_self",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "You already know how to say things about a family member: \"She is my sister. He is 10 years old.\" To turn a statement into a question, you swap \"he\" or \"she\" with \"is\" -- \"is\" jumps to the front. For question words like \"How old\", \"What\", or \"Where\", the question word comes first, then \"is\", then \"he\" or \"she\". Good news: German works the same way! \"Wie alt ist sie?\" and \"How old is she?\" both flip the verb forward. The verb and the person swap places in both languages.",
+        "Is she your sister?",
+        "How old is he?",
+        "Where is she from?",
+        "What is his name?"
+      ],
+      "createdAt": "2026-07-30T15:23:14.764Z"
+    },
+    {
+      "file": "materials/gap_fill-family-descriptions-fill-in-is-how-old-where-what.html",
+      "type": "gap_fill",
+      "title": "Family descriptions -- fill in is, How old, Where, What",
+      "competenceIds": [
+        "fk.g.simple_present",
+        "fk.w.introduce_self"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "She ___ my sister.",
+        "is",
+        "is",
+        "Her name ___ Lena.",
+        "is",
+        "is",
+        "___ is your brother? He is 12.",
+        "How old",
+        "How old",
+        "___ is she from? She is from Berlin.",
+        "Where",
+        "Where",
+        "This is my mother. She ___ a teacher.",
+        "is",
+        "is",
+        "___ is his name? His name is Tom.",
+        "What",
+        "What"
+      ],
+      "createdAt": "2026-07-30T15:23:28.822Z"
+    },
+    {
+      "file": "materials/reorder-build-the-question-he-and-she.html",
+      "type": "reorder",
+      "title": "Build the question -- he and she",
+      "competenceIds": [
+        "fk.g.simple_present",
+        "fk.w.introduce_self"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "How",
+        "old",
+        "is",
+        "your",
+        "sister",
+        "?",
+        "Is",
+        "he",
+        "your",
+        "brother",
+        "?",
+        "Where",
+        "is",
+        "she",
+        "from",
+        "?",
+        "What",
+        "is",
+        "his",
+        "name",
+        "?",
+        "She",
+        "is",
+        "ten",
+        "years",
+        "old",
+        "."
+      ],
+      "createdAt": "2026-07-30T15:23:33.621Z"
+    },
+    {
+      "file": "materials/homework-my-family-member.html",
+      "type": "homework",
+      "title": "My family member",
+      "competenceIds": [],
+      "depth": "practiced",
+      "createdAt": "2026-07-30T15:24:39.795Z"
+    }
+  ]
+}

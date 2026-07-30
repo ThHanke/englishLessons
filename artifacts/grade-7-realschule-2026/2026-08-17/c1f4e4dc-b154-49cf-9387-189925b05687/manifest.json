@@ -200,6 +200,60 @@
         "Talk later! See you! Bis später! Tschüss!"
       ],
       "createdAt": "2026-07-30T09:13:31.621Z"
+    },
+    {
+      "file": "materials/mcq-back-at-school-listening-comprehension.html",
+      "type": "mcq",
+      "title": "Back at School — Listening Comprehension",
+      "competenceIds": [
+        "fk.k.hoer.1"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Who cleans the room every morning?",
+        "The form teacher",
+        "The school caretaker",
+        "Emma",
+        "Ben",
+        "What does the form teacher explain?",
+        "The school rules",
+        "The new books",
+        "The timetables",
+        "The homework",
+        "How does Emma greet her friend?",
+        "Good morning!",
+        "Long time no see!",
+        "See you!",
+        "Tell me more!"
+      ],
+      "createdAt": "2026-07-30T15:28:45.056Z"
+    },
+    {
+      "file": "materials/mcq-back-at-school-reading-comprehension.html",
+      "type": "mcq",
+      "title": "Back at School — Reading Comprehension",
+      "competenceIds": [
+        "fk.k.lesen.1"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Where does Emma go on the first day back?",
+        "The library",
+        "The school canteen",
+        "The classroom",
+        "The music room",
+        "Who receives new books?",
+        "The caretaker",
+        "The form teacher",
+        "Every student",
+        "Emma only",
+        "What is Ben's response to 'How are you doing?'",
+        "Long time no see!",
+        "Tell me more!",
+        "Great, thanks!",
+        "Anyway, I have to go."
+      ],
+      "createdAt": "2026-07-30T15:28:48.421Z"
     }
   ]
 }

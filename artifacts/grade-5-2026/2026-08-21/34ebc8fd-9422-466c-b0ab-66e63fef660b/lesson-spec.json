@@ -1,0 +1,70 @@
+{
+  "class": "grade-5-2026",
+  "date": "2026-08-21",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Me, my family and friends",
+    "week_in_module": 1,
+    "of": 12
+  },
+  "phase": "new_input",
+  "pace_factor": 0.9,
+  "pace_reason": "2 lessons behind. Folding Aug 19 family description practice into new input (question inversion with he/she). Compact format recovers partial ground without skipping coverage.",
+  "focus_competences": [
+    {
+      "id": "fk.g.simple_present",
+      "topic": "Simple present of be -- question inversion with he/she: How old is she? What is his name? Is he your brother?",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.w.introduce_self",
+      "topic": "Describe and ask about family members by name, age, and origin using he/she",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.sprechen.1",
+      "topic": "Oral pair production: interview a partner about a family member using he/she questions and answers",
+      "mode": [
+        "produce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.personal.family_friends",
+    "text": "Family members -- name, age, origin; asking and answering about a third person"
+  },
+  "text_types": [
+    "dialogue",
+    "personal description"
+  ],
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 51,
+    "assesses": [
+      "fk.g.simple_present",
+      "fk.w.introduce_self"
+    ]
+  },
+  "prior_covered": [
+    "fk.g.sentence_forms",
+    "fk.g.simple_present",
+    "fk.g.numbers",
+    "fk.w.introduce_self",
+    "fk.w.personal_questions",
+    "fk.k.hoer.1",
+    "fk.k.sprechen.1"
+  ],
+  "cefr_target": "A1",
+  "known_vocab_ref": "grade-5-2026@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill",
+    "reorder"
+  ],
+  "curriculum_ref": "sa-sek-en-2019.5-6"
+}

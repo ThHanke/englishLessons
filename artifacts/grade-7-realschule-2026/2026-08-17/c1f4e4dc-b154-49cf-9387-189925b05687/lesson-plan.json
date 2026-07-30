@@ -2,70 +2,176 @@
   "class": "grade-7-realschule-2026",
   "date": "2026-08-17",
   "objectives": [
-    "Identify passive voice verb phrases in a short text [fk.g.passive]",
-    "Form simple passive sentences using be + past participle [fk.g.passive]",
-    "Understand a short spoken and written text containing passive structures [fk.k.hoer.1, fk.k.lesen.1]",
-    "Open, continue, and close a short conversation using at least 3 target phrases [fk.w.open_continue_close_conversations, fk.k.sprechen.1]"
+    "Answer specific comprehension questions after listening to a short text [fk.k.hoer.1]",
+    "Read a short text and answer comprehension questions [fk.k.lesen.1]",
+    "Identify and produce passive voice sentences using be + past participle [fk.g.passive]",
+    "Open, continue, and close a conversation using at least 3 target phrases [fk.w.open_continue_close_conversations, fk.k.sprechen.1]"
   ],
   "stages": [
     {
       "name": "Opening: Retrieval + Bridge + I can",
       "durationMinutes": 8,
-      "purpose": "Activate pupils' knowledge of normal English word order and past participle forms, then bridge to today's passive-voice target.",
+      "purpose": "Activate prior knowledge of word order and past participle forms, then bridge to passive voice as today's target.",
       "procedure": [
-        { "kind": "teacher_intro", "text": "Quick fire: 4 oral recognition items — a subject-verb-object sentence, past participle forms (cleaned/explained/given), a greeting phrase, a farewell phrase.", "durationMinutes": 2 },
-        { "kind": "pupil_work", "text": "Think-write: students write 2 active sentences about school.", "durationMinutes": 2 },
-        { "kind": "correction", "text": "Check: partner swap.", "durationMinutes": 1 },
-        { "kind": "teacher_intro", "text": "Bridge: teacher connects normal word order to passive — 'Today we flip it: the thing that receives the action comes first.'", "durationMinutes": 2 },
-        { "kind": "teacher_intro", "text": "I can on board: I can identify passive sentences. I can change an active sentence to a passive one. I can open and close a conversation with 3 phrases.", "durationMinutes": 1 }
+        {
+          "kind": "teacher_intro",
+          "text": "Quick fire (oral, whole class): give a subject-verb-object sentence about school; give past participles of clean, explain, give; give a greeting phrase; give a farewell phrase.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Think-write: write 2 active sentences about what happens in school.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Partner swap, compare sentences.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge: 'You wrote sentences like The teacher explains the lesson. Today we flip it — the thing that receives the action comes first: The lesson is explained.'",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Write I-can statements on board: I can answer questions about a text I hear. I can read a text and find passive sentences. I can change an active sentence to passive. I can open and close a conversation with 3 phrases.",
+          "durationMinutes": 1
+        }
       ],
       "materialRefs": []
     },
     {
-      "name": "Input: Back at School text",
-      "durationMinutes": 12,
-      "purpose": "Give pupils a passive-heavy listening and reading model before they have to produce it themselves.",
+      "name": "Listen + Comprehend",
+      "durationMinutes": 8,
+      "purpose": "Push listening from passive exposure to active comprehension by answering specific questions after two readings.",
       "procedure": [
-        { "kind": "teacher_intro", "text": "Pre-teach 3 new words from the glossary: caretaker, form teacher, timetable.", "durationMinutes": 2 },
-        { "kind": "teacher_intro", "text": "Teacher reads 'Back at School' text aloud while students listen with books closed [fk.k.hoer.1].", "durationMinutes": 2 },
-        { "kind": "pupil_work", "text": "Students then read the text independently and underline the passive verb phrases (is cleaned, are given, are explained) [fk.k.lesen.1].", "durationMinutes": 4 },
-        { "kind": "correction", "text": "Together: check the underlined phrases.", "durationMinutes": 1 },
-        { "kind": "teacher_intro", "text": "Show the passive-voice explanation and compare it against the underlined phrases.", "durationMinutes": 2 },
-        { "kind": "correction", "text": "Brief Q&A: what action happens? who does it?", "durationMinutes": 1 }
+        {
+          "kind": "teacher_intro",
+          "text": "Pre-teach 3 words: caretaker (Hausmeister), form teacher (Klassenlehrer), timetable (Stundenplan). Students listen, books closed.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Read 'Back at School' aloud (first time). Students listen for gist: what is the text about?",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Read 'Back at School' aloud (second time). Students answer the 3 listening MCQs while listening.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Students complete and submit listening MCQ answers.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Check answers together. Teacher highlights where each answer appears in the text.",
+          "durationMinutes": 1
+        }
       ],
       "materialRefs": [
         "materials/vocab_intro-back-at-school-words.html",
         "materials/reading_text-back-at-school.html",
-        "materials/grammar_intro-passive-voice.html"
+        "materials/mcq-back-at-school-listening-comprehension.html"
       ]
     },
     {
-      "name": "Guided practice: passive forms",
-      "durationMinutes": 12,
-      "purpose": "Move from recognition to guided production of passive forms in three escalating steps.",
+      "name": "Read + Find Passives",
+      "durationMinutes": 8,
+      "purpose": "Deepen reading comprehension and make passive structures visible by combining targeted questions with passive-spotting.",
       "procedure": [
-        { "kind": "teacher_intro", "text": "Explain the three tasks and the formula card (is/are + past participle).", "durationMinutes": 1 },
-        { "kind": "pupil_work", "text": "(1) Mark the passive verb: click every passive verb phrase in the sentences — recognition only.", "durationMinutes": 3 },
-        { "kind": "pupil_work", "text": "(2) Gap-fill: complete 6 passive sentences using the hint word — near-transfer.", "durationMinutes": 4 },
-        { "kind": "pupil_work", "text": "(3) Reorder: unscramble 4 passive sentences from shuffled fragments — guided production. Weaker pupils keep the formula card; stronger pupils must add a by-phrase. [fk.g.passive]", "durationMinutes": 3 },
-        { "kind": "correction", "text": "Check answers together.", "durationMinutes": 1 }
+        {
+          "kind": "pupil_work",
+          "text": "Students open text and read independently. Answer the 3 reading comprehension MCQs.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Check reading MCQ answers together.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Mark the passive verb phrases: click every passive phrase in the 6 sentences exercise.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Check mark-the-words answers. Point out is/are + past participle pattern in each.",
+          "durationMinutes": 1
+        }
       ],
       "materialRefs": [
-        "materials/mark_the_words-spot-the-passive-click-the-verb-phrase.html",
+        "materials/reading_text-back-at-school.html",
+        "materials/mcq-back-at-school-reading-comprehension.html",
+        "materials/mark_the_words-spot-the-passive-click-the-verb-phrase.html"
+      ]
+    },
+    {
+      "name": "Passive Production",
+      "durationMinutes": 10,
+      "purpose": "Move from recognition to production of passive forms using the grammar rule as a reference.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Show grammar explanation: passive = is/are + past participle. Run through the 3 before/after examples.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Gap-fill: complete 6 passive sentences using the hint word. Choose is or are yourself.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Reorder: unscramble 4 passive sentences from shuffled fragments. Stronger pupils add a by-phrase.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "correction",
+          "text": "Check gap-fill and reorder answers together.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-passive-voice.html",
         "materials/gap_fill-complete-the-passive-sentence.html",
         "materials/reorder-build-the-passive-sentence.html"
       ]
     },
     {
-      "name": "Conversation phrases + speaking",
-      "durationMinutes": 10,
-      "purpose": "Pre-teach and then practice functional phrases for opening, continuing, and closing a conversation.",
+      "name": "Conversation Phrases + Speaking",
+      "durationMinutes": 8,
+      "purpose": "Pre-teach and produce functional phrases for opening, continuing, and closing a conversation.",
       "procedure": [
-        { "kind": "teacher_intro", "text": "Pre-teach 8 phrases in 3 groups using the glossary (3 open, 3 continue, 2 close).", "durationMinutes": 2 },
-        { "kind": "pupil_work", "text": "Students copy the phrases into their notebook.", "durationMinutes": 1 },
-        { "kind": "pupil_work", "text": "Pairs match each phrase to its function (open/continue/close) using the matching exercise.", "durationMinutes": 2 },
-        { "kind": "pupil_work", "text": "Pairs practice a scripted 6-line dialogue using one phrase from each group. Rotate partners once. [fk.w.open_continue_close_conversations, fk.k.sprechen.1]", "durationMinutes": 4 },
-        { "kind": "correction", "text": "Two pairs perform their dialogue for the class.", "durationMinutes": 1 }
+        {
+          "kind": "teacher_intro",
+          "text": "Pre-teach 8 phrases in 3 groups using the glossary: 3 open, 3 continue, 2 close. Students copy into notebook.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Match each phrase to its function (open/continue/close) using the matching exercise.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Check matching answers.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pairs practise a 6-line dialogue using one phrase from each group. Rotate partners once.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Two pairs perform their dialogue for the class.",
+          "durationMinutes": 1
+        }
       ],
       "materialRefs": [
         "materials/vocab_intro-conversation-phrases-pre-teach.html",
@@ -76,20 +182,30 @@
     {
       "name": "Wrap-up",
       "durationMinutes": 3,
-      "purpose": "Quick formative check against today's I-can statements before dismissing.",
+      "purpose": "Formative check against I-can statements before dismissing.",
       "procedure": [
-        { "kind": "correction", "text": "Return to the I-can statements — thumbs up/sideways/down per statement.", "durationMinutes": 2 },
-        { "kind": "teacher_intro", "text": "Teacher notes any thumbs-down on passive production. Preview: exercises and flashcards posted as homework practice.", "durationMinutes": 1 }
+        {
+          "kind": "correction",
+          "text": "Return to I-can statements — thumbs up/sideways/down per statement.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Note thumbs-down on passive production. Assign flashcards + homework for next lesson.",
+          "durationMinutes": 1
+        }
       ],
       "materialRefs": []
     }
   ],
-  "differentiationNotes": "Weaker: formula card (is/are + past participle), word bank visible throughout practice, scripted dialogue card for speaking phase. Stronger: no word bank for transformation task, must include by + agent phrase, can improvise dialogue beyond script.",
+  "differentiationNotes": "Weaker: formula card (is/are + past participle) visible throughout passive stages; scripted dialogue card for speaking. Stronger: no formula card for reorder, must add by-phrase; improvise dialogue beyond script.",
   "exercisePlan": [
+    "mcq — 3 listening comprehension questions on Back at School text [fk.k.hoer.1]",
+    "mcq — 3 reading comprehension questions on Back at School text [fk.k.lesen.1]",
     "mark_the_words — click every passive verb phrase in 6 sentences [fk.g.passive]",
-    "gap_fill — complete 6 passive sentences with correct be + past participle form, hint word provided [fk.g.passive]",
+    "gap_fill — complete 6 passive sentences with correct be + past participle form [fk.g.passive]",
     "reorder — unscramble 4 passive sentences from shuffled fragments [fk.g.passive]",
-    "matching — match 8 conversation phrases to their function (open/continue/close) [fk.w.open_continue_close_conversations]",
+    "matching — match 8 conversation phrases to their function [fk.w.open_continue_close_conversations]",
     "flashcards — 8 conversation phrase flashcards for self-study [fk.w.open_continue_close_conversations]"
   ]
 }
