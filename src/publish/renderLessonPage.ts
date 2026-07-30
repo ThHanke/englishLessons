@@ -67,7 +67,7 @@ export const STAGE_CARD_CSS = `
   .step-correction .step-kind { border-color: #d8b060; color: #8a6416; }
   .timer { display: block; margin: 0.3rem 0 0 0; }
   button.timer-start { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid #888; border-radius: 0.3rem; background: #fff; cursor: pointer; font-size: 0.85em; padding: 0.2rem 0.5rem; }
-  .timer-display { display: inline-block; font-variant-numeric: tabular-nums; font-size: 1.1em; font-weight: 600; border: 1px solid #888; border-radius: 0.3rem; padding: 0.1rem 0.5rem; }
+  .timer-display { display: inline-flex; align-items: center; gap: 0.3rem; font-variant-numeric: tabular-nums; font-size: 1.1em; font-weight: 600; border: 1px solid #888; border-radius: 0.3rem; padding: 0.1rem 0.5rem; }
   .timer-display.timer-done { color: #a4262c; border-color: #a4262c; background: #fdecea; }
 `;
 
@@ -88,19 +88,20 @@ export const STAGE_TIMER_JS = `
     if (!btn) return;
     var wrapper = btn.closest('.timer');
     var display = wrapper.querySelector('.timer-display');
+    var clock = display.querySelector('.timer-clock');
     var remaining = parseInt(wrapper.getAttribute('data-minutes'), 10) * 60;
     btn.hidden = true;
     display.hidden = false;
-    display.textContent = formatTime(remaining);
+    clock.textContent = formatTime(remaining);
     var interval = setInterval(function () {
       remaining -= 1;
       if (remaining <= 0) {
-        display.textContent = '0:00';
+        clock.textContent = '0:00';
         display.classList.add('timer-done');
         clearInterval(interval);
         return;
       }
-      display.textContent = formatTime(remaining);
+      clock.textContent = formatTime(remaining);
     }, 1000);
   });
 })();
@@ -151,11 +152,15 @@ const TIMER_ICON_SVG =
 
 function renderProcedureStep(step: LessonPlanStep): string {
   const kindLabel = STEP_KIND_LABEL[step.kind];
+  // The clock icon only exists inside .timer-display, which stays `hidden` until the button is
+  // clicked -- it should "spawn" once the timer actually starts, not sit on the Start button
+  // before anything is running. JS (STAGE_TIMER_JS) writes the countdown into .timer-clock,
+  // leaving the icon markup around it untouched.
   const timerHtml =
     step.kind === "pupil_work" && step.durationMinutes
       ? `<span class="timer" data-minutes="${step.durationMinutes}">
-<button type="button" class="timer-start">${TIMER_ICON_SVG} Start ${step.durationMinutes} min timer</button>
-<span class="timer-display" hidden></span>
+<button type="button" class="timer-start">Start ${step.durationMinutes} min timer</button>
+<span class="timer-display" hidden>${TIMER_ICON_SVG}<span class="timer-clock"></span></span>
 </span>`
       : "";
   return `<li class="step step-${step.kind}">

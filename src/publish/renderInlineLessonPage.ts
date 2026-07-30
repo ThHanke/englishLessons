@@ -149,11 +149,20 @@ export function renderInlineLessonPage(params: {
 
   const isLessonPlanTimeline = variant === "lesson-plan" && !!plan;
 
-  const planHtml = plan
+  // Homework/test pages are always called with plan: null (routes/artifacts.ts, buildSite.ts) --
+  // they're a different document, not a shorter lesson page, so no "Lesson plan" section (not
+  // even a "no plan saved" placeholder) belongs on them at all.
+  const lessonPlanSectionHtml =
+    variant !== "lesson-plan"
+      ? ""
+      : `<h2>Lesson plan</h2>
+${
+  plan
     ? isLessonPlanTimeline
       ? renderLessonPlanTimeline(plan, materials, manifest)
       : renderPlanBody(plan)
-    : `<p class="no-plan">No detailed lesson plan saved for this date yet.</p>`;
+    : `<p class="no-plan">No detailed lesson plan saved for this date yet.</p>`
+}`;
 
   // The lesson-plan timeline already embeds every material inline under its stage -- a second
   // flat listing below would just duplicate every iframe. Homework/test keep the flat list.
@@ -196,8 +205,7 @@ ${dueDateHtml}
 <ul>
 ${competencesHtml}
 </ul>
-<h2>Lesson plan</h2>
-${planHtml}
+${lessonPlanSectionHtml}
 ${materialsSectionHtml}
 <script>${STAGE_TIMER_JS}</script>
 </body>
