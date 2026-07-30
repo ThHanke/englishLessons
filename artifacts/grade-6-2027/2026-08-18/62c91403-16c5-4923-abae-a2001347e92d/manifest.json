@@ -1,0 +1,45 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-18",
+  "materials": [
+    {
+      "file": "materials/reading_text-a-day-in-ben-s-life.html",
+      "type": "reading_text",
+      "title": "A Day in Ben's Life",
+      "competenceIds": [
+        "fk.k.sprechen.3",
+        "fk.k.schreiben.2",
+        "fk.g.prepositions",
+        "fk.k.lesen.2",
+        "fk.k.hoer.3"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "Ben is twelve years old. He lives in London.\n\nOn Monday, Ben gets up at seven o'clock. In the morning, he has breakfast at home. He goes to school at half past seven.\n\nAt school, Ben has lunch at twelve o'clock. In the afternoon, he plays football with his friends.\n\nIn the evening, Ben does his homework at six o'clock. He watches TV at eight o'clock. He goes to bed at half past nine."
+      ],
+      "createdAt": "2026-07-30T21:29:01.493Z"
+    },
+    {
+      "file": "materials/grammar_intro-prepositions-for-time-at-in-on.html",
+      "type": "grammar_intro",
+      "title": "Prepositions for Time — at, in, on",
+      "competenceIds": [
+        "fk.k.sprechen.3",
+        "fk.k.schreiben.2",
+        "fk.g.prepositions",
+        "fk.k.lesen.2",
+        "fk.k.hoer.3"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "English uses three small words to say when something happens: at, in, and on. Each one goes with a different type of time expression — they are not interchangeable.\n\nUse at with clock times: at seven o'clock, at half past nine.\nUse in with parts of the day (morning, afternoon, evening) and seasons: in the morning, in winter.\nUse on with days of the week: on Monday, on Friday.\n\nWatch out: German am looks like \"at the\" in English, but the English rule for parts of the day is in, not at. So am Morgen = in the morning (not \"at the morning\"). German am Montag = on Monday (not \"at Monday\"). German um 7 Uhr = at 7 o'clock.",
+        "at 7 o'clock",
+        "in the morning",
+        "on Monday",
+        "in the afternoon",
+        "at half past nine — at school — on Friday — in the evening"
+      ],
+      "createdAt": "2026-07-30T21:29:07.712Z"
+    }
+  ]
+}

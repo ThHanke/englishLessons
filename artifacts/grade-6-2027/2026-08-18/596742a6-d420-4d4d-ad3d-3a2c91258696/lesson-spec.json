@@ -1,0 +1,71 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-18",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Yesterday and daily routines",
+    "week_in_module": 1,
+    "of": 12
+  },
+  "phase": "new_input",
+  "pace_factor": 1,
+  "pace_reason": "Week 1 of module, on track",
+  "focus_competences": [
+    {
+      "id": "fk.g.simple_past",
+      "topic": "Grammar: Simple Past",
+      "mode": [
+        "introduce",
+        "practice"
+      ]
+    },
+    {
+      "id": "fk.w.express_feelings",
+      "topic": "Vocabulary: Express Feelings",
+      "mode": [
+        "introduce",
+        "practice"
+      ]
+    },
+    {
+      "id": "fk.k.sprechen.3",
+      "topic": "Speaking: 3",
+      "mode": [
+        "introduce"
+      ]
+    },
+    {
+      "id": "fk.k.schreiben.2",
+      "topic": "Writing: 2",
+      "mode": [
+        "introduce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.alltag.dienstleistung_tagesablauf",
+    "text": "Daily routines and service interactions"
+  },
+  "text_types": [
+    "description",
+    "narrative"
+  ],
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 22,
+    "assesses": [
+      "fk.g.simple_past"
+    ]
+  },
+  "prior_covered": [],
+  "cefr_target": "A1",
+  "known_vocab_ref": "grade-6-2027@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill",
+    "matching",
+    "error_correction"
+  ],
+  "curriculum_ref": "SA-Gym-6"
+}

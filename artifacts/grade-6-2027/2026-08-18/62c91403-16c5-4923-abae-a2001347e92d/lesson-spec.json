@@ -1,0 +1,78 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-18",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Yesterday and daily routines",
+    "week_in_module": 1,
+    "of": 12
+  },
+  "phase": "new_input",
+  "pace_factor": 1,
+  "pace_reason": "Week 1 of module — no pace history yet.",
+  "focus_competences": [
+    {
+      "id": "fk.k.sprechen.3",
+      "topic": "Speaking: 3 — describe daily routines",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.schreiben.2",
+      "topic": "Writing: 2 — write about daily routines",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.g.prepositions",
+      "topic": "Grammar: Prepositions (at/in/on for time)",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.lesen.2",
+      "topic": "Reading: 2 — understand a short routine text",
+      "mode": [
+        "understand"
+      ]
+    },
+    {
+      "id": "fk.k.hoer.3",
+      "topic": "Listening: 3 — follow a read-aloud text",
+      "mode": [
+        "understand"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.alltag.dienstleistung_tagesablauf",
+    "text": "Daily routines and service interactions"
+  },
+  "text_types": [
+    "short narrative",
+    "dialogue"
+  ],
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 47,
+    "assesses": [
+      "fk.g.simple_past"
+    ]
+  },
+  "prior_covered": [
+    "fk.k.sprechen.3",
+    "fk.k.schreiben.2"
+  ],
+  "cefr_target": "A2",
+  "known_vocab_ref": "grade-6-2027@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill",
+    "matching"
+  ],
+  "curriculum_ref": "sa-sek-en-2019.5-6"
+}

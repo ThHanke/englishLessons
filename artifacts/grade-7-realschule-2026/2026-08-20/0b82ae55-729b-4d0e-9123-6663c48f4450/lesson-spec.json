@@ -1,0 +1,61 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-20",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Back in school — who does what",
+    "week_in_module": 1,
+    "of": 9
+  },
+  "phase": "new_input",
+  "pace_factor": 0.85,
+  "pace_reason": "1 lesson behind planned calendar position; compensating by tightening opening and grammar input stages",
+  "focus_competences": [
+    {
+      "id": "fk.g.passive",
+      "topic": "Passive voice — be + past participle",
+      "mode": [
+        "understand",
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.sprechen.1",
+      "topic": "Speaking: describe actions using passive voice in school/media context",
+      "mode": [
+        "produce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.social.freizeit_medien",
+    "text": "Media and leisure — who makes, produces, and broadcasts content"
+  },
+  "text_types": [
+    "descriptive sentence",
+    "short text about school and media routines"
+  ],
+  "milestone_context": {
+    "next": "test",
+    "in_slots": 25,
+    "assesses": [
+      "fk.g.passive"
+    ]
+  },
+  "prior_covered": [
+    "fk.g.simple_past",
+    "fk.g.present_continuous",
+    "fk.g.comparatives",
+    "fk.g.question_forms"
+  ],
+  "cefr_target": "A2",
+  "known_vocab_ref": "grade-7-realschule-2026@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill",
+    "error_correction",
+    "reorder"
+  ],
+  "curriculum_ref": "sa-sek-en-2019.7-8.rs"
+}

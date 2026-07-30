@@ -1,0 +1,151 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-18",
+  "objectives": [
+    "Use Simple Past to talk about finished past events (regular -ed verbs + was/were, went, had, did)",
+    "Name 8 feeling words and use them in Simple Past sentences",
+    "Write and say at least 2 sentences about yesterday"
+  ],
+  "stages": [
+    {
+      "name": "Opening — retrieval and bridge",
+      "durationMinutes": 9,
+      "purpose": "Activate present-tense daily routine knowledge as the foundation for today's Simple Past input.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Quick fire (oral, whole class): Ask 3 questions using present tense — 'What does Tom do every morning?', 'Which time expression fits: ___ the morning / ___ night / ___ every day?' Students answer chorally or show of hands.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Think-write: 'Write 3 sentences about your daily routine. Use: I get up / eat / go / watch / play.' Prompts on board.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "correction",
+          "text": "Partner swap — read each other's sentences aloud. One pair shares with the class.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge: 'You just used the present tense — for what you do every day. Today we go back in time. We talk about YESTERDAY — what you did, where you went, how you felt. This is the Simple Past.' Write 'YESTERDAY' on the board. Display the I can... statement: 'I can write 3 sentences about what I did yesterday and how I felt.'",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Vocabulary — Express Feelings",
+      "durationMinutes": 7,
+      "purpose": "Pre-teach 8 feeling words so pupils can use them immediately in Simple Past sentences during the grammar stage.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Show each word with a facial expression or gesture. Say the word, pupils repeat. Cover: happy, sad, tired, excited, bored, scared, angry, surprised. Use the glossary on screen — pupils can click the read-aloud button to hear each word.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Quick check: teacher says the German word, pupils call out the English. 8 words, fast pace.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Model sentence linking vocab to past: 'Yesterday I was tired because I got up at 6.' Pupils repeat.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/vocab_intro-express-feelings-8-key-words.html"
+      ]
+    },
+    {
+      "name": "Grammar input — Simple Past",
+      "durationMinutes": 10,
+      "purpose": "Introduce the Simple Past rule with explicit German contrast so pupils understand the form before practising it.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display the grammar explanation. Read the rule aloud: add -ed for regular verbs; irregular set = go/went, be/was/were, have/had, do/did. Walk through each before/after example on screen.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "German contrast — say explicitly: 'In German you say Ich habe gespielt. In English: I played — no haben needed.' Write both on board side by side. Then show negation: 'I didn't go to school' (not 'I haven't gone').",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Mini board check: teacher says a present-tense sentence, pupils write the Simple Past version on mini whiteboards or paper. 3 items: 'I play / She watches / He goes.' Reveal answers.",
+          "durationMinutes": 3
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-simple-past-regular-ed-and-key-irregular-verbs.html"
+      ]
+    },
+    {
+      "name": "Guided practice",
+      "durationMinutes": 12,
+      "purpose": "Move from supported recognition to guided recall of Simple Past forms, progressing through two difficulty bands.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Hand out (or display) Exercise 1. Read the first item together as a model — show how to use the word bank and the base-form hint in brackets.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Exercise 1 (Band 1 — gap-fill with word bank): complete 5 sentences about yesterday using feelings vocab and Simple Past. Word bank and German instruction provided.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Correct Exercise 1 together — teacher reads each answer, pupils self-mark. Address the 'bored vs boring' distinction from item 5.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Exercise 2 (Band 2 — gap-fill without word bank): 4 sentences, choose the correct Simple Past form from memory. Irregular verb list stays on board as support.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Quick pair check — pupils compare answers. Teacher reveals on board.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Production and wrap-up",
+      "durationMinutes": 7,
+      "purpose": "Give pupils first independent production of Simple Past + feelings in a low-stakes speaking and writing task.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display sentence frames. Explain the task: 'Write 2 sentences about yesterday using the frames. Use the Simple Past and at least one feeling word.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils write 2 sentences individually. A1 frames: 'Yesterday I ___ and I was ___.' / 'In the morning I ___. In the afternoon I ___.' A2 extension: 'Yesterday I was ___ because I ___.'",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "3-4 pupils share orally. Teacher writes one pupil sentence on board, class checks: correct past form? Correct feeling word? Then revisit the I can... statement — thumbs up if achieved.",
+          "durationMinutes": 3
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: keep full word bank visible during Exercise 2; allow German translation of feeling words during production; accept A1 sentence frame only. Stronger pupils: Exercise 2 without board support (cover irregular verb list); A2 extension frame; add a third sentence using 'because'. All pupils: mini whiteboard check in grammar stage gives instant low-stakes feedback before written practice.",
+  "exercisePlan": [
+    "Exercise 1 — gap-fill with word bank (Band 1): 5 sentences, Simple Past regular + irregular verbs + feelings vocab, German instruction footnote, first item modelled",
+    "Exercise 2 — gap-fill without word bank (Band 2): 4 sentences, regular and irregular Simple Past including negation and question form",
+    "Exercise 3 — error correction (Band 3): 4 sentences with German-transfer errors (Perfekt instead of Simple Past, wrong tense, bored/boring confusion, negation error)"
+  ]
+}

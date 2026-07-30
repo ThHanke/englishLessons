@@ -1,0 +1,68 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-20",
+  "materials": [
+    {
+      "file": "materials/grammar_intro-passive-voice-be-past-participle.html",
+      "type": "grammar_intro",
+      "title": "Passive Voice — be + past participle",
+      "competenceIds": [
+        "fk.g.passive",
+        "fk.k.sprechen.1"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "In a normal sentence, the subject does the action: \"The director films the scene.\" In a passive sentence, we put the thing that receives the action first: \"The scene is filmed.\" You do not have to say who does the action.\n\nHow to form it: [thing] + is/are + the -ed/-en form of the verb. This -ed/-en form is the past participle — the same form you already know from regular verbs in the simple past: film → filmed, produce → produced, edit → edited.\n\nUse is for one thing, are for more than one thing:\n\"The show is broadcast every week.\"\n\"The scenes are edited by the director.\"\n\nIf you want to say who does the action, add by: \"The scene is filmed by the director.\"\n\nGerman note: In German you say \"Der Film wird gedreht\" — with werden. In English, use be (is/are), NOT become. Do not say: \"The film becomes filmed.\" Say: \"The film is filmed.\"",
+        "The show is produced in Berlin.",
+        "The scenes are edited by the director.",
+        "The news is broadcast every evening.",
+        "The documentary is filmed in London."
+      ],
+      "createdAt": "2026-07-30T21:13:18.735Z"
+    },
+    {
+      "file": "materials/gap_fill-passive-voice-complete-the-sentences.html",
+      "type": "gap_fill",
+      "title": "Passive Voice — complete the sentences",
+      "competenceIds": [
+        "fk.g.passive"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "The show ___ every week on TV.",
+        "is broadcast",
+        "broadcast",
+        "These magazines ___ in Hamburg.",
+        "are printed",
+        "print",
+        "The documentary ___ in a studio in London.",
+        "is filmed",
+        "film",
+        "The script ___ by a famous writer.",
+        "is written",
+        "write",
+        "The new episode ___ every Friday.",
+        "is published",
+        "publish",
+        "The songs ___ by a professional band.",
+        "are performed",
+        "perform",
+        "The film ___ into ten languages.",
+        "is translated",
+        "translate",
+        "The scenes ___ very carefully.",
+        "are edited",
+        "edit"
+      ],
+      "createdAt": "2026-07-30T21:14:02.894Z"
+    },
+    {
+      "file": "materials/homework-passive-voice-homework.md",
+      "type": "homework",
+      "title": "Passive Voice — Homework",
+      "competenceIds": [],
+      "depth": "practiced",
+      "createdAt": "2026-07-30T21:15:30.750Z"
+    }
+  ]
+}

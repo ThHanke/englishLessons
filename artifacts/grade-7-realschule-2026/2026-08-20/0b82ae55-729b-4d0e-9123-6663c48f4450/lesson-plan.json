@@ -1,0 +1,133 @@
+{
+  "class": "grade-7-realschule-2026",
+  "date": "2026-08-20",
+  "objectives": [
+    "I can identify the passive voice in spoken and written sentences.",
+    "I can form passive sentences using is/are + past participle.",
+    "I can describe what is made or done in a school or media context using the passive voice."
+  ],
+  "stages": [
+    {
+      "name": "Opening — Retrieval and Bridge",
+      "durationMinutes": 8,
+      "purpose": "Activate prior knowledge of past tense verb forms and subject-verb agreement — the building blocks pupils need to form the passive.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Quick-fire oral recall (whole class). Ask in sequence: 'Past tense of make?' (made) / 'Past tense of film?' (filmed) / 'True or false: They shows the documentary.' (False — shows must be show)."
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Think-write: 'Write the past tense of these four verbs — produce, edit, broadcast, perform.' Then: 'Turn this into a question: They film documentaries here.'",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Partner swap and check. Answers: produced / edited / broadcast / performed. Question: Do they film documentaries here?"
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge (2 min): 'You just said what people do. But sometimes we do not know — or do not care — who does the action. In German you say Der Film wird gedreht. English works the same way: The film is filmed. The thing that receives the action comes first. That is what we learn today.' Write on board: I can describe what is made or done using the passive voice (e.g. The film is made in a studio)."
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Grammar Input — Passive Voice",
+      "durationMinutes": 12,
+      "purpose": "Introduce the passive voice rule (be + past participle) with before-and-after examples in a media and school context.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display the grammar card. Read the rule aloud. Point to the form: thing + is/are + past participle. Highlight the German contrast: is/are, NOT becomes."
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Work through the four before/after examples on the grammar card together. For each: read the active sentence, then the passive. Ask: 'What moved to the front?'"
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Choral drill: pupils repeat each passive sentence after you.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Mini check: say two active sentences aloud, pupils call out the passive. 'They create the show in Berlin.' → The show is created in Berlin. / 'They release the film on Friday.' → The film is released on Friday."
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-passive-voice-be-past-participle.html"
+      ]
+    },
+    {
+      "name": "Guided Practice — Gap-fill",
+      "durationMinutes": 10,
+      "purpose": "Consolidate passive form through supported written practice using media vocabulary.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Hand out or display the gap-fill exercise. Explain: each blank needs the passive form of the verb shown in brackets. Remind: is for one thing, are for more than one."
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils complete all 8 sentences individually.",
+          "durationMinutes": 7
+        },
+        {
+          "kind": "correction",
+          "text": "Go through answers together. Write correct forms on the board. Pause on any sentence where more than two pupils had errors and repeat the rule."
+        }
+      ],
+      "materialRefs": [
+        "materials/gap_fill-passive-voice-complete-the-sentences.html"
+      ]
+    },
+    {
+      "name": "Production — School sentences",
+      "durationMinutes": 10,
+      "purpose": "Move from controlled practice to free production in a familiar context, using passive voice to describe real school routines.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Write sentence frame on board: In our school, ___ is/are ___ (past participle) every day/week/year. Example: The classroom is cleaned every day. / Homework is given every week."
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils write 4 passive sentences about their own school. They may use any topic: lessons, rooms, equipment, events.",
+          "durationMinutes": 6
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Partner check: partner reads each sentence and checks — is/are correct? Past participle correct? Mark any errors.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "2 or 3 pupils share one sentence with the class. Correct together if needed."
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Wrap-up — Exit ticket",
+      "durationMinutes": 5,
+      "purpose": "Collect quick written evidence of each pupil's passive voice production to inform the next lesson.",
+      "procedure": [
+        {
+          "kind": "pupil_work",
+          "text": "Exit ticket: pupils write 2 passive sentences on a slip of paper — topic is free (school, home, TV, sport). Collect before they leave.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Preview: 'Next lesson we practice passive with more vocabulary and look at how to add by to say who does the action.'"
+        }
+      ],
+      "materialRefs": []
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: word bank remains visible during gap-fill (produced, are printed, is filmed, is written, is published, are performed, is translated, are edited); sentence frame stays on board throughout Stage 4. Stronger pupils: Stage 4 extension task — write 2 extra sentences using by (e.g. The news is broadcast by the BBC.) and share with a different partner.",
+  "exercisePlan": [
+    "gap_fill — 8 passive voice sentences using m1 media vocabulary (broadcast, print, film, write, publish, perform, translate, edit) — saved"
+  ]
+}

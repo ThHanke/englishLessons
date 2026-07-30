@@ -1,0 +1,133 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-18",
+  "materials": [
+    {
+      "file": "materials/grammar_intro-simple-past-regular-ed-and-key-irregular-verbs.html",
+      "type": "grammar_intro",
+      "title": "Simple Past — regular -ed and key irregular verbs",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.w.express_feelings",
+        "fk.k.sprechen.3",
+        "fk.k.schreiben.2"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "To talk about finished actions in the past, we use the Simple Past. For most verbs, add -ed to the end: play → played, watch → watched, clean → cleaned. Some very common verbs are irregular — they change completely and you need to learn them: go → went, be → was / were, have → had, do → did.\n\nImportant: In German, you often say \"Ich habe gespielt\" (Perfekt) when talking about the past. In English, we say \"I played\" — no extra helping verb needed. This is the Simple Past.\n\nFor negatives, use \"did not\" (short form: didn't) + the base verb: \"I didn't go to school.\" For questions, use \"Did\" at the start: \"Did you watch TV?\" — and use the base verb, not the past form.",
+        "Yesterday I played football.",
+        "Last night she watched TV.",
+        "Yesterday he went to school.",
+        "We were happy.",
+        "I didn't go to school yesterday."
+      ],
+      "createdAt": "2026-07-30T21:22:34.375Z"
+    },
+    {
+      "file": "materials/vocab_intro-express-feelings-8-key-words.html",
+      "type": "vocab_intro",
+      "title": "Express Feelings — 8 key words",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.w.express_feelings",
+        "fk.k.sprechen.3",
+        "fk.k.schreiben.2"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "happy glücklich",
+        "sad traurig",
+        "tired müde",
+        "excited aufgeregt",
+        "bored gelangweilt",
+        "scared verängstigt",
+        "angry wütend",
+        "surprised überrascht"
+      ],
+      "createdAt": "2026-07-30T21:22:52.243Z"
+    },
+    {
+      "file": "materials/gap_fill-simple-past-gap-fill-with-word-bank.html",
+      "type": "gap_fill",
+      "title": "Simple Past — gap-fill with word bank",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.w.express_feelings"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Yesterday I ___ football in the garden. I was very ___.",
+        "played",
+        "happy",
+        "play",
+        "feeling word",
+        "Last night, Tom ___ a scary film. He was ___.",
+        "watched",
+        "scared",
+        "watch",
+        "feeling word",
+        "This morning, Lisa was very ___. She got up at 6 o'clock.",
+        "tired",
+        "feeling word",
+        "We ___ to the park after school. It was great!",
+        "went",
+        "go",
+        "I ___ a boring afternoon at home. I was very ___.",
+        "had",
+        "bored",
+        "have",
+        "feeling word (not boring)"
+      ],
+      "createdAt": "2026-07-30T21:24:12.544Z"
+    },
+    {
+      "file": "materials/gap_fill-simple-past-choose-the-correct-form.html",
+      "type": "gap_fill",
+      "title": "Simple Past — choose the correct form",
+      "competenceIds": [
+        "fk.g.simple_past"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Yesterday, I ___ to school. I was ill.",
+        "didn't go",
+        "go (negative past)",
+        "We ___ pizza for dinner last night.",
+        "ate",
+        "eat",
+        "My sister ___ very excited. She ___ a birthday party.",
+        "was",
+        "had",
+        "be",
+        "have",
+        "What time ___ you ___ yesterday?",
+        "did",
+        "get up",
+        "auxiliary verb",
+        "get up"
+      ],
+      "createdAt": "2026-07-30T21:24:16.074Z"
+    },
+    {
+      "file": "materials/error_correction-simple-past-find-and-fix-the-mistake.html",
+      "type": "error_correction",
+      "title": "Simple Past — find and fix the mistake",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.w.express_feelings"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "I have played football yesterday.",
+        "I played football yesterday.",
+        "Yesterday I go to the cinema with my friends.",
+        "Yesterday I went to the cinema with my friends.",
+        "I was very boring at home.",
+        "I was very bored at home.",
+        "She don't go to school yesterday.",
+        "She didn't go to school yesterday."
+      ],
+      "createdAt": "2026-07-30T21:24:19.459Z"
+    }
+  ]
+}
