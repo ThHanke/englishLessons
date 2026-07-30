@@ -71,3 +71,13 @@ class_schedule:
         start: 09:00
         end: 09:45
         half_year: 1
+      - id: c2b4a74a-cdce-4513-aa8e-4a34d51f4829
+        day: Mon
+        start: 10:00
+        end: 10:45
+        half_year: 1
+      - id: 0b82ae55-729b-4d0e-9123-6663c48f4450
+        day: Thu
+        start: 09:00
+        end: 09:45
+        half_year: 1
