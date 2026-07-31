@@ -1,0 +1,191 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-20",
+  "objectives": [
+    "I can understand a spoken conversation about someone's day in Simple Past.",
+    "I can describe my own yesterday to a partner using at least 3 Simple Past sentences.",
+    "I can use key irregular Simple Past forms correctly (went, had, got, ate, took, was)."
+  ],
+  "stages": [
+    {
+      "name": "Opening — retrieval and bridge",
+      "durationMinutes": 8,
+      "purpose": "Recall Simple Past forms and Mia's diary from lesson 1 before moving to new listening and speaking work.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Quick fire (whole class, oral): call out base verbs — go, eat, do, have, get, take. Pupils call back Simple Past form. Accept any correct attempt.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Mia recall (oral, 3 questions): 'What did Mia eat for breakfast?' / 'How did she get to school?' / 'What did she do after school?' Pupils answer in chorus or hands up.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Think-write: 'Write one Simple Past sentence about Mia.' Pupils write in exercise books.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Two or three pupils share. Teacher corrects any verb form errors on the board.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge (spoken): 'Last lesson you read Mia’s diary. Today you listen to a conversation between two real people, then you describe your own yesterday to a partner — no text to read from.' Write the two I-can statements on the board.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Grammar recap — Simple Past",
+      "durationMinutes": 5,
+      "purpose": "Briefly revisit the Simple Past rule and key irregular forms before pupils meet them in extended listening input.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display the grammar recap sheet. Point to the rule: regular (-ed) and the six irregular forms. Address any verb error noted in Stage 1.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Highlight the German contrast: 'In German: Ich habe gegessen — two words. In English: I ate — one word, no have.' Read two sentences from the dialogue they are about to hear.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils write the six irregular forms in their vocab column: went, had, did, ate, saw, was/were. 30 seconds.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-simple-past-finished-actions-recap.html"
+      ]
+    },
+    {
+      "name": "Listening — Tom and Lisa’s Tuesday",
+      "durationMinutes": 12,
+      "purpose": "Build understanding of spoken Simple Past in context using two structured listen runs and a comprehension grid.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Set the scene: 'Two friends, Tom and Lisa, talk about their Tuesday. Draw a quick grid: four rows (Morning / Lunchtime / After school / Evening), two columns (Tom / Lisa).'",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Listen run 1 (gist): teacher reads the dialogue at natural pace. Pupils listen only. After: ask 'Who had a busier afternoon — Tom or Lisa?'",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils write their gist answer (one word) in their book.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Listen run 2 (detail): teacher reads again, more slowly, pausing at each new time section. Pupils fill the grid with short notes.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils complete the grid. Short notes only — not full sentences.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Partner compare grids. Class reveal: teacher reads answers aloud (Morning: Tom got up late, had milk, took bus / Lisa woke 6:30, had toast + banana, walked. Lunchtime: Tom went home, had soup / Lisa had sandwich in canteen. After school: Tom did homework, watched TV / Lisa went to football. Evening: Tom bed 9:30, tired / Lisa read, bed 9). Pupils self-correct in different colour.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/reading_text-tom-and-lisa-s-tuesday-a-conversation.html"
+      ]
+    },
+    {
+      "name": "Speaking — pair dialogue, frame-fade",
+      "durationMinutes": 12,
+      "purpose": "Move from receptive understanding to genuine oral production of Simple Past using sentence frames faded after the first round.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Write frames on board: 'What did you do yesterday?' / 'I woke up at...' / 'Then I...' / 'After that I...' / 'Finally I...' / 'In the evening I...'. Model one full exchange with a volunteer.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Round 1 (frames visible): Partner A asks 'What did you do yesterday?' Partner B answers using at least 3 frames. Then swap. Both partners speak.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Erase all frames from the board. 'Now try without the frames — you remember the structure.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Round 2 (no frames): same dialogue, new partner if possible. Teacher circulates and notes the top 2 errors.",
+          "durationMinutes": 4
+        },
+        {
+          "kind": "correction",
+          "text": "Write the top 2 errors on board as full sentences. Class identifies and fixes them together.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Wrap-up — self-assess and exit ticket",
+      "durationMinutes": 8,
+      "purpose": "Return to learning intentions for self-assessment and collect a brief written sample as a formative check.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Point to I-can statements on board. Pupils rate: thumbs up (confident), sideways (mostly), down (need more). Note rough split.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Exit ticket: 'Write 2 Simple Past sentences about YOUR yesterday. You have 3 minutes.'",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils hand in books open at exit ticket, or teacher photographs pages. Not graded — formative only.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Homework: 'Write 5 sentences about your yesterday — see the homework sheet.' Hand out or direct to class page.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Preview: 'Next lesson: Simple Past word order with time expressions and more speaking practice.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Early finishers: MCQ comprehension or gap-fill on the class page.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/mcq-tom-and-lisa-reading-comprehension.html",
+        "materials/gap_fill-tom-and-lisa-simple-past-gap-fill.html",
+        "materials/homework-my-yesterday-diary-entry.md"
+      ]
+    }
+  ],
+  "differentiationNotes": "Weaker pupils: keep board frames visible during Round 2 of speaking; allow 1 sentence for exit ticket; use MCQ (not gap-fill) as early-finisher task. Stronger pupils: in Round 2, partner asks follow-up questions (Why? / Who with? / How long?); exit ticket requires 3 sentences with at least one time expression; attempt error-correction worksheet.",
+  "exercisePlan": [
+    "mcq: 4 comprehension questions on Tom and Lisa dialogue [fk.k.lesen.2, fk.k.hoer.3] — already saved",
+    "gap_fill: 6 sentences from Tom and Lisa dialogue, irregular Simple Past verbs blanked, full word bank [fk.g.simple_past, fk.k.hoer.3] — already saved",
+    "error_correction: 4 Simple Past transfer errors, no error-type hints at A2 [fk.g.simple_past, fk.k.schreiben.2] — already saved",
+    "homework: My Yesterday diary entry — 5 sentences Simple Past [fk.k.schreiben.2] — already saved"
+  ]
+}

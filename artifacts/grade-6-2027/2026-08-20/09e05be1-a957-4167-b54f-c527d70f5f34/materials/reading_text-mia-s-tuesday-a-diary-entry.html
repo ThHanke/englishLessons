@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mia's Tuesday — a diary entry</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; line-height: 1.5; }
+  .controls { margin-bottom: 1rem; }
+  button.speak { border: 1px solid #888; border-radius: 0.3rem; background: #fff; cursor: pointer; font-size: 1rem; padding: 0.3rem 0.7rem; }
+  button.speak:disabled { opacity: 0.4; cursor: not-allowed; }
+  .tts-notice { background: #fff3cd; border: 1px solid #e0c36a; border-radius: 0.3rem; padding: 0.5rem 0.7rem; }
+</style>
+</head>
+<body>
+<h1>Mia's Tuesday — a diary entry</h1>
+<div class="controls">
+  <button type="button" class="speak" id="speak-btn" aria-label="Read text aloud">&#128266; Read aloud</button>
+</div>
+<p id="tts-notice" class="tts-notice" hidden></p>
+<p>Mia's Tuesday</p>
+<p>I woke up at seven o'clock on Tuesday morning.
+I had breakfast with my family. We ate toast and drank orange juice.</p>
+<p>Then I caught the bus to school. I arrived at half past eight.
+At school, I had lunch with my friends. We ate sandwiches.</p>
+<p>After school, I came home and did my homework.
+In the evening, my family had dinner together. We ate pasta.
+Later, I went to bed at nine o'clock.</p>
+<script>
+(function () {
+  var supported = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  var btn = document.getElementById('speak-btn');
+  var notice = document.getElementById('tts-notice');
+  var fullText = "Mia's Tuesday I woke up at seven o'clock on Tuesday morning.\nI had breakfast with my family. We ate toast and drank orange juice. Then I caught the bus to school. I arrived at half past eight.\nAt school, I had lunch with my friends. We ate sandwiches. After school, I came home and did my homework.\nIn the evening, my family had dinner together. We ate pasta.\nLater, I went to bed at nine o'clock.";
+
+  function showNotice(message) {
+    if (!notice) return;
+    notice.textContent = message;
+    notice.hidden = false;
+  }
+
+  if (!supported) {
+    btn.disabled = true;
+    btn.title = 'Read-aloud not supported in this browser';
+    showNotice('Read-aloud is not supported in this browser.');
+    return;
+  }
+
+  btn.addEventListener('click', function () {
+    if (window.speechSynthesis.getVoices().length === 0) {
+      showNotice(
+        'No text-to-speech voices are installed on this system. On Linux, install a system ' +
+          'TTS engine such as espeak-ng or speech-dispatcher, then reload this page.'
+      );
+      return;
+    }
+    var utterance = new SpeechSynthesisUtterance(fullText);
+    utterance.lang = 'en-GB';
+    window.speechSynthesis.speak(utterance);
+  });
+})();
+</script>
+</body>
+</html>

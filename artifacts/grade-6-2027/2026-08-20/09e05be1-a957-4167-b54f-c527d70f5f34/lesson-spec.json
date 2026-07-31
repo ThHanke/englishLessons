@@ -1,0 +1,82 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-20",
+  "school_week": 1,
+  "module": {
+    "id": "m1",
+    "title": "Yesterday and daily routines",
+    "week_in_module": 1,
+    "of": 12
+  },
+  "phase": "new_input",
+  "pace_factor": 0.8,
+  "pace_reason": "2 lessons behind planned calendar position",
+  "focus_competences": [
+    {
+      "id": "fk.g.simple_past",
+      "topic": "Grammar: Simple Past",
+      "mode": [
+        "introduce",
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.hoer.3",
+      "topic": "Listening: 3",
+      "mode": [
+        "understand"
+      ]
+    },
+    {
+      "id": "fk.k.lesen.2",
+      "topic": "Reading: 2",
+      "mode": [
+        "understand"
+      ]
+    },
+    {
+      "id": "fk.k.sprechen.3",
+      "topic": "Speaking: 3",
+      "mode": [
+        "produce"
+      ]
+    },
+    {
+      "id": "fk.k.schreiben.2",
+      "topic": "Writing: 2",
+      "mode": [
+        "produce"
+      ]
+    }
+  ],
+  "content_field": {
+    "id": "c.alltag.dienstleistung_tagesablauf",
+    "text": "Daily routines and service interactions"
+  },
+  "text_types": [
+    "diary entry",
+    "short description"
+  ],
+  "milestone_context": {
+    "next": "End of Module 1 test — Simple Past",
+    "in_slots": 44,
+    "assesses": [
+      "fk.g.simple_past"
+    ]
+  },
+  "prior_covered": [
+    "fk.k.hoer.3",
+    "fk.k.lesen.2",
+    "fk.k.sprechen.3",
+    "fk.k.schreiben.2"
+  ],
+  "cefr_target": "A2",
+  "known_vocab_ref": "grade-6-2027@m1",
+  "textbook_refs": [],
+  "suggested_exercise_types": [
+    "gap_fill",
+    "reorder",
+    "error_correction"
+  ],
+  "curriculum_ref": "sa-sek-en-2019.5-6"
+}

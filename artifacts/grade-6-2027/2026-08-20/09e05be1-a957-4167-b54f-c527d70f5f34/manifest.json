@@ -1,0 +1,135 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-20",
+  "materials": [
+    {
+      "file": "materials/reading_text-mia-s-tuesday-a-diary-entry.html",
+      "type": "reading_text",
+      "title": "Mia's Tuesday — a diary entry",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.k.hoer.3",
+        "fk.k.lesen.2",
+        "fk.k.sprechen.3",
+        "fk.k.schreiben.2"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "Mia's Tuesday\n\nI woke up at seven o'clock on Tuesday morning.\nI had breakfast with my family. We ate toast and drank orange juice.\n\nThen I caught the bus to school. I arrived at half past eight.\nAt school, I had lunch with my friends. We ate sandwiches.\n\nAfter school, I came home and did my homework.\nIn the evening, my family had dinner together. We ate pasta.\nLater, I went to bed at nine o'clock."
+      ],
+      "createdAt": "2026-07-31T10:06:50.114Z"
+    },
+    {
+      "file": "materials/grammar_intro-simple-past-talking-about-finished-actions.html",
+      "type": "grammar_intro",
+      "title": "Simple Past — talking about finished actions",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.k.hoer.3",
+        "fk.k.lesen.2",
+        "fk.k.sprechen.3",
+        "fk.k.schreiben.2"
+      ],
+      "depth": "introduced",
+      "contentText": [
+        "Use Simple Past for finished actions in the past — things that happened and are done.\n\nRegular verbs: add -ed to base form. walk → walked, arrive → arrived, watch → watched.\n\nIrregular verbs change completely. Learn these six: go → went, have → had, do → did, eat → ate, see → saw, be → was (I/he/she/it) or were (we/you/they).\n\nImportant for German speakers: German says \"Ich habe gegessen\" (two words) for past stories. English says \"I ate\" — one word, no \"have\". This is the biggest difference.\n\nWord order: after time words like \"yesterday\" or \"then\", subject still comes before verb. \"Yesterday I went to school.\" Not \"Yesterday went I to school.\"",
+        "Yesterday I walked to school.",
+        "She ate breakfast at seven o'clock.",
+        "Last week, we went to the cinema.",
+        "I ate. (English Simple Past — one word, no have)"
+      ],
+      "createdAt": "2026-07-31T10:06:56.846Z"
+    },
+    {
+      "file": "materials/gap_fill-simple-past-daily-routines.html",
+      "type": "gap_fill",
+      "title": "Simple Past — Daily Routines",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.k.lesen.2"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Mia ___ up at seven o'clock.",
+        "woke",
+        "wake",
+        "She ___ breakfast with her family.",
+        "had",
+        "have",
+        "They ___ toast for breakfast.",
+        "ate",
+        "eat",
+        "Mia ___ the bus to school.",
+        "caught",
+        "catch",
+        "She ___ home after school.",
+        "came",
+        "come",
+        "In the evening, she ___ to bed at nine o'clock.",
+        "went",
+        "go"
+      ],
+      "createdAt": "2026-07-31T10:07:15.476Z"
+    },
+    {
+      "file": "materials/reorder-put-the-sentences-in-order-simple-past.html",
+      "type": "reorder",
+      "title": "Put the sentences in order — Simple Past",
+      "competenceIds": [
+        "fk.g.simple_past",
+        "fk.k.schreiben.2"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Yesterday,",
+        "I",
+        "woke",
+        "up",
+        "late.",
+        "After",
+        "breakfast,",
+        "she",
+        "caught",
+        "the",
+        "bus.",
+        "Then",
+        "we",
+        "did",
+        "our",
+        "homework.",
+        "In",
+        "the",
+        "evening,",
+        "he",
+        "watched",
+        "TV.",
+        "Finally,",
+        "they",
+        "went",
+        "to",
+        "bed."
+      ],
+      "createdAt": "2026-07-31T10:07:20.009Z"
+    },
+    {
+      "file": "materials/error_correction-spot-the-mistake-simple-past.html",
+      "type": "error_correction",
+      "title": "Spot the mistake — Simple Past",
+      "competenceIds": [
+        "fk.g.simple_past"
+      ],
+      "depth": "practiced",
+      "contentText": [
+        "Yesterday I have eaten breakfast at seven o'clock.",
+        "Yesterday I ate breakfast at seven o'clock.",
+        "Then went she to school by bus.",
+        "Then she went to school by bus.",
+        "Last week we have gone to the cinema.",
+        "Last week we went to the cinema.",
+        "She catched the bus at eight o'clock.",
+        "She caught the bus at eight o'clock."
+      ],
+      "createdAt": "2026-07-31T10:07:21.721Z"
+    }
+  ]
+}

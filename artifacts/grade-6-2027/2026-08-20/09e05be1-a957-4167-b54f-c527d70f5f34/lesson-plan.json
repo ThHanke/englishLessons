@@ -1,0 +1,185 @@
+{
+  "class": "grade-6-2027",
+  "date": "2026-08-20",
+  "objectives": [
+    "I can understand a short diary entry by reading and listening.",
+    "I can ask and answer questions about what someone did yesterday.",
+    "I can write 4 sentences about my own yesterday using the Simple Past."
+  ],
+  "stages": [
+    {
+      "name": "Opening — retrieval and bridge",
+      "durationMinutes": 8,
+      "purpose": "Activate prior knowledge of past forms and give pupils a clear picture of what the lesson will ask them to do.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Quick fire (whole class, oral): call out base verbs one at a time — go, have, do, eat. Pupils call back the Simple Past form. Accept any correct attempt.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Think-write: 'Write 2 things you did last weekend. Use English.' Pupils write independently in exercise books.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "correction",
+          "text": "Partner swap: pupils check each other's verb forms. Teacher circulates, notes the most common error for Stage 2.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Bridge (spoken): 'You already know some past forms. Today we put them to work — you will listen, read, speak, and write about a full day in the past.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Write the three 'I can...' objectives on the board. Read aloud, pupils read back quietly.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": []
+    },
+    {
+      "name": "Grammar input — Simple Past",
+      "durationMinutes": 7,
+      "purpose": "Introduce the Simple Past rule for regular and key irregular verbs, with explicit contrast against German Perfekt to head off the most common transfer error.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display the grammar explanation. Read through with class: regular rule (-ed), then six irregular forms (go/went, have/had, do/did, eat/ate, see/saw, be/was-were).",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Point to the German Perfekt contrast: 'In German: Ich habe gegessen — two words. In English: I ate — one word, no have.' Model two sentences from the diary: 'Mia woke up at seven.' and 'She ate toast.'",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils write one sentence of their own using any irregular form from the list.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/grammar_intro-simple-past-talking-about-finished-actions.html"
+      ]
+    },
+    {
+      "name": "Reading and listening input",
+      "durationMinutes": 10,
+      "purpose": "Give pupils a model of Simple Past in context and build understanding at the 'understand' depth for Reading 2 and Listening 3.",
+      "procedure": [
+        {
+          "kind": "pupil_work",
+          "text": "Pupils open the diary entry and read silently.",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Teacher reads the diary aloud at natural pace — pupils follow along (listening run).",
+          "durationMinutes": 2
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Comprehension check — ask 4 questions orally: 1. What time did Mia wake up? 2. What did she eat for breakfast? 3. How did she get to school? 4. What did Mia do after school?",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "correction",
+          "text": "Confirm answers with class. Write correct Simple Past forms on the board as they appear in answers.",
+          "durationMinutes": 3
+        }
+      ],
+      "materialRefs": [
+        "materials/reading_text-mia-s-tuesday-a-diary-entry.html"
+      ]
+    },
+    {
+      "name": "Controlled practice — gap-fill",
+      "durationMinutes": 8,
+      "purpose": "Consolidate recognition and reproduction of key irregular Simple Past forms in a supported (Band 1) format before moving to production.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Display gap-fill exercise. Read instruction aloud: 'Fill each gap with the correct Simple Past form. Use the word bank.' Do first item together as a model.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils complete items 2–6 independently.",
+          "durationMinutes": 5
+        },
+        {
+          "kind": "correction",
+          "text": "Partner check: pupils swap and mark. Teacher reveals answers. Any item more than half the class got wrong: write form on board and briefly revisit rule.",
+          "durationMinutes": 2
+        }
+      ],
+      "materialRefs": [
+        "materials/gap_fill-simple-past-daily-routines.html"
+      ]
+    },
+    {
+      "name": "Production — speaking then writing",
+      "durationMinutes": 9,
+      "purpose": "Move pupils from recognition to genuine production — first oral (Speaking 3), then written (Writing 2) — using sentence frames faded after the first round.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Write speaking frames on board: 'What did you do yesterday at...?' / 'I woke up at...' / 'Then I...' / 'After that I...' / 'Finally I...'. Model one exchange with a volunteer.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Round 1 (frames visible): Partner A asks 'What did you do yesterday?' Partner B answers using at least 3 frames. Then swap. Both partners speak.",
+          "durationMinutes": 3
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Erase all frames from board. 'Now try without the frames — you remember the structure.'",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils write 4 sentences about their own yesterday independently. Frames stay erased.",
+          "durationMinutes": 4
+        }
+      ],
+      "materialRefs": [
+        "materials/reorder-put-the-sentences-in-order-simple-past.html"
+      ]
+    },
+    {
+      "name": "Wrap-up",
+      "durationMinutes": 3,
+      "purpose": "Return to learning intentions for self-assessment and collect written sentences as a formative check.",
+      "procedure": [
+        {
+          "kind": "teacher_intro",
+          "text": "Point to 'I can...' statements. Pupils rate: thumbs up (confident), sideways (mostly), down (need more). Note rough split.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "pupil_work",
+          "text": "Pupils hand in books open at written sentences, or teacher photographs pages. Not graded — formative only.",
+          "durationMinutes": 1
+        },
+        {
+          "kind": "teacher_intro",
+          "text": "Preview: 'Next lesson — word order with time expressions and more speaking.' Early finishers: open the error-correction worksheet.",
+          "durationMinutes": 1
+        }
+      ],
+      "materialRefs": [
+        "materials/error_correction-spot-the-mistake-simple-past.html"
+      ]
+    }
+  ],
+  "differentiationNotes": "Weaker: keep speaking frames visible during writing, 3 sentences OK. Stronger: 5th sentence with conjunction (and/but/because), attempt error-correction worksheet in wrap-up.",
+  "exercisePlan": [
+    "Band 1 — gap_fill: 6 daily-routine sentences, key irregular Simple Past forms, full word bank [fk.g.simple_past, fk.k.lesen.2]",
+    "Band 2 — reorder: 5 scrambled sentences with time words (yesterday/after/then/finally), no model [fk.g.simple_past, fk.k.schreiben.2]",
+    "Band 3 — error_correction: 4 sentences with German-transfer errors (Perfekt for past story, V2 word order, regularised irregular), no error-type hints [fk.g.simple_past]"
+  ]
+}
