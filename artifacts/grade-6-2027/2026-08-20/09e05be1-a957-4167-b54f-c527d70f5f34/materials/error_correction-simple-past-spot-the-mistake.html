@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Simple Past — spot the mistake</title>
+<style>
+  body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
+  fieldset.item { border: 1px solid #ccc; border-radius: 0.4rem; margin-bottom: 1.5rem; padding: 1rem; }
+  legend { font-weight: bold; padding: 0 0.4rem; }
+  label { display: block; margin-top: 0.6rem; }
+  input[type="text"] { display: block; width: 100%; margin-top: 0.2rem; border: 1px solid #888; padding: 0.3rem 0.5rem; box-sizing: border-box; }
+  input.correct { background: #d4f7d4; border-color: #2a2; }
+  input.incorrect { background: #f7d4d4; border-color: #a22; }
+  .error-type-hint { font-weight: normal; font-style: italic; color: #666; }
+  button.check { margin-top: 0.8rem; }
+  p.result { font-weight: bold; min-height: 1.2em; }
+  p.result.correct { color: #2a2; }
+  p.result.incorrect { color: #a22; }
+  p.result.unanswered { color: #666; }
+</style>
+</head>
+<body>
+<h1>Simple Past — spot the mistake</h1>
+
+    <fieldset class="item" data-item="0">
+      <legend>Yesterday went Lisa to football practice.</legend>
+      <label>Find the mistake: what word(s) are wrong? <span class="error-type-hint">(hint: word order)</span>
+        <input type="text" data-find="0" autocomplete="off">
+      </label>
+      <label>Explain: why is this wrong?
+        <input type="text" data-explain="0" autocomplete="off">
+      </label>
+      <label>Correct: write the full corrected sentence.
+        <input type="text" data-correct="0" autocomplete="off">
+      </label>
+      <button type="button" class="check" data-item="0">Check</button>
+      <p class="result" data-result="0"></p>
+    </fieldset>
+    <fieldset class="item" data-item="1">
+      <legend>Last week I have watched a good film.</legend>
+      <label>Find the mistake: what word(s) are wrong?
+        <input type="text" data-find="1" autocomplete="off">
+      </label>
+      <label>Explain: why is this wrong?
+        <input type="text" data-explain="1" autocomplete="off">
+      </label>
+      <label>Correct: write the full corrected sentence.
+        <input type="text" data-correct="1" autocomplete="off">
+      </label>
+      <button type="button" class="check" data-item="1">Check</button>
+      <p class="result" data-result="1"></p>
+    </fieldset>
+    <fieldset class="item" data-item="2">
+      <legend>Tom goed home for lunch.</legend>
+      <label>Find the mistake: what word(s) are wrong?
+        <input type="text" data-find="2" autocomplete="off">
+      </label>
+      <label>Explain: why is this wrong?
+        <input type="text" data-explain="2" autocomplete="off">
+      </label>
+      <label>Correct: write the full corrected sentence.
+        <input type="text" data-correct="2" autocomplete="off">
+      </label>
+      <button type="button" class="check" data-item="2">Check</button>
+      <p class="result" data-result="2"></p>
+    </fieldset>
+    <fieldset class="item" data-item="3">
+      <legend>Lisa did not went to bed late.</legend>
+      <label>Find the mistake: what word(s) are wrong?
+        <input type="text" data-find="3" autocomplete="off">
+      </label>
+      <label>Explain: why is this wrong?
+        <input type="text" data-explain="3" autocomplete="off">
+      </label>
+      <label>Correct: write the full corrected sentence.
+        <input type="text" data-correct="3" autocomplete="off">
+      </label>
+      <button type="button" class="check" data-item="3">Check</button>
+      <p class="result" data-result="3"></p>
+    </fieldset>
+<script>
+(function () {
+  var corrections = ["Yesterday Lisa went to football practice.","Last week I watched a good film.","Tom went home for lunch.","Lisa did not go to bed late."];
+  function normalize(s) { return s.trim().toLowerCase().replace(/\s+/g, ' '); }
+
+  document.querySelectorAll('button.check').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var ii = Number(btn.getAttribute('data-item'));
+      var correctInput = document.querySelector('input[data-correct="' + ii + '"]');
+      var resultEl = document.querySelector('[data-result="' + ii + '"]');
+      var value = correctInput.value.trim();
+      correctInput.classList.remove('correct', 'incorrect');
+      if (value.length === 0) {
+        resultEl.textContent = 'Unanswered';
+        resultEl.className = 'result unanswered';
+        return;
+      }
+      if (normalize(value) === normalize(corrections[ii])) {
+        resultEl.textContent = 'Correct';
+        resultEl.className = 'result correct';
+        correctInput.classList.add('correct');
+      } else {
+        resultEl.textContent = 'Incorrect';
+        resultEl.className = 'result incorrect';
+        correctInput.classList.add('incorrect');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
